@@ -1,35 +1,47 @@
-import { Routes, Route, useNavigate } from "react-router-dom";
-import Login from "./pages/Login";
+// src/App.js
+import { Routes, Route, useLocation } from "react-router-dom";
+import Login from "./Auth/login";
+import Signup from "./Auth/signup";
 import Navbar from "./components/Navbar";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import { Box } from "@mui/material";
+import { useAuth } from './Auth/auth';
+import PrivateRoute from './Auth/privateRoute';
 
 
+export default function App() {
+  const { user } = useAuth();
+  const location = useLocation();
+  const hideNavbarPaths = ["/", "/signup"];
 
-function App() {
-  const navigate = useNavigate();
-
-  const handleLogin = ({ email, role }) => {
-    if (role === "teacher") {
-      navigate("/dashboard/teacher");
-    } else {
-      navigate("/dashboard/student");
-    }
-  };
+  const hideNavbar = hideNavbarPaths.includes(location.pathname);
 
   return (
     <>
-      <Navbar />
-      <Box p={3}>
+      {!hideNavbar && <Navbar />}
+      <Box p={!hideNavbar ? 3 : 0}>
         <Routes>
-          <Route path="/" element={<Login onLogin={handleLogin} />} />
-          <Route path="/dashboard/teacher" element={<TeacherDashboard />} />
-          <Route path="/dashboard/student" element={<StudentDashboard />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route
+            path="/dashboard/teacher"
+            element={
+              <PrivateRoute>
+                <TeacherDashboard user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard/student"
+            element={
+              <PrivateRoute>
+                <StudentDashboard user={user} />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </Box>
     </>
   );
 }
-
-export default App;
