@@ -1,19 +1,43 @@
-// src/pages/login.jsx
-import { Link } from 'react-router-dom'
+// src/pages/Login.jsx
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from './firebase'
 
 export default function Login() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const navigate = useNavigate()
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      await signInWithEmailAndPassword(auth, email, password)
+      navigate('/dashboard') // You can create a dashboard route
+    } catch (err) {
+      alert(err.message)
+    }
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form className="bg-white p-6 rounded shadow-md w-full max-w-sm space-y-4">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 rounded shadow-md w-full max-w-sm space-y-4"
+      >
         <h2 className="text-2xl font-bold text-center">Login</h2>
         <input
           type="email"
           placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full border p-2 rounded"
         />
         <input
           type="password"
           placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           className="w-full border p-2 rounded"
         />
         <button
