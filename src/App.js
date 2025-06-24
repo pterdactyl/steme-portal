@@ -1,9 +1,11 @@
 import { Routes, Route, useNavigate } from "react-router-dom";
-import Login from "./Login";
-import Navbar from "./Navbar";
-import TeacherDashboard from "./TeacherDashboard";
-import StudentDashboard from "./StudentDashboard";
+import Login from "./pages/Login";
+import Navbar from "./components/Navbar";
+import TeacherDashboard from "./pages/TeacherDashboard";
+import StudentDashboard from "./pages/StudentDashboard";
 import { Box } from "@mui/material";
+
+
 
 function App() {
   const navigate = useNavigate();
