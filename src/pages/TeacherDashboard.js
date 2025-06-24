@@ -1,6 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import html2pdf from "html2pdf.js";
 import {
-  Box, Typography, Button, IconButton, Menu, MenuItem, Paper, Avatar, Stack,
+  Box,
+  Typography,
+  Button,
+  IconButton,
+  Menu,
+  MenuItem,
+  Paper,
+  Stack,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ProfileMenu from "../components/ProfileMenu";
@@ -12,8 +21,14 @@ const courses = [
 ];
 
 export default function TeacherDashboard({ user }) {
+  const navigate = useNavigate();
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [exportMenuAnchor, setExportMenuAnchor] = useState(null);
+  const [filterText, setFilterText] = useState("");
+
+  const exportRef = useRef(null);
 
   const handleMenuClick = (event, courseId) => {
     setAnchorEl(event.currentTarget);
@@ -25,46 +40,201 @@ export default function TeacherDashboard({ user }) {
     setSelectedCourse(null);
   };
 
-  const handleAction = (action) => {
-    alert(`"${action}" clicked for ${selectedCourse}`);
+  const handleExportClick = (event) => {
+    setExportMenuAnchor(event.currentTarget);
+  };
+
+  const handleExportMenuClose = () => {
+    setExportMenuAnchor(null);
     handleMenuClose();
   };
 
-  const handleCourseClick = (pdf) => {
-    window.open(pdf, "_blank");
+  const getCourseById = (id) => courses.find((c) => c.id === id);
+
+  // Export functions
+  const exportToPDF = () => {
+    if (!exportRef.current) return;
+    html2pdf()
+      .from(exportRef.current)
+      .set({ margin: 0.5, filename: `${selectedCourse}-export.pdf`, html2canvas: { scale: 2 } })
+      .save();
+    handleExportMenuClose();
   };
+
+  const exportToWord = () => {
+    if (!exportRef.current) return;
+    const header =
+      "<html xmlns:o='urn:schemas-microsoft-com:office:office' " +
+      "xmlns:w='urn:schemas-microsoft-com:office:word' " +
+      "xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body>";
+    const footer = "</body></html>";
+    const sourceHTML = header + exportRef.current.innerHTML + footer;
+
+    const blob = new Blob(["\ufeff", sourceHTML], {
+      type: "application/msword",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${selectedCourse}-export.doc`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    handleExportMenuClose();
+  };
+
+  const printContent = () => {
+    if (!exportRef.current) return;
+    const printWindow = window.open("", "", "width=900,height=650");
+    printWindow.document.write(
+      `<html><head><title>Print</title></head><body>${exportRef.current.innerHTML}</body></html>`
+    );
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+    handleExportMenuClose();
+  };
+
+  const selectedCourseObj = getCourseById(selectedCourse);
+
+  const filteredCourses = courses.filter(
+    (course) =>
+      course.title.toLowerCase().includes(filterText.toLowerCase()) ||
+      course.id.toLowerCase().includes(filterText.toLowerCase())
+  );
 
   return (
     <Box p={4}>
-      <Box display="flex" justifyContent="space-between" alignItems="center">
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
+      >
         <Typography variant="h4">Dashboard</Typography>
-        <ProfileMenu user={user} />
+        <Box>
+          <Button
+            variant="outlined"
+            sx={{ mr: 2 }}
+            onClick={() => navigate("/attendance")}
+          >
+            Take Attendance
+          </Button>
+          <ProfileMenu user={user} />
+        </Box>
       </Box>
 
-      <Typography mt={4} mb={2}>Course Outlines</Typography>
+      {/* Filter input */}
+      <Box mb={2} maxWidth={300}>
+        <input
+          type="text"
+          placeholder="Search courses..."
+          value={filterText}
+          onChange={(e) => setFilterText(e.target.value)}
+          style={{
+            width: "100%",
+            padding: "8px",
+            borderRadius: "6px",
+            border: "1px solid #ccc",
+            fontSize: "14px",
+          }}
+        />
+      </Box>
 
+      {/* Filtered course list */}
       <Stack spacing={2}>
-        {courses.map(course => (
-          <Paper key={course.id} sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "center", bgcolor: "#b3e5fc" }}>
-            <Typography sx={{ cursor: "pointer" }} onClick={() => handleCourseClick(course.pdf)}>
-              {course.title}
-            </Typography>
-            <IconButton onClick={(e) => handleMenuClick(e, course.id)}>
-              <MoreVertIcon />
-            </IconButton>
-          </Paper>
-        ))}
+        {filteredCourses.length > 0 ? (
+          filteredCourses.map((course) => (
+            <Paper
+              key={course.id}
+              sx={{
+                p: 2,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                bgcolor: "#b3e5fc",
+              }}
+            >
+              <Typography
+                sx={{ cursor: "pointer" }}
+                onClick={() => window.open(course.pdf, "_blank")}
+              >
+                {course.title}
+              </Typography>
+              <IconButton onClick={(e) => handleMenuClick(e, course.id)}>
+                <MoreVertIcon />
+              </IconButton>
+            </Paper>
+          ))
+        ) : (
+          <Typography>No courses match your search.</Typography>
+        )}
       </Stack>
 
+      {/* Main menu */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
-        <MenuItem onClick={() => handleAction("Edit")}>Edit</MenuItem>
-        <MenuItem onClick={() => handleAction("Export")}>Export</MenuItem>
-        <MenuItem onClick={() => handleAction("View History")}>View History</MenuItem>
+        <MenuItem
+          onClick={() => {
+            alert(`Edit clicked for ${selectedCourse}`);
+            handleMenuClose();
+          }}
+        >
+          Edit
+        </MenuItem>
+        <MenuItem onClick={handleExportClick}>Export</MenuItem>
+        <MenuItem
+          onClick={() => {
+            alert(`View History clicked for ${selectedCourse}`);
+            handleMenuClose();
+          }}
+        >
+          View History
+        </MenuItem>
       </Menu>
+
+      {/* Export submenu */}
+      <Menu
+        anchorEl={exportMenuAnchor}
+        open={Boolean(exportMenuAnchor)}
+        onClose={handleExportMenuClose}
+      >
+        <MenuItem onClick={exportToPDF}>Export as PDF</MenuItem>
+        <MenuItem onClick={exportToWord}>Export as Word</MenuItem>
+        <MenuItem onClick={printContent}>Print</MenuItem>
+      </Menu>
+
+      {/* Hidden div with content to export */}
+      <Box
+        ref={exportRef}
+        sx={{
+          position: "fixed",
+          top: "-10000px",
+          left: "-10000px",
+          width: 600,
+          bgcolor: "white",
+          p: 2,
+          boxShadow: 3,
+          zIndex: -1,
+        }}
+      >
+        {selectedCourseObj && (
+          <>
+            <Typography variant="h5">{selectedCourseObj.title}</Typography>
+            <Typography mt={2}>
+              This is the export content for {selectedCourseObj.title}. You
+              can add more detailed outlines, descriptions, or any other
+              content here.
+            </Typography>
+          </>
+        )}
+      </Box>
     </Box>
   );
 }
