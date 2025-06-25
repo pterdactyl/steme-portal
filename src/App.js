@@ -1,43 +1,67 @@
+// src/App.js
 import React, { useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
-import Login from "./pages/Login";
+import { Routes, Route, useLocation } from "react-router-dom";
+import Login from "./Auth/login";
+import Signup from "./Auth/signup";
 import Navbar from "./components/Navbar";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import TeacherAttendance from "./pages/TeacherAttendance";
 import ProfilePage from "./pages/ProfilePage";
 import { Box } from "@mui/material";
+import { useAuth } from './Auth/auth';
+import PrivateRoute from './Auth/privateRoute';
 
-function App() {
-  const [user, setUser] = useState(null);
-  const navigate = useNavigate();
+export default function App() {
+  const { user } = useAuth();
+  const location = useLocation();
+  const hideNavbarPaths = ["/", "/signup"];
 
-  const handleLogin = ({ email, role, name }) => {
-    const photoURL = "/default-pfp.png"; // You can replace this with uploaded photo logic
-    const userData = { email, role, name, photoURL };
-    setUser(userData);
-
-    if (role === "teacher") {
-      navigate("/dashboard/teacher");
-    } else {
-      navigate("/dashboard/student");
-    }
-  };
+  const hideNavbar = hideNavbarPaths.includes(location.pathname);
 
   return (
     <>
-      <Navbar user={user} onLogout={() => setUser(null)} />
-      <Box p={3}>
+      {!hideNavbar && <Navbar />}
+      <Box p={!hideNavbar ? 3 : 0}>
         <Routes>
-          <Route path="/" element={<Login onLogin={handleLogin} />} />
-          <Route path="/dashboard/teacher" element={<TeacherDashboard user={user} />} />
-          <Route path="/dashboard/student" element={<StudentDashboard />} />
-          <Route path="/attendance" element={<TeacherAttendance />} />
-          <Route path="/profile" element={<ProfilePage user={user} />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route
+            path="/dashboard/teacher"
+            element={
+              <PrivateRoute>
+                <TeacherDashboard user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard/student"
+            element={
+              <PrivateRoute>
+                <StudentDashboard user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/attendance"
+            element={
+              <PrivateRoute>
+                <TeacherAttendance user={user}/>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <ProfilePage user={user}/>
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </Box>
     </>
   );
+
 }
 
-export default App;
