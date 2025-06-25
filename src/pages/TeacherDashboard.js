@@ -4,6 +4,7 @@ import {
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ProfileMenu from "../components/ProfileMenu";
+import { useNavigate } from "react-router-dom";
 
 const courses = [
   { id: "ENG1D", title: "ENG1D - Grade 9 English Academic", pdf: "/images.jpeg" },
@@ -12,6 +13,8 @@ const courses = [
 ];
 
 export default function TeacherDashboard({ user }) {
+  const navigate = useNavigate();
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
 
@@ -26,7 +29,11 @@ export default function TeacherDashboard({ user }) {
   };
 
   const handleAction = (action) => {
-    alert(`"${action}" clicked for ${selectedCourse}`);
+    if (action === "Edit") {
+      navigate("/edit");
+    } else {
+      alert(`${action} clicked for ${selectedCourse}`);
+    }
     handleMenuClose();
   };
 

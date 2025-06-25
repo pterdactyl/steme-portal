@@ -11,7 +11,7 @@ export default function Navbar({ onLogout }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    onLogout?.();          // Call parent handler (clears user state)
+    // Logic for Logging Out
     navigate("/");         // Redirect to login route
   };
 
