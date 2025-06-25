@@ -12,6 +12,11 @@ import ProfilePage from "./pages/ProfilePage";
 import { Box } from "@mui/material";
 import { useAuth } from './Auth/auth';
 import PrivateRoute from './Auth/privateRoute';
+import EditOutline from "./pages/EditOutline";
+
+import 'primereact/resources/themes/lara-light-indigo/theme.css'; // Theme
+import 'primereact/resources/primereact.min.css'; // Core CSS
+import 'primeicons/primeicons.css'; // Icons
 
 export default function App() {
   const { user } = useAuth();
@@ -67,6 +72,13 @@ export default function App() {
                 <Pathways user={user}/>
               </PrivateRoute>
             }
+          />
+          <Route path="/edit" 
+            element={
+              <PrivateRoute>
+                <EditOutline user={user}/>
+                </PrivateRoute>
+              }
           />
         </Routes>
       </Box>
