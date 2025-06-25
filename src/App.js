@@ -1,6 +1,8 @@
 // src/App.js
-import React, { useState } from "react";
+import React from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
+import { Box } from "@mui/material";
+
 import Login from "./Auth/login";
 import Signup from "./Auth/signup";
 import Navbar from "./components/Navbar";
@@ -8,24 +10,24 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import TeacherAttendance from "./pages/TeacherAttendance";
 import ProfilePage from "./pages/ProfilePage";
-import { Box } from "@mui/material";
-import { useAuth } from './Auth/auth';
-import PrivateRoute from './Auth/privateRoute';
+
+import { useAuth } from "./Auth/auth";
+import PrivateRoute from "./Auth/privateRoute";
 
 export default function App() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
-  const hideNavbarPaths = ["/", "/signup"];
 
-  const hideNavbar = hideNavbarPaths.includes(location.pathname);
+  const hideNavbar = ["/", "/signup"].includes(location.pathname);
 
   return (
     <>
-      {!hideNavbar && <Navbar />}
+      {!hideNavbar && <Navbar user={user} onLogout={logout} />}
       <Box p={!hideNavbar ? 3 : 0}>
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+
           <Route
             path="/dashboard/teacher"
             element={
@@ -46,7 +48,7 @@ export default function App() {
             path="/attendance"
             element={
               <PrivateRoute>
-                <TeacherAttendance user={user}/>
+                <TeacherAttendance user={user} />
               </PrivateRoute>
             }
           />
@@ -54,7 +56,7 @@ export default function App() {
             path="/profile"
             element={
               <PrivateRoute>
-                <ProfilePage user={user}/>
+                <ProfilePage user={user} />
               </PrivateRoute>
             }
           />
@@ -62,6 +64,4 @@ export default function App() {
       </Box>
     </>
   );
-
 }
-

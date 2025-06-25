@@ -1,16 +1,10 @@
+// src/components/Navbar.js
 import React from "react";
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-} from "@mui/material";
+import { AppBar, Toolbar, Typography, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-export default function Navbar({ onLogout, user }) {
+export default function Navbar({ user, onLogout }) {
   const navigate = useNavigate();
-
-  console.log("Navbar user:", user); // <--- Check this in browser console
 
   const handleLogout = () => {
     onLogout?.();
@@ -18,9 +12,10 @@ export default function Navbar({ onLogout, user }) {
   };
 
   const handleDashboardClick = () => {
-    if (user?.role === "teacher") {
+    if (!user) return;
+    if (user.role === "teacher") {
       navigate("/dashboard/teacher");
-    } else if (user?.role === "student") {
+    } else if (user.role === "student") {
       navigate("/dashboard/student");
     }
   };
