@@ -1,4 +1,5 @@
 // src/App.js
+import Pathways from './pages/pathways'
 import React, { useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Login from "./Auth/login";
@@ -18,6 +19,7 @@ export default function App() {
   const hideNavbarPaths = ["/", "/signup"];
 
   const hideNavbar = hideNavbarPaths.includes(location.pathname);
+
 
   return (
     <>
@@ -55,6 +57,14 @@ export default function App() {
             element={
               <PrivateRoute>
                 <ProfilePage user={user}/>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/pathways"
+            element={
+              <PrivateRoute>
+                <Pathways user={user}/>
               </PrivateRoute>
             }
           />
