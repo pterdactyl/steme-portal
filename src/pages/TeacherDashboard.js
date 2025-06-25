@@ -14,6 +14,7 @@ import {
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ProfileMenu from "../components/ProfileMenu";
 
+
 const courses = [
   { id: "ENG1D", title: "ENG1D - Grade 9 English Academic", pdf: "/images.jpeg" },
   { id: "MPM1D", title: "MPM1D - Grade 9 Mathematics, Academic", pdf: "/path/to/mpm1d.pdf" },
@@ -46,6 +47,16 @@ export default function TeacherDashboard({ user }) {
 
   const handleExportMenuClose = () => {
     setExportMenuAnchor(null);
+  };
+
+  const handleAction = (action) => {
+    if (action === "Edit") {
+      console.log("yes");
+      navigate("/edit");
+    } else {
+      console.log("na");
+      alert(`${action} clicked for ${selectedCourse}`);
+    }
     handleMenuClose();
   };
 
@@ -180,14 +191,9 @@ export default function TeacherDashboard({ user }) {
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
-        <MenuItem
-          onClick={() => {
-            alert(`Edit clicked for ${selectedCourse}`);
-            handleMenuClose();
-          }}
-        >
-          Edit
-        </MenuItem>
+        <MenuItem onClick={() => handleAction("Edit")}>Edit</MenuItem>
+      
+       
         <MenuItem onClick={handleExportClick}>Export</MenuItem>
         <MenuItem
           onClick={() => {
