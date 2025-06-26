@@ -1,0 +1,95 @@
+.navbar {
+  background-color: #ffffff;
+  padding: 20px;
+  text-align: center;
+}
+
+.nav-link {
+  position: relative;
+  color: rgb(92, 92, 92);
+  text-decoration: none;
+  font-size: 35px;
+  margin: 0 30px;
+  font-weight: bold;
+  padding-bottom: 5px;
+  background: none;
+  border: none;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom:-3px;
+  height: 3px;
+  background-color: currentColor;
+  width: 0;
+  transition: width 0.3s ease;
+
+  
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+/* Container for the whole section */
+.pathways-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: sans-serif;
+}
+
+/* Canvas area to hold nodes */
+.canvas {
+  position: relative;
+  width: 1200px;
+  height: 600px;
+  margin-top: 40px;
+  background: #ffffff;
+  border-radius: 8px;
+}
+
+/* Course blocks */
+.course-node {
+  position: absolute;
+  width: 90px;
+  height: 32px;
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease;
+  z-index: 2;
+}
+
+.course-node:hover {
+  transform: scale(2);
+}
+
+/* Optional for future: connection lines */
+.line {
+  position: absolute;
+
+  height: 2px;
+  transform-origin: left center;
+}
+
+.course-node.dimmed {
+  opacity: 0.5;
+  filter: grayscale(100%);
+}
+
+.connection-line {
+  height: 2px;
+  position: absolute;
+  z-index: 1;
+  border-radius: 2px;
+  
+}
