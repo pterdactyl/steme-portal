@@ -232,6 +232,21 @@ const courses = [
     y: 1.65,
     connects: ['ICS3U'],
     in: {'engineering': 'recommended', 'computer-science':'recommended'}
+  },
+
+  {
+    id: 'required',
+    x: 1,
+    y: 4,
+    connects: [],
+ in:  {'engineering': 'required', 'life-health-science':'required', 'computer-science': 'required', 'business': 'required'}
+  },
+  {
+    id: 'recommend',
+    x: 1,
+    y: 4.5,
+    connects: [],
+ in:  {'engineering': 'recommended', 'life-health-science':'recommended', 'computer-science': 'recommended', 'business': 'recommended'}
   }
 ];
 
