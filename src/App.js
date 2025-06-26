@@ -2,8 +2,6 @@
 import Pathways from './pages/pathways'
 import React, { useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { Box } from "@mui/material";
-
 import Login from "./Auth/login";
 import Signup from "./Auth/signup";
 import Navbar from "./components/Navbar";
