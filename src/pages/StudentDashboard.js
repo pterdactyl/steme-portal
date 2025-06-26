@@ -6,9 +6,7 @@ export default function StudentDashboard() {
   return (
     <div>
       <Typography variant="h4">🎓 Welcome to the Student Dashboard!</Typography>
-      <button variant="outlined" sx={{ mr: 2 }} onClick={() => navigate(("/pathways"))}>
-        Pathways
-      </button>
+      
     </div>
   )
 

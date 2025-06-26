@@ -36,6 +36,9 @@ export default function Navbar({ user, onLogout }) {
             <Button color="inherit" onClick={handleDashboardClick}>
               Dashboard
             </Button>
+            <Button color="inherit" onClick={() => navigate("/pathways")}>
+              Explore Pathways
+            </Button>
             <Button color="inherit" onClick={() => navigate("/profile")}>
               Profile
             </Button>
