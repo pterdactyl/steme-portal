@@ -91,6 +91,7 @@ export default function SignUp() {
               >
                 <MenuItem value="student">Student</MenuItem>
                 <MenuItem value="teacher">Teacher</MenuItem>
+                <MenuItem value="admin">Admin</MenuItem>
               </Select>
             </FormControl>
             <Button variant="contained" type="submit" fullWidth>
