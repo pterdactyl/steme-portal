@@ -7,11 +7,13 @@ import { db } from "./firebase"; // Make sure db is initialized from firebase co
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [firebaseUser, setFirebaseUser] = useState(null); 
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchUserRole = async (firebaseUser) => {
     const userDocRef = doc(db, "users", firebaseUser.uid);
+    
     const userDocSnap = await getDoc(userDocRef);
 
     if (userDocSnap.exists()) {
@@ -26,14 +28,16 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
+        setFirebaseUser(firebaseUser);
         const role = await fetchUserRole(firebaseUser);
-        setUser({
+        setUserProfile({
           uid: firebaseUser.uid,
           email: firebaseUser.email,
           role,
         });
       } else {
-        setUser(null);
+        setUserProfile(null);
+        setFirebaseUser(null);
       }
       setLoading(false);
     });
@@ -44,7 +48,7 @@ export function AuthProvider({ children }) {
   const logout = () => auth.signOut();
 
   return (
-    <AuthContext.Provider value={{ user, loading, logout }}>
+    <AuthContext.Provider value={{ user: userProfile, firebaseUser, loading, logout }}>
       {children}
     </AuthContext.Provider>
   );
