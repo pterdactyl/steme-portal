@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { db } from "../Auth/firebase";
 import { doc, setDoc } from "firebase/firestore";
 
@@ -14,38 +14,35 @@ export default function EditOutline() {
     assessment: "",
   });
 
-  const [units, setUnits] = useState([{ 
-    unitNum: "", 
-    unitDescription: "", 
-    unitHours:""
-  }]);
+  const [units, setUnits] = useState([{ unitNum: "", unitDescription: "", unitHours: "" }]);
+  const [finalAssessments, setFinalAssessments] = useState([
+    { description: "Independent Study Unit", hours: "" },
+    { description: "Final Exam", hours: "" },
+  ]);
 
-  React.useEffect(() => {
-  const savedOutline = localStorage.getItem("courseOutline");
-  const savedUnits = localStorage.getItem("courseOutlineUnits");
-  if (savedOutline) {
-    setOutline(JSON.parse(savedOutline));
-  }
-  if (savedUnits) {
-    setUnits(JSON.parse(savedUnits));
-  }
+  useEffect(() => {
+    const savedOutline = localStorage.getItem("courseOutline");
+    const savedUnits = localStorage.getItem("courseOutlineUnits");
+    const savedFinals = localStorage.getItem("courseOutlineFinalAssessments");
+    if (savedOutline) setOutline(JSON.parse(savedOutline));
+    if (savedUnits) setUnits(JSON.parse(savedUnits));
+    if (savedFinals) setFinalAssessments(JSON.parse(savedFinals));
   }, []);
 
-  React.useEffect(() => {
-  const textareas = document.querySelectorAll("textarea");
-  textareas.forEach((ta) => {
-    ta.style.height = "auto";
-    ta.style.height = `${ta.scrollHeight}px`;
-  });
-  }, [outline]);  
-
+  useEffect(() => {
+    const textareas = document.querySelectorAll("textarea");
+    textareas.forEach((ta) => {
+      ta.style.height = "auto";
+      ta.style.height = `${ta.scrollHeight}px`;
+    });
+  }, [outline, units]);
 
   const handleChange = (key, value) => {
     setOutline((prev) => ({ ...prev, [key]: value }));
   };
 
   const addUnit = () => {
-    setUnits([...units, { title: "", description: "" }]);
+    setUnits([...units, { unitNum: "", unitDescription: "", unitHours: "" }]);
   };
 
   const removeUnit = (index) => {
@@ -58,9 +55,17 @@ export default function EditOutline() {
     setUnits(newUnits);
   };
 
+  const updateFinalAssessment = (index, value) => {
+    const newFinals = [...finalAssessments];
+    newFinals[index].hours = value;
+    setFinalAssessments(newFinals);
+  };
+
   const handleSaveLocal = () => {
     localStorage.setItem("courseOutline", JSON.stringify(outline));
     localStorage.setItem("courseOutlineUnits", JSON.stringify(units));
+    localStorage.setItem("courseOutlineFinalAssessments", JSON.stringify(finalAssessments));
+    localStorage.setItem("courseOutlineTotalHours", totalHours);
     alert("Saved locally!");
   };
 
@@ -70,6 +75,8 @@ export default function EditOutline() {
       await setDoc(docRef, {
         ...outline,
         units,
+        finalAssessments,
+        totalHours,
         timestamp: new Date(),
       });
       alert("Saved to Firestore!");
@@ -78,6 +85,10 @@ export default function EditOutline() {
       alert(`Failed to save: ${error.message}`);
     }
   };
+
+  const totalHours =
+    units.reduce((sum, unit) => sum + (parseFloat(unit.unitHours) || 0), 0) +
+    finalAssessments.reduce((sum, f) => sum + (parseFloat(f.hours) || 0), 0);
 
   return (
     <div style={{ maxWidth: 900, margin: "20px auto", padding: 20 }}>
@@ -173,10 +184,10 @@ export default function EditOutline() {
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
-                    <td style={subHeaderStyle}>Unit</td>
-                    <td style={subHeaderStyle}>Description</td>
-                    <td style={subHeaderStyle}>Hours</td>
-                    <td style={subHeaderStyle}>Actions</td>
+                    <td style={{ ...subHeaderStyle, width: "10%" }}>Unit</td>
+                    <td style={{ ...subHeaderStyle, width: "60%" }}>Description</td>
+                    <td style={{ ...subHeaderStyle, width: "20%" }}>Hours</td>
+                    <td style={{ ...subHeaderStyle, width: "10%" }}>Actions</td>
                   </tr>
                 </thead>
                 <tbody>
@@ -186,37 +197,58 @@ export default function EditOutline() {
                         <input
                           type="text"
                           value={unit.unitNum}
-                          onChange={(e) => updateUnit(index, "unit", e.target.value)}
+                          onChange={(e) => updateUnit(index, "unitNum", e.target.value)}
                           style={inputStyle}
                         />
                       </td>
                       <td style={descriptionColumn}>
                         <textarea
                           value={unit.unitDescription}
-                          onChange={(e) => handleChange("unit description", e.target.value)}
-                          onInput={(e) => {
-                            e.target.style.height = "auto";
-                            e.target.style.height = `${e.target.scrollHeight}px`;
-                          }}
+                          onChange={(e) => updateUnit(index, "unitDescription", e.target.value)}
                           style={unitDescription}
                         />
                       </td>
                       <td style={hoursColumn}>
                         <input
-                          type="text"
+                          type="number"
                           value={unit.unitHours}
-                          onChange={(e) => updateUnit(index, "hours", e.target.value)}
-                          style={inputStyle}
+                          onChange={(e) => updateUnit(index, "unitHours", e.target.value)}
+                          style={inputHours}
                         />
                       </td>
                       <td style={actionColumn}>
-                        <button onClick={addUnit} style={{ marginTop: "8px" }}>
-                          Add Unit
-                        </button>
                         <button onClick={() => removeUnit(index)}>Remove</button>
                       </td>
                     </tr>
                   ))}
+                </tbody>
+              </table>
+              <button onClick={addUnit} style={{ marginTop: "8px" }}>Add Unit</button>
+
+              <h4 style={{ marginTop: "10px", fontSize: "14px" }}>Final Assessment</h4>
+              <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 10 }}>
+                <tbody>
+                  {finalAssessments.map((item, index) => (
+                    <tr key={index}>
+                      <td style={{ border: "1px solid #ccc", padding: "6px", fontSize: "12px" }}>
+                        {item.description}
+                      </td>
+                      <td style={hoursColumn}>
+                        <input
+                          type="number"
+                          value={item.hours}
+                          onChange={(e) => updateFinalAssessment(index, e.target.value)}
+                          style={inputHours}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td style={{ border: "1px solid #ccc", padding: "6px", fontSize: "12px" }}>Total Hours</td>
+                    <td style={hoursColumn}>
+                      <input type="number" value={totalHours} readOnly style={{ ...inputHours, backgroundColor: "#eee" }} />
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </td>
@@ -238,18 +270,19 @@ export default function EditOutline() {
         </tbody>
       </table>
 
-      <button onClick={handleSaveToFirestore} style={{ padding: "10px 20px" }}>
-        Save to Firestore
-      </button>
-
-      <button onClick={handleSaveLocal} style={{ padding: "10px 20px" }}>
-        Save Locally
-      </button>
-
+      <div style={{ marginTop: 20 }}>
+        <button onClick={handleSaveToFirestore} style={{ padding: "10px 20px", marginRight: 10 }}>
+          Save to Firestore
+        </button>
+        <button onClick={handleSaveLocal} style={{ padding: "10px 20px" }}>
+          Save Locally
+        </button>
+      </div>
     </div>
   );
 }
 
+// Styles
 const cellStyle = {
   border: "1px solid #000000",
   padding: "8px",
@@ -264,9 +297,16 @@ const leftSide = {
 
 const inputStyle = {
   width: "100%",
-  padding: "8px",
+  padding: "6px",
   fontSize: "12px",
   border: "none",
+};
+
+const inputHours = {
+  width: "100%",
+  padding: "6px",
+  fontSize: "12px",
+  border: "1px solid #ccc",
 };
 
 const textareaStyle = {
@@ -284,41 +324,35 @@ const textareaStyle = {
 const subHeaderStyle = {
   border: "1px solid #ccc",
   padding: "6px",
-  backgroundColor: "#90D5FF",
+  backgroundColor: "#ADDFFF",
   fontSize: "12px",
 };
 
 const unitColumn = {
   border: "1px solid #ccc",
   padding: "6px",
-  width: "30px",
-}
+};
 
 const descriptionColumn = {
   border: "1px solid #ccc",
   padding: "6px",
-  width: "150px",
-}
+};
 
 const unitDescription = {
   width: "100%",
-  padding: "8px",
+  padding: "6px",
   fontSize: "12px",
   resize: "none",
   border: "none",
-  outline: "none",
-  overflow: "hidden",
-  backgroundColor: "transparent",
-}
+};
 
 const hoursColumn = {
   border: "1px solid #ccc",
   padding: "6px",
-  width: "30px",
-}
+  width: "20%",
+};
 
 const actionColumn = {
   border: "1px solid #ccc",
   padding: "6px",
-  width: "50px",
-}
+};
