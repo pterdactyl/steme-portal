@@ -13,7 +13,6 @@ import StudentDashboard from "./pages/StudentDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import TeacherAttendance from "./pages/TeacherAttendance";
 import ProfilePage from "./pages/ProfilePage";
-import Pathways from "./pages/pathways";
 import EditOutline from "./pages/EditOutline";
 import AdminNavbar from './components/AdminNavbar'
 import { getIdTokenResult } from "firebase/auth";

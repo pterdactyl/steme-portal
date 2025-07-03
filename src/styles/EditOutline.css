@@ -1,52 +1,92 @@
-/* Main editor container styled like an A4 page */
-.editor-container {
-  width: 610px; /* Slightly smaller than A4 for padding/margins */
-  height: auto;
-  margin: 20px auto;
-  padding: 0;
+/* EditOutline.css */
+
+.cellStyle {
+  border: 1px solid #000000;
+  padding: 8px;
+  vertical-align: top;
+}
+
+.leftSide {
+  border: 1px solid #000000;
+  padding: 8px;
+  vertical-align: top;
+  width: 200px;
+  font-weight: bold;
+}
+
+.inputStyle {
+  width: 100%;
+  padding: 6px;
+  font-size: 12px;
+  border: none;
+}
+
+.inputHours {
+  width: 100%;
+  padding: 6px;
+  font-size: 12px;
   border: 1px solid #ccc;
-  background: white;
+}
+
+.inputHoursReadonly {
+  background-color: #eee;
+}
+
+
+.textareaStyle {
+  width: 100%;
+  min-height: 100px;
+  padding: 8px;
+  font-size: 14px;
+  resize: none;
+  border: none;
+  outline: none;
   overflow: hidden;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box;
-  position: relative;
+  background-color: transparent;
 }
 
-/* PrimeReact's editor wrapper */
-.p-editor {
-  height: 100%;
+.subHeaderStyle {
+  border: 1px solid #ccc;
+  padding: 6px;
+  background-color: #ADDFFF;
+  font-size: 12px;
 }
 
-/* Quill editor content styling */
-.p-editor-content {
-  height: 100%;
-  max-height: 100%;
-  overflow-y: auto;
-  padding: 40px 60px; /* Simulates page margins */
-  box-sizing: border-box;
-  font-family: 'Times New Roman', serif;
-  font-size: 12pt;
-  line-height: 1.5;
+.subHeaderWidth10 {
+  width: 10%;
+}
+.subHeaderWidth20 {
+  width: 20%;
+}
+.subHeaderWidth60 {
+  width: 60%;
 }
 
-/* Prevent content from overflowing */
-.p-editor-content img,
-.p-editor-content table {
-  max-width: 100%;
-  height: auto;
-  word-break: break-word;
+.unitColumn {
+  border: 1px solid #ccc;
+  padding: 6px;
 }
 
-/* Simulate page breaks visually using a repeating dashed background */
-.ql-editor {
-  position: relative;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent,
-    transparent 879px,
-    #ccc 880px,
-    transparent 881px
-  );
-  background-repeat: repeat-y;
-  background-size: 100% 880px; /* A4 height with room for separator */
+.descriptionColumn {
+  border: 1px solid #ccc;
+  padding: 6px;
+}
+
+.unitDescription {
+  width: 100%;
+  padding: 6px;
+  font-size: 12px;
+  resize: none;
+  border: none;
+}
+
+.hoursColumn {
+  border: 1px solid #ccc;
+  padding: 6px;
+  width: 20%;
+}
+
+.actionColumn {
+  border: 1px solid #ccc;
+  padding: 6px;
 }
