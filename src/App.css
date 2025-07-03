@@ -36,3 +36,56 @@
     transform: rotate(360deg);
   }
 }
+
+.tiptap-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  background: #f1f3f4;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.toolbar-group {
+  display: flex;
+  gap: 4px;
+  border-right: 1px solid #ccc;
+  padding-right: 8px;
+  margin-right: 8px;
+}
+
+.toolbar-button {
+  background: #f1f3f4;
+  border: 1px solid #f1f3f4;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  min-width: 32px;
+  text-align: center;
+  transition: background 0.2s ease;
+}
+
+.toolbar-button:hover {
+  background: #e0e0e0;
+}
+
+.toolbar-button.active {
+  background: #d2e3fc;
+  border-color: #4285f4;
+}
+
+.tiptap table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.tiptap th,
+.tiptap td {
+  border: 1px solid #ccc;
+  padding: 8px;
+}
