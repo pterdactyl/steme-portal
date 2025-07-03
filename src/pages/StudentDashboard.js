@@ -1,15 +1,13 @@
-import { Typography } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+// src/pages/StudentDashboard.jsx
+import React from "react";
+import { Typography, Box } from "@mui/material";
 
 export default function StudentDashboard() {
-  const navigate = useNavigate();
   return (
-    <div>
-      <Typography variant="h4">🎓 Welcome to the Student Dashboard!</Typography>
-      <button variant="outlined" sx={{ mr: 2 }} onClick={() => navigate(("/pathways"))}>
-        Pathways
-      </button>
-    </div>
-  )
-
+    <Box p={4}>
+      <Typography variant="h4" gutterBottom>
+        🎓 Welcome to the Student Dashboard!
+      </Typography>
+    </Box>
+  );
 }

@@ -13,15 +13,24 @@ export default function Navbar({ user, onLogout }) {
 
   const handleDashboardClick = () => {
     if (!user) return;
-    if (user.role === "teacher") {
-      navigate("/dashboard/teacher");
-    } else if (user.role === "student") {
-      navigate("/dashboard/student");
+    switch (user.role) {
+      case "teacher":
+        navigate("/dashboard/teacher");
+        break;
+      case "student":
+        navigate("/dashboard/student");
+        break;
+      default:
+        console.warn("Unrecognized role:", user.role);
+        break;
     }
   };
 
   return (
-    <AppBar position="static">
+    <AppBar
+      position="static"
+      sx={{ backgroundColor: "#2e7d32" }}
+    >
       <Toolbar>
         <Typography
           variant="h6"
@@ -35,6 +44,9 @@ export default function Navbar({ user, onLogout }) {
           <>
             <Button color="inherit" onClick={handleDashboardClick}>
               Dashboard
+            </Button>
+            <Button color="inherit" onClick={() => navigate("/pathways")}>
+              Pathways
             </Button>
             <Button color="inherit" onClick={() => navigate("/profile")}>
               Profile
