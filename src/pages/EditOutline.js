@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { db } from "../Auth/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { useParams } from "react-router-dom";
+import '../styles/EditOutline.css';
 
 export default function EditOutline() {
   const { courseCode } = useParams();
@@ -103,52 +104,52 @@ export default function EditOutline() {
       <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 20 }}>
         <tbody>
           <tr>
-            <td style={leftSide}><strong>Course Name</strong></td>
-            <td style={cellStyle}>
+            <td className="leftSide"><strong>Course Name</strong></td>
+            <td className="cellStyle">
               <input
                 type="text"
                 value={outline.courseName}
                 onChange={(e) => handleChange("courseName", e.target.value)}
-                style={inputStyle}
+                className="inputStyle"
               />
             </td>
           </tr>
           <tr>
-            <td style={leftSide}><strong>Grade</strong></td>
-            <td style={cellStyle}>
+            <td className="leftSide"><strong>Grade</strong></td>
+            <td className="cellStyle">
               <input
                 type="text"
                 value={outline.grade}
                 onChange={(e) => handleChange("grade", e.target.value)}
-                style={inputStyle}
+                className="inputStyle"
               />
             </td>
           </tr>
           <tr>
-            <td style={leftSide}><strong>Course Type</strong></td>
-            <td style={cellStyle}>
+            <td className="leftSide"><strong>Course Type</strong></td>
+            <td className="cellStyle">
               <input
                 type="text"
                 value={outline.courseType}
                 onChange={(e) => handleChange("courseType", e.target.value)}
-                style={inputStyle}
+                className="inputStyle"
               />
             </td>
           </tr>
           <tr>
-            <td style={leftSide}><strong>Credit Value</strong></td>
-            <td style={cellStyle}>
+            <td className="leftSide"><strong>Credit Value</strong></td>
+            <td className="cellStyle">
               <input
                 type="text"
                 value={outline.credit}
                 onChange={(e) => handleChange("credit", e.target.value)}
-                style={inputStyle}
+                className="inputStyle"
               />
             </td>
           </tr>
           <tr>
-            <td style={leftSide}><strong>Description</strong></td>
-            <td style={cellStyle}>
+            <td className="leftSide"><strong>Description</strong></td>
+            <td className="cellStyle">
               <textarea
                 value={outline.description}
                 onChange={(e) => handleChange("description", e.target.value)}
@@ -156,13 +157,13 @@ export default function EditOutline() {
                   e.target.style.height = "auto";
                   e.target.style.height = `${e.target.scrollHeight}px`;
                 }}
-                style={textareaStyle}
+                className="textareaStyle"
               />
             </td>
           </tr>
           <tr>
-            <td style={leftSide}><strong>Learning Goals</strong></td>
-            <td style={cellStyle}>
+            <td className="leftSide"><strong>Learning Goals</strong></td>
+            <td className="cellStyle">
               <textarea
                 value={outline.learningGoals}
                 onChange={(e) => handleChange("learningGoals", e.target.value)}
@@ -170,49 +171,49 @@ export default function EditOutline() {
                   e.target.style.height = "auto";
                   e.target.style.height = `${e.target.scrollHeight}px`;
                 }}
-                style={textareaStyle}
+                className="textareaStyle"
               />
             </td>
           </tr>
           <tr>
-            <td style={leftSide}><strong>Units</strong></td>
-            <td style={cellStyle}>
+            <td className="leftSide"><strong>Units</strong></td>
+            <td className="cellStyle">
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
-                    <td style={{ ...subHeaderStyle, width: "10%" }}>Unit</td>
-                    <td style={{ ...subHeaderStyle, width: "60%" }}>Description</td>
-                    <td style={{ ...subHeaderStyle, width: "20%" }}>Hours</td>
-                    <td style={{ ...subHeaderStyle, width: "10%" }}>Actions</td>
+                    <td className="subHeaderStyle subHeaderWidth10">Unit</td>
+                    <td className="subHeaderStyle subHeaderWidth60">Description</td>
+                    <td className="subHeaderStyle subHeaderWidth20">Hours</td>
+                    <td className="subHeaderStyle subHeaderWidth10">Actions</td>
                   </tr>
                 </thead>
                 <tbody>
                   {units.map((unit, index) => (
                     <tr key={index}>
-                      <td style={unitColumn}>
+                      <td className="unitColumn">
                         <input
                           type="text"
                           value={unit.unitNum}
                           onChange={(e) => updateUnit(index, "unitNum", e.target.value)}
-                          style={inputStyle}
+                          className="inputStyle"
                         />
                       </td>
-                      <td style={descriptionColumn}>
+                      <td className="descriptionColumn">
                         <textarea
                           value={unit.unitDescription}
                           onChange={(e) => updateUnit(index, "unitDescription", e.target.value)}
-                          style={unitDescription}
+                          className="unitDescription"
                         />
                       </td>
-                      <td style={hoursColumn}>
+                      <td className="hoursColumn">
                         <input
                           type="number"
                           value={unit.unitHours}
                           onChange={(e) => updateUnit(index, "unitHours", e.target.value)}
-                          style={inputHours}
+                          className="inputHours"
                         />
                       </td>
-                      <td style={actionColumn}>
+                      <td className="actionColumn">
                         <button onClick={() => removeUnit(index)}>Remove</button>
                       </td>
                     </tr>
@@ -229,20 +230,25 @@ export default function EditOutline() {
                       <td style={{ border: "1px solid #ccc", padding: "6px", fontSize: "12px" }}>
                         {item.description}
                       </td>
-                      <td style={hoursColumn}>
+                      <td className="hoursColumn">
                         <input
                           type="number"
                           value={item.hours}
                           onChange={(e) => updateFinalAssessment(index, e.target.value)}
-                          style={inputHours}
+                          className="inputHours"
                         />
                       </td>
                     </tr>
                   ))}
                   <tr>
                     <td style={{ border: "1px solid #ccc", padding: "6px", fontSize: "12px" }}>Total Hours</td>
-                    <td style={hoursColumn}>
-                      <input type="text" value={totalHours} readOnly style={{ ...inputHours, backgroundColor: "#eee" }} />
+                    <td className="hoursColumn">
+                      <input
+                        type="text"
+                        value={totalHours}
+                        readOnly
+                        className="inputHours inputHoursReadonly"
+                      />
                     </td>
                   </tr>
                 </tbody>
@@ -250,8 +256,8 @@ export default function EditOutline() {
             </td>
           </tr>
           <tr>
-            <td style={leftSide}><strong>Assessment</strong></td>
-            <td style={cellStyle}>
+            <td className="leftSide"><strong>Assessment</strong></td>
+            <td className="cellStyle">
               <textarea
                 value={outline.assessment}
                 onChange={(e) => handleChange("assessment", e.target.value)}
@@ -259,7 +265,7 @@ export default function EditOutline() {
                   e.target.style.height = "auto";
                   e.target.style.height = `${e.target.scrollHeight}px`;
                 }}
-                style={textareaStyle}
+                className="textareaStyle"
               />
             </td>
           </tr>
@@ -277,78 +283,3 @@ export default function EditOutline() {
     </div>
   );
 }
-
-// Styles
-const cellStyle = {
-  border: "1px solid #000000",
-  padding: "8px",
-  verticalAlign: "top",
-};
-
-const leftSide = {
-  ...cellStyle,
-  width: "200px",
-  fontWeight: "bold",
-};
-
-const inputStyle = {
-  width: "100%",
-  padding: "6px",
-  fontSize: "12px",
-  border: "none",
-};
-
-const inputHours = {
-  width: "100%",
-  padding: "6px",
-  fontSize: "12px",
-  border: "1px solid #ccc",
-};
-
-const textareaStyle = {
-  width: "100%",
-  minHeight: "100px",
-  padding: "8px",
-  fontSize: "14px",
-  resize: "none",
-  border: "none",
-  outline: "none",
-  overflow: "hidden",
-  backgroundColor: "transparent",
-};
-
-const subHeaderStyle = {
-  border: "1px solid #ccc",
-  padding: "6px",
-  backgroundColor: "#ADDFFF",
-  fontSize: "12px",
-};
-
-const unitColumn = {
-  border: "1px solid #ccc",
-  padding: "6px",
-};
-
-const descriptionColumn = {
-  border: "1px solid #ccc",
-  padding: "6px",
-};
-
-const unitDescription = {
-  width: "100%",
-  padding: "6px",
-  fontSize: "12px",
-  resize: "none",
-  border: "none",
-};
-
-const hoursColumn = {
-  border: "1px solid #ccc",
-  padding: "6px",
-  width: "20%",
-};
-
-const actionColumn = {
-  border: "1px solid #ccc",
-  padding: "6px",
-};
