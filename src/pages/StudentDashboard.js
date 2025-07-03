@@ -4,10 +4,12 @@ import { Typography, Box } from "@mui/material";
 
 export default function StudentDashboard() {
   return (
-    <Box p={4}>
-      <Typography variant="h4" gutterBottom>
-        🎓 Welcome to the Student Dashboard!
-      </Typography>
-    </Box>
-  );
+    <div>
+      <Typography variant="h4">🎓 Welcome to the Student Dashboard!</Typography>
+      <button onClick={() => navigate("/upload")}>
+        Go to Dropbox
+      </button>
+    </div>
+  )
+
 }

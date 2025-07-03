@@ -20,6 +20,7 @@ import ProfileMenu from "../components/ProfileMenu";
 import { createCourseWithInitialVersion } from "../Auth/createCourses";
 
 
+
 export default function TeacherDashboard({ user }) {
   
   const navigate = useNavigate();
@@ -88,7 +89,8 @@ export default function TeacherDashboard({ user }) {
 
   const handleAction = (action) => {
     if (action === "Edit") {
-      navigate("/edit");
+      console.log("Navigating to edit:", selectedCourse);
+      navigate(`/edit/${selectedCourse}`);
     } else {
       alert(`${action} clicked for ${selectedCourse}`);
     }
@@ -263,6 +265,10 @@ export default function TeacherDashboard({ user }) {
           </>
         )}
       </Box>
+
     </Box>
+    
+    
+    
   );
 }

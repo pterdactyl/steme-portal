@@ -1,5 +1,7 @@
 // src/App.js
-import { useState, useEffect } from "react";
+import Pathways from './pages/pathways'
+import Upload from "./pages/upload"
+import React, { useState, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Login from "./Auth/login";
 import Signup from "./Auth/signup";
@@ -27,6 +29,7 @@ import PrivateRoute from "./Auth/privateRoute";
 import "primereact/resources/themes/lara-light-indigo/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
+
 
 
 
@@ -120,6 +123,16 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
+          <Route
+            path="/upload"
+            element={
+              <PrivateRoute>
+                <Upload user={user}/>
+              </PrivateRoute>
+            }
+          />
+
           <Route
             path="/edit"
             element={
