@@ -12,6 +12,9 @@ import {
   Button,
   Stack,
 } from '@mui/material';
+import { getIdTokenResult } from "firebase/auth";
+
+
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -29,12 +32,17 @@ export default function Login() {
     const userDoc = await getDoc(doc(db, 'users', user.uid));
     const userData = userDoc.data();
 
-    // Navigate based on role stored in Firestore
-    if (userData?.role === 'teacher') {
+    const tokenResult = await getIdTokenResult(user);
+    console.log("Is admin:", tokenResult.claims.admin);
+
+
+    if (tokenResult.claims.admin) {
+      navigate("/dashboard/admin", { state: { claims: tokenResult.claims } });
+    } else if (userData?.role === 'teacher') {
       navigate('/dashboard/teacher');
     } else {
       navigate('/dashboard/student');
-    }
+    } 
   } catch (err) {
     alert(err.message);
   }

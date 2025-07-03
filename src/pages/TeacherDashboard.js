@@ -1,6 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import html2pdf from "html2pdf.js";
+// import html2pdf from "html2pdf.js";
+import { getCoursesForTeacher } from '../Auth/getTeacherCourses'; 
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../Auth/firebase";
 import {
   Box,
   Typography,
@@ -13,16 +16,51 @@ import {
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ProfileMenu from "../components/ProfileMenu";
+import { createCourseWithInitialVersion } from "../Auth/createCourses";
 
 
-const courses = [
-  { id: "ENG1D", title: "ENG1D - Grade 9 English Academic", pdf: "/images.jpeg" },
-  { id: "MPM1D", title: "MPM1D - Grade 9 Mathematics, Academic", pdf: "/path/to/mpm1d.pdf" },
-  { id: "FSF1D", title: "FSF1D - Grade 9 French, Academic", pdf: "/path/to/fsf1d.pdf" },
-];
+
 
 export default function TeacherDashboard({ user }) {
+  
   const navigate = useNavigate();
+
+
+  const [courses, setCourses] = useState([]);
+  const [pdfUrls, setPdfUrls] = useState({});
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      if (!user?.uid) return;
+      const fetchedCourses = await getCoursesForTeacher(user.uid);
+      setCourses(fetchedCourses);
+  
+      // Fetch PDF URLs for each course’s current version
+      const urls = {};
+      for (const course of fetchedCourses) {
+        const versionId = course.currentVersion;
+        const versionRef = doc(db, "courses", course.id, "versions", versionId);
+        const versionSnap = await getDoc(versionRef);
+        if (versionSnap.exists()) {
+          urls[course.id] = versionSnap.data().pdf;
+        }
+      }
+      setPdfUrls(urls);
+    };
+  
+    fetchCourses();
+  }, [user]);
+
+  const handleCreate = () => {
+    const courseId = "ENG1D";
+    const title = "Grade 9 English Academic";
+    const teacherIds = ["OsZp2t0Z2dNWf5fphJGcRpitycJ3", "uid456"]; // replace with real user IDs
+
+    createCourseWithInitialVersion(courseId, title, teacherIds);
+  };
+
+
+
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -64,12 +102,7 @@ export default function TeacherDashboard({ user }) {
 
   // Export functions
   const exportToPDF = () => {
-    if (!exportRef.current) return;
-    html2pdf()
-      .from(exportRef.current)
-      .set({ margin: 0.5, filename: `${selectedCourse}-export.pdf`, html2canvas: { scale: 2 } })
-      .save();
-    handleExportMenuClose();
+    
   };
 
   const exportToWord = () => {
@@ -171,7 +204,14 @@ export default function TeacherDashboard({ user }) {
             >
               <Typography
                 sx={{ cursor: "pointer" }}
-                onClick={() => window.open(course.pdf, "_blank")}
+                onClick={() => {
+                  const url = pdfUrls[course.id];
+                  if (url) {
+                    window.open(url, "_blank");
+                  } else {
+                    alert("PDF not available.");
+                  }
+                }}
               >
                 {course.title}
               </Typography>
@@ -181,7 +221,7 @@ export default function TeacherDashboard({ user }) {
             </Paper>
           ))
         ) : (
-          <Typography>No courses match your search.</Typography>
+          <Typography>You do not have any courses currently.</Typography>
         )}
       </Stack>
 
