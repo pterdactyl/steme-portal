@@ -246,7 +246,7 @@ export default function EditOutline() {
                   <tr>
                     <td style={{ border: "1px solid #ccc", padding: "6px", fontSize: "12px" }}>Total Hours</td>
                     <td style={hoursColumn}>
-                      <input type="number" value={totalHours} readOnly style={{ ...inputHours, backgroundColor: "#eee" }} />
+                      <input type="text" value={totalHours} readOnly style={{ ...inputHours, backgroundColor: "#eee" }} />
                     </td>
                   </tr>
                 </tbody>
