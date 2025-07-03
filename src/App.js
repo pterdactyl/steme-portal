@@ -19,6 +19,7 @@ import { getIdTokenResult } from "firebase/auth";
 import AdminCourses from './pages/AdminCourses';
 import AdminTeachers from './pages/AdminTeachers';
 import AdminStudents from './pages/AdminStudents';
+import Course from './pages/Course'
 
 import 'primereact/resources/themes/lara-light-indigo/theme.css'; // Theme
 import 'primereact/resources/primereact.min.css'; // Core CSS
@@ -69,6 +70,14 @@ export default function App() {
             element={
               <PrivateRoute>
                 <TeacherDashboard user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/course"
+            element={
+              <PrivateRoute>
+                <Course user={user} />
               </PrivateRoute>
             }
           />
