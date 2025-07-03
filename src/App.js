@@ -1,5 +1,6 @@
 // src/App.js
 import Pathways from './pages/pathways'
+import Upload from "./pages/upload"
 import React, { useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Login from "./Auth/login";
@@ -13,6 +14,7 @@ import { Box } from "@mui/material";
 import { useAuth } from './Auth/auth';
 import PrivateRoute from './Auth/privateRoute';
 import EditOutline from "./pages/EditOutline";
+
 
 import 'primereact/resources/themes/lara-light-indigo/theme.css'; // Theme
 import 'primereact/resources/primereact.min.css'; // Core CSS
@@ -73,6 +75,16 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
+          <Route
+            path="/upload"
+            element={
+              <PrivateRoute>
+                <Upload user={user}/>
+              </PrivateRoute>
+            }
+          />
+
           <Route path="/edit" 
             element={
               <PrivateRoute>
