@@ -1,28 +1,33 @@
 // src/App.js
-import Pathways from './pages/pathways'
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Login from "./Auth/login";
 import Signup from "./Auth/signup";
 import Navbar from "./components/Navbar";
+import Box from '@mui/material/Box';
+
 import TeacherDashboard from "./pages/TeacherDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import TeacherAttendance from "./pages/TeacherAttendance";
 import ProfilePage from "./pages/ProfilePage";
-import { Box } from "@mui/material";
-import { useAuth } from './Auth/auth';
-import PrivateRoute from './Auth/privateRoute';
+import Pathways from "./pages/pathways";
 import EditOutline from "./pages/EditOutline";
 import AdminNavbar from './components/AdminNavbar'
 import { getIdTokenResult } from "firebase/auth";
 import AdminCourses from './pages/AdminCourses';
 import AdminTeachers from './pages/AdminTeachers';
 import AdminStudents from './pages/AdminStudents';
+import TeacherGrades from "./pages/TeacherGrades";
+import CourseOutline from "./pages/CourseOutline"; 
 
-import 'primereact/resources/themes/lara-light-indigo/theme.css'; // Theme
-import 'primereact/resources/primereact.min.css'; // Core CSS
-import 'primeicons/primeicons.css'; // Icons
+import { useAuth } from "./Auth/auth";
+import PrivateRoute from "./Auth/privateRoute";
+
+import "primereact/resources/themes/lara-light-indigo/theme.css";
+import "primereact/resources/primereact.min.css";
+import "primeicons/primeicons.css";
+
 
 
 export default function App() {
@@ -61,9 +66,11 @@ export default function App() {
       )}
       <Box p={!hideNavbar ? 3 : 0}>
         <Routes>
+          {/* Public routes */}
           <Route path="/" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
+          {/* Protected dashboards */}
           <Route
             path="/dashboard/teacher"
             element={
@@ -80,6 +87,7 @@ export default function App() {
               </PrivateRoute>
             }
           />
+          {/* Other protected routes */}
           <Route
             path="/dashboard/admin"
             element={
@@ -108,16 +116,33 @@ export default function App() {
             path="/pathways"
             element={
               <PrivateRoute>
-                <Pathways user={user}/>
+                <Pathways user={user} />
               </PrivateRoute>
             }
           />
-          <Route path="/edit" 
+          <Route
+            path="/edit"
             element={
               <PrivateRoute>
-                <EditOutline user={user}/>
-                </PrivateRoute>
-              }
+                <EditOutline user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/grades/manage"
+            element={
+              <PrivateRoute>
+                <TeacherGrades user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/course/:courseId"
+            element={
+              <PrivateRoute>
+                <CourseOutline />
+              </PrivateRoute>
+            }
           />
           <Route path="/admin/courses" 
             element={

@@ -1,9 +1,8 @@
-// src/pages/Login.jsx
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from './firebase';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "./firebase"; // relative path to firebase.js inside Auth
 import {
   Box,
   Paper,
@@ -17,20 +16,18 @@ import { getIdTokenResult } from "firebase/auth";
 
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    // Sign in with Firebase Auth and get the user object
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+    e.preventDefault();
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-    // Fetch user document from Firestore
-    const userDoc = await getDoc(doc(db, 'users', user.uid));
-    const userData = userDoc.data();
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      const userData = userDoc.data();
 
     const tokenResult = await getIdTokenResult(user);
     console.log("Is admin:", tokenResult.claims.admin);
@@ -82,8 +79,8 @@ export default function Login() {
               Login
             </Button>
             <Typography variant="body2" align="center">
-              Don’t have an account?{' '}
-              <Link to="/signup" style={{ color: '#1976d2', textDecoration: 'none' }}>
+              Don’t have an account?{" "}
+              <Link to="/signup" style={{ color: "#1976d2", textDecoration: "none" }}>
                 Sign up
               </Link>
             </Typography>

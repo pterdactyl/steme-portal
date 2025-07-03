@@ -20,7 +20,6 @@ import { createCourseWithInitialVersion } from "../Auth/createCourses";
 
 
 
-
 export default function TeacherDashboard({ user }) {
   
   const navigate = useNavigate();
@@ -89,10 +88,8 @@ export default function TeacherDashboard({ user }) {
 
   const handleAction = (action) => {
     if (action === "Edit") {
-      console.log("yes");
       navigate("/edit");
     } else {
-      console.log("na");
       alert(`${action} clicked for ${selectedCourse}`);
     }
     handleMenuClose();
@@ -151,27 +148,28 @@ export default function TeacherDashboard({ user }) {
   );
 
   return (
-    <Box p={4}>
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={3}
-      >
-        <Typography variant="h4">Dashboard</Typography>
+    <Box p={4} sx={{ bgcolor: "#f0fdf4", minHeight: "100vh" }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h4" color="green">Teacher Dashboard</Typography>
         <Box>
           <Button
-            variant="outlined"
-            sx={{ mr: 2 }}
+            variant="contained"
+            sx={{ mr: 2, bgcolor: "green", color: "white", '&:hover': { bgcolor: "darkgreen" } }}
             onClick={() => navigate("/attendance")}
           >
             Take Attendance
+          </Button>
+          <Button
+            variant="contained"
+            sx={{ mr: 2, bgcolor: "green", color: "white", '&:hover': { bgcolor: "darkgreen" } }}
+            onClick={() => navigate("/grades/manage")}
+          >
+            Manage Grades
           </Button>
           <ProfileMenu user={user} />
         </Box>
       </Box>
 
-      {/* Filter input */}
       <Box mb={2} maxWidth={300}>
         <input
           type="text"
@@ -188,7 +186,6 @@ export default function TeacherDashboard({ user }) {
         />
       </Box>
 
-      {/* Filtered course list */}
       <Stack spacing={2}>
         {filteredCourses.length > 0 ? (
           filteredCourses.map((course) => (
@@ -199,7 +196,7 @@ export default function TeacherDashboard({ user }) {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                bgcolor: "#b3e5fc",
+                bgcolor: "#d0f0c0",
               }}
             >
               <Typography
@@ -225,15 +222,8 @@ export default function TeacherDashboard({ user }) {
         )}
       </Stack>
 
-      {/* Main menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-      >
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
         <MenuItem onClick={() => handleAction("Edit")}>Edit</MenuItem>
-      
-       
         <MenuItem onClick={handleExportClick}>Export</MenuItem>
         <MenuItem
           onClick={() => {
@@ -245,18 +235,12 @@ export default function TeacherDashboard({ user }) {
         </MenuItem>
       </Menu>
 
-      {/* Export submenu */}
-      <Menu
-        anchorEl={exportMenuAnchor}
-        open={Boolean(exportMenuAnchor)}
-        onClose={handleExportMenuClose}
-      >
+      <Menu anchorEl={exportMenuAnchor} open={Boolean(exportMenuAnchor)} onClose={handleExportMenuClose}>
         <MenuItem onClick={exportToPDF}>Export as PDF</MenuItem>
         <MenuItem onClick={exportToWord}>Export as Word</MenuItem>
         <MenuItem onClick={printContent}>Print</MenuItem>
       </Menu>
 
-      {/* Hidden div with content to export */}
       <Box
         ref={exportRef}
         sx={{
@@ -274,9 +258,7 @@ export default function TeacherDashboard({ user }) {
           <>
             <Typography variant="h5">{selectedCourseObj.title}</Typography>
             <Typography mt={2}>
-              This is the export content for {selectedCourseObj.title}. You
-              can add more detailed outlines, descriptions, or any other
-              content here.
+              This is the export content for {selectedCourseObj.title}. You can add more detailed outlines, descriptions, or any other content here.
             </Typography>
           </>
         )}
