@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from './firebase';
+import { auth, db } from './firebase';  // adjust path if needed
 import {
   Box,
   Paper,
@@ -92,6 +92,7 @@ export default function SignUp() {
                 <MenuItem value="student">Student</MenuItem>
                 <MenuItem value="teacher">Teacher</MenuItem>
                 <MenuItem value="admin">Admin</MenuItem>
+                {/* Removed Admin Option */}
               </Select>
             </FormControl>
             <Button variant="contained" type="submit" fullWidth>
@@ -109,4 +110,3 @@ export default function SignUp() {
     </Box>
   );
 }
-
