@@ -11,8 +11,6 @@ import {
   Button,
   Stack,
 } from '@mui/material';
-import { getIdTokenResult } from "firebase/auth";
-
 
 
 export default function Login() {
@@ -29,21 +27,19 @@ export default function Login() {
       const userDoc = await getDoc(doc(db, "users", user.uid));
       const userData = userDoc.data();
 
-    const tokenResult = await getIdTokenResult(user);
-    console.log("Is admin:", tokenResult.claims.admin);
-
-
-    if (tokenResult.claims.admin) {
-      navigate("/dashboard/admin", { state: { claims: tokenResult.claims } });
-    } else if (userData?.role === 'teacher') {
-      navigate('/dashboard/teacher');
-    } else {
-      navigate('/dashboard/student');
-    } 
-  } catch (err) {
-    alert(err.message);
-  }
-};
+      if (userData?.role === "teacher") {
+        navigate("/dashboard/teacher");
+      } else if (userData?.role === "student") {
+        navigate("/dashboard/student");
+      } else if (userData?.role === "admin") {
+        navigate("/dashboard/admin");
+      } else {
+        alert("Unrecognized user role.");
+      }
+    } catch (err) {
+      alert(err.message);
+    }
+  };
 
   return (
     <Box

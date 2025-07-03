@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+// src/pages/TeacherDashboard.jsx
 import { useNavigate } from "react-router-dom";
 // import html2pdf from "html2pdf.js";
 import { getCoursesForTeacher } from '../Auth/getTeacherCourses'; 
@@ -17,7 +18,6 @@ import {
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ProfileMenu from "../components/ProfileMenu";
 import { createCourseWithInitialVersion } from "../Auth/createCourses";
-
 
 
 export default function TeacherDashboard({ user }) {

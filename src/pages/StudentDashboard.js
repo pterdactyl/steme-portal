@@ -4,10 +4,10 @@ import { Typography, Box } from "@mui/material";
 
 export default function StudentDashboard() {
   return (
-    <div>
-      <Typography variant="h4">🎓 Welcome to the Student Dashboard!</Typography>
-      
-    </div>
-  )
-
+    <Box p={4}>
+      <Typography variant="h4" gutterBottom>
+        🎓 Welcome to the Student Dashboard!
+      </Typography>
+    </Box>
+  );
 }
