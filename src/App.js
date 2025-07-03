@@ -28,6 +28,7 @@ import PrivateRoute from "./Auth/privateRoute";
 import "primereact/resources/themes/lara-light-indigo/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
+import Course from './pages/Course'
 
 
 
@@ -78,6 +79,14 @@ export default function App() {
             element={
               <PrivateRoute>
                 <TeacherDashboard user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/course"
+            element={
+              <PrivateRoute>
+                <Course user={user} />
               </PrivateRoute>
             }
           />
