@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../Auth/firebase";
 import { doc, setDoc } from "firebase/firestore";
+import { useParams } from "react-router-dom";
 
 export default function EditOutline() {
+  const { courseCode } = useParams();
   const [outline, setOutline] = useState({
-    courseCode: "",
+    courseCode: courseCode || "",
     courseName: "",
     grade: "",
     courseType: "",
@@ -20,14 +22,19 @@ export default function EditOutline() {
     { description: "Final Exam", hours: "" },
   ]);
 
+  const localOutlineKey = `courseOutline_${courseCode}`;
+  const localUnitsKey = `courseOutlineUnits_${courseCode}`;
+  const localFinalsKey = `courseOutlineFinalAssessments_${courseCode}`;
+  const localTotalHoursKey = `courseOutlineTotalHours_${courseCode}`;
+
   useEffect(() => {
-    const savedOutline = localStorage.getItem("courseOutline");
-    const savedUnits = localStorage.getItem("courseOutlineUnits");
-    const savedFinals = localStorage.getItem("courseOutlineFinalAssessments");
+    const savedOutline = localStorage.getItem(`courseOutline_${courseCode}`);
+    const savedUnits = localStorage.getItem(`courseOutlineUnits_${courseCode}`);
+    const savedFinals = localStorage.getItem(`courseOutlineFinalAssessments_${courseCode}`);
     if (savedOutline) setOutline(JSON.parse(savedOutline));
     if (savedUnits) setUnits(JSON.parse(savedUnits));
     if (savedFinals) setFinalAssessments(JSON.parse(savedFinals));
-  }, []);
+  }, [localOutlineKey, localUnitsKey, localFinalsKey]);
 
   useEffect(() => {
     const textareas = document.querySelectorAll("textarea");
@@ -61,17 +68,21 @@ export default function EditOutline() {
     setFinalAssessments(newFinals);
   };
 
+  const totalHours =
+    units.reduce((sum, unit) => sum + (parseFloat(unit.unitHours) || 0), 0) +
+    finalAssessments.reduce((sum, f) => sum + (parseFloat(f.hours) || 0), 0);
+
   const handleSaveLocal = () => {
-    localStorage.setItem("courseOutline", JSON.stringify(outline));
-    localStorage.setItem("courseOutlineUnits", JSON.stringify(units));
-    localStorage.setItem("courseOutlineFinalAssessments", JSON.stringify(finalAssessments));
-    localStorage.setItem("courseOutlineTotalHours", totalHours);
+    localStorage.setItem(`courseOutline_${courseCode}`, JSON.stringify(outline));
+    localStorage.setItem(`courseOutlineUnits_${courseCode}`, JSON.stringify(units));
+    localStorage.setItem(`courseOutlineFinalAssessments_${courseCode}`, JSON.stringify(finalAssessments));
+    localStorage.setItem(localTotalHoursKey, totalHours);
     alert("Saved locally!");
   };
 
   const handleSaveToFirestore = async () => {
     try {
-      const docRef = doc(db, "courseOutlines", outline.courseCode || "defaultCode");
+      const docRef = doc(db, "courseOutlines", courseCode || "defaultCode");
       await setDoc(docRef, {
         ...outline,
         units,
@@ -86,13 +97,9 @@ export default function EditOutline() {
     }
   };
 
-  const totalHours =
-    units.reduce((sum, unit) => sum + (parseFloat(unit.unitHours) || 0), 0) +
-    finalAssessments.reduce((sum, f) => sum + (parseFloat(f.hours) || 0), 0);
-
   return (
     <div style={{ maxWidth: 900, margin: "20px auto", padding: 20 }}>
-      <h2 style={{ textAlign: "center" }}>Course Outline</h2>
+      <h2 style={{ textAlign: "center" }}>Course Outline ({courseCode})</h2>
       <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 20 }}>
         <tbody>
           <tr>
@@ -102,17 +109,6 @@ export default function EditOutline() {
                 type="text"
                 value={outline.courseName}
                 onChange={(e) => handleChange("courseName", e.target.value)}
-                style={inputStyle}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td style={leftSide}><strong>Course Code</strong></td>
-            <td style={cellStyle}>
-              <input
-                type="text"
-                value={outline.courseCode}
-                onChange={(e) => handleChange("courseCode", e.target.value)}
                 style={inputStyle}
               />
             </td>

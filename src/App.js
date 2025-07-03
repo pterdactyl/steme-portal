@@ -1,7 +1,6 @@
 // src/App.js
 import Pathways from './pages/pathways'
 import Upload from "./pages/upload"
-import React, { useState } from "react";
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Login from "./Auth/login";
@@ -125,7 +124,7 @@ export default function App() {
             }
           />
 
-          <Route path="/edit" 
+          <Route path="/edit/:courseCode" 
             element={
               <PrivateRoute>
                 <EditOutline user={user}/>
