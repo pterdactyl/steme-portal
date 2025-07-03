@@ -1,5 +1,7 @@
 // src/App.js
 import Pathways from './pages/pathways'
+import Upload from "./pages/upload"
+import React, { useState } from "react";
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Login from "./Auth/login";
@@ -19,6 +21,7 @@ import { getIdTokenResult } from "firebase/auth";
 import AdminCourses from './pages/AdminCourses';
 import AdminTeachers from './pages/AdminTeachers';
 import AdminStudents from './pages/AdminStudents';
+
 
 import 'primereact/resources/themes/lara-light-indigo/theme.css'; // Theme
 import 'primereact/resources/primereact.min.css'; // Core CSS
@@ -112,6 +115,16 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
+          <Route
+            path="/upload"
+            element={
+              <PrivateRoute>
+                <Upload user={user}/>
+              </PrivateRoute>
+            }
+          />
+
           <Route path="/edit" 
             element={
               <PrivateRoute>
