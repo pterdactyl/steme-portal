@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import './pathways.css'
+import '../styles/pathways.css'
 
 const courses = [
   {

@@ -4,6 +4,9 @@
   border: 1px solid #000000;
   padding: 8px;
   vertical-align: top;
+  width: "100%";
+  max-width: "100%";
+  overflow-wrap: break-word;
 }
 
 .leftSide {

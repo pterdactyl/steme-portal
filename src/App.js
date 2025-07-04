@@ -15,6 +15,7 @@ import { Box } from "@mui/material";
 import { useAuth } from './Auth/auth';
 import PrivateRoute from './Auth/privateRoute';
 import EditOutline from "./pages/EditOutline";
+import ViewOutline from "./pages/ViewOutline";
 import AdminNavbar from './components/AdminNavbar'
 import { getIdTokenResult } from "firebase/auth";
 import AdminCourses from './pages/AdminCourses';
@@ -123,11 +124,17 @@ export default function App() {
               </PrivateRoute>
             }
           />
-
           <Route path="/edit/:courseCode" 
             element={
               <PrivateRoute>
                 <EditOutline user={user}/>
+                </PrivateRoute>
+              }
+          />
+          <Route path="/view/:courseCode" 
+            element={
+              <PrivateRoute>
+                <ViewOutline user={user}/>
                 </PrivateRoute>
               }
           />

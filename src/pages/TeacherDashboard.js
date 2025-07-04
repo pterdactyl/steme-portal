@@ -89,6 +89,7 @@ export default function TeacherDashboard({ user }) {
 
   const handleAction = (action) => {
     if (action === "Edit") {
+      console.log("selectedCourse type:", typeof selectedCourse);
       console.log("Navigating to edit:", selectedCourse);
       navigate(`/edit/${selectedCourse}`);
     } else {
@@ -205,15 +206,10 @@ export default function TeacherDashboard({ user }) {
               <Typography
                 sx={{ cursor: "pointer" }}
                 onClick={() => {
-                  const url = pdfUrls[course.id];
-                  if (url) {
-                    window.open(url, "_blank");
-                  } else {
-                    alert("PDF not available.");
-                  }
+                  navigate(`/view/${course.id}`);
                 }}
               >
-                {course.title}
+                {course.title || course.id || "Untitled Course"}
               </Typography>
               <IconButton onClick={(e) => handleMenuClick(e, course.id)}>
                 <MoreVertIcon />
