@@ -204,14 +204,7 @@ export default function TeacherDashboard({ user }) {
             >
               <Typography
                 sx={{ cursor: "pointer" }}
-                onClick={() => {
-                  const url = pdfUrls[course.id];
-                  if (url) {
-                    window.open(url, "_blank");
-                  } else {
-                    alert("PDF not available.");
-                  }
-                }}
+             onClick={() => navigate(`/course/${course.id}`)}
               >
                 {course.title}
               </Typography>

@@ -20,7 +20,9 @@ import { getIdTokenResult } from "firebase/auth";
 import AdminCourses from './pages/AdminCourses';
 import AdminTeachers from './pages/AdminTeachers';
 import AdminStudents from './pages/AdminStudents';
-import Course from './pages/Course'
+import CoursePage from "./pages/coursePage.js";
+import Course from './pages/Course';
+
 
 
 import 'primereact/resources/themes/lara-light-indigo/theme.css'; // Theme
@@ -161,6 +163,15 @@ export default function App() {
                 </PrivateRoute>
               }
           />
+
+          <Route path="/course/:courseId"
+           element={
+            <PrivateRoute>
+           <CoursePage user={user}/>
+           </PrivateRoute>
+           }
+          />
+
         </Routes>
       </Box>
     </>
