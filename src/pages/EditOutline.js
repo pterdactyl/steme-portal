@@ -5,9 +5,9 @@ import { useParams } from "react-router-dom";
 import '../styles/EditOutline.css';
 
 export default function EditOutline() {
-  const { courseCode } = useParams();
+  const { courseId  } = useParams();
   const [outline, setOutline] = useState({
-    courseCode: courseCode || "",
+    courseId: courseId  || "",
     courseName: "",
     grade: "",
     courseType: "",
@@ -23,15 +23,15 @@ export default function EditOutline() {
     { description: "Final Exam", hours: "" },
   ]);
 
-  const localOutlineKey = `courseOutline_${courseCode}`;
-  const localUnitsKey = `courseOutlineUnits_${courseCode}`;
-  const localFinalsKey = `courseOutlineFinalAssessments_${courseCode}`;
-  const localTotalHoursKey = `courseOutlineTotalHours_${courseCode}`;
+  const localOutlineKey = `courseOutline_${courseId }`;
+  const localUnitsKey = `courseOutlineUnits_${courseId }`;
+  const localFinalsKey = `courseOutlineFinalAssessments_${courseId }`;
+  const localTotalHoursKey = `courseOutlineTotalHours_${courseId }`;
 
   useEffect(() => {
-    const savedOutline = localStorage.getItem(`courseOutline_${courseCode}`);
-    const savedUnits = localStorage.getItem(`courseOutlineUnits_${courseCode}`);
-    const savedFinals = localStorage.getItem(`courseOutlineFinalAssessments_${courseCode}`);
+    const savedOutline = localStorage.getItem(`courseOutline_${courseId }`);
+    const savedUnits = localStorage.getItem(`courseOutlineUnits_${courseId }`);
+    const savedFinals = localStorage.getItem(`courseOutlineFinalAssessments_${courseId }`);
     if (savedOutline) setOutline(JSON.parse(savedOutline));
     if (savedUnits) setUnits(JSON.parse(savedUnits));
     if (savedFinals) setFinalAssessments(JSON.parse(savedFinals));
@@ -74,16 +74,16 @@ export default function EditOutline() {
     finalAssessments.reduce((sum, f) => sum + (parseFloat(f.hours) || 0), 0);
 
   const handleSaveLocal = () => {
-    localStorage.setItem(`courseOutline_${courseCode}`, JSON.stringify(outline));
-    localStorage.setItem(`courseOutlineUnits_${courseCode}`, JSON.stringify(units));
-    localStorage.setItem(`courseOutlineFinalAssessments_${courseCode}`, JSON.stringify(finalAssessments));
+    localStorage.setItem(`courseOutline_${courseId }`, JSON.stringify(outline));
+    localStorage.setItem(`courseOutlineUnits_${courseId }`, JSON.stringify(units));
+    localStorage.setItem(`courseOutlineFinalAssessments_${courseId }`, JSON.stringify(finalAssessments));
     localStorage.setItem(localTotalHoursKey, totalHours);
     alert("Saved locally!");
   };
 
   const handleSaveToFirestore = async () => {
     try {
-      const docRef = doc(db, "courseOutlines", courseCode || "defaultCode");
+      const docRef = doc(db, "courseOutlines", courseId  || "defaultCode");
       await setDoc(docRef, {
         ...outline,
         units,
@@ -100,7 +100,7 @@ export default function EditOutline() {
 
   return (
     <div style={{ maxWidth: 900, margin: "20px auto", padding: 20 }}>
-      <h2 style={{ textAlign: "center" }}>Course Outline ({courseCode})</h2>
+      <h2 style={{ textAlign: "center" }}>Course Outline ({courseId })</h2>
       <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 20 }}>
         <tbody>
           <tr>

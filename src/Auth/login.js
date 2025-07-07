@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "./firebase"; // relative path to firebase.js inside Auth
+import { auth, db } from "./firebase"; // adjust path if needed
 import {
   Box,
   Paper,
@@ -10,16 +10,20 @@ import {
   TextField,
   Button,
   Stack,
-} from '@mui/material';
-
+  Alert,
+} from "@mui/material";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [resetSent, setResetSent] = useState(false);
+  const [error, setError] = useState("");
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -34,10 +38,25 @@ export default function Login() {
       } else if (userData?.role === "admin") {
         navigate("/dashboard/admin");
       } else {
-        alert("Unrecognized user role.");
+        setError("Unrecognized user role.");
       }
     } catch (err) {
-      alert(err.message);
+      setError(err.message);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError("Please enter your email first.");
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setResetSent(true);
+      setError("");
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -53,8 +72,15 @@ export default function Login() {
         <Typography variant="h5" mb={2} align="center">
           Sign In
         </Typography>
+
         <form onSubmit={handleSubmit}>
           <Stack spacing={2}>
+            {error && <Alert severity="error">{error}</Alert>}
+            {resetSent && (
+              <Alert severity="success">
+                Password reset email sent. Check your inbox.
+              </Alert>
+            )}
             <TextField
               label="Email"
               fullWidth
@@ -74,6 +100,15 @@ export default function Login() {
             <Button variant="contained" type="submit" fullWidth>
               Login
             </Button>
+
+            <Button
+              onClick={handleForgotPassword}
+              sx={{ textTransform: "none" }}
+              color="secondary"
+            >
+              Forgot Password?
+            </Button>
+
             <Typography variant="body2" align="center">
               Don’t have an account?{" "}
               <Link to="/signup" style={{ color: "#1976d2", textDecoration: "none" }}>

@@ -1,11 +1,12 @@
-// src/App.js
 import Pathways from './pages/pathways'
 import Upload from "./pages/upload"
 import React, { useState, useEffect } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Login from "./Auth/login";
 import Signup from "./Auth/signup";
 import Navbar from "./components/Navbar";
+import TeacherNavbar from "./components/TeacherNavbar";
+import AdminNavbar from './components/AdminNavbar';
 import Box from '@mui/material/Box';
 
 import TeacherDashboard from "./pages/TeacherDashboard";
@@ -14,13 +15,14 @@ import AdminDashboard from "./pages/AdminDashboard";
 import TeacherAttendance from "./pages/TeacherAttendance";
 import ProfilePage from "./pages/ProfilePage";
 import EditOutline from "./pages/EditOutline";
-import AdminNavbar from './components/AdminNavbar'
 import { getIdTokenResult } from "firebase/auth";
 import AdminCourses from './pages/AdminCourses';
 import AdminTeachers from './pages/AdminTeachers';
 import AdminStudents from './pages/AdminStudents';
-import TeacherGrades from "./pages/TeacherGrades";
 import CourseOutline from "./pages/CourseOutline"; 
+import Course from './pages/Course';
+import CourseDashboard from "./pages/CourseDashboard";
+import OutlinePage from "./pages/OutlinePage";
 
 import { useAuth } from "./Auth/auth";
 import PrivateRoute from "./Auth/privateRoute";
@@ -28,10 +30,6 @@ import PrivateRoute from "./Auth/privateRoute";
 import "primereact/resources/themes/lara-light-indigo/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
-import Course from './pages/Course'
-
-
-
 
 export default function App() {
   const { user, firebaseUser, logout } = useAuth();
@@ -41,41 +39,46 @@ export default function App() {
 
   useEffect(() => {
     const checkClaims = async () => {
-      console.log("user from useAuth():", user);
       if (firebaseUser) {
         const tokenResult = await getIdTokenResult(firebaseUser);
-        console.log("App.js Admin:", tokenResult.claims.admin);
         setAdmin(tokenResult.claims.admin);
-      }
-      else{
+      } else {
         setAdmin(false);
       }
-    }
+    };
     checkClaims();
-  }, [user])
-  
-  
- 
+  }, [user, firebaseUser]);
+
+  if (user && location.pathname === "/") {
+    if (isAdmin) {
+      return <Navigate to="/dashboard/admin" replace />;
+    } else if (user.role === "teacher") {
+      return <Navigate to="/courses" replace />;
+    } else if (user.role === "student") {
+      return <Navigate to="/dashboard/student" replace />;
+    }
+  }
+
   return (
     <>
       {!hideNavbar && (
         isAdmin ? (
           <AdminNavbar user={user} onLogout={logout} />
         ) : user?.role === 'teacher' ? (
-          <Navbar user={user} onLogout={logout} />
+          <TeacherNavbar user={user} onLogout={logout} />
         ) : user?.role === 'student' ? (
           <Navbar user={user} onLogout={logout} />
         ) : null
       )}
+      
       <Box p={!hideNavbar ? 3 : 0}>
         <Routes>
-          {/* Public routes */}
           <Route path="/" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
-          {/* Protected dashboards */}
+          {/* Dashboards */}
           <Route
-            path="/dashboard/teacher"
+            path="/courses"
             element={
               <PrivateRoute>
                 <TeacherDashboard user={user} />
@@ -98,7 +101,6 @@ export default function App() {
               </PrivateRoute>
             }
           />
-          {/* Other protected routes */}
           <Route
             path="/dashboard/admin"
             element={
@@ -107,6 +109,8 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
+          {/* Other pages */}
           <Route
             path="/attendance"
             element={
@@ -131,32 +135,24 @@ export default function App() {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/upload"
             element={
               <PrivateRoute>
-                <Upload user={user}/>
+                <Upload user={user} />
               </PrivateRoute>
             }
           />
-
           <Route
-            path="/edit"
+            path="/edit/:courseId"
             element={
               <PrivateRoute>
                 <EditOutline user={user} />
               </PrivateRoute>
             }
           />
-          <Route
-            path="/grades/manage"
-            element={
-              <PrivateRoute>
-                <TeacherGrades user={user} />
-              </PrivateRoute>
-            }
-          />
+
+          {/* ❗Distinct routes now */}
           <Route
             path="/course/:courseId"
             element={
@@ -165,26 +161,47 @@ export default function App() {
               </PrivateRoute>
             }
           />
-          <Route path="/admin/courses" 
+          <Route
+            path="/dashboard/course/:courseId"
             element={
               <PrivateRoute>
-                <AdminCourses user={user}/>
-                </PrivateRoute>
-              }
+                <CourseDashboard user={user} />
+              </PrivateRoute>
+            }
           />
-          <Route path="/admin/teachers" 
-            element={
-              <PrivateRoute>
-                <AdminTeachers user={user}/>
-                </PrivateRoute>
-              }
+          <Route
+           path="/outline"
+           element={
+            <PrivateRoute>
+              <OutlinePage user={user} />
+            </PrivateRoute>
+          }
           />
-          <Route path="/admin/students" 
+
+          {/* Admin pages */}
+          <Route
+            path="/admin/courses"
             element={
               <PrivateRoute>
-                <AdminStudents user={user}/>
-                </PrivateRoute>
-              }
+                <AdminCourses user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/teachers"
+            element={
+              <PrivateRoute>
+                <AdminTeachers user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/students"
+            element={
+              <PrivateRoute>
+                <AdminStudents user={user} />
+              </PrivateRoute>
+            }
           />
         </Routes>
       </Box>
