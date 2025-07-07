@@ -23,6 +23,8 @@ import CourseOutline from "./pages/CourseOutline";
 import Course from './pages/Course';
 import CourseDashboard from "./pages/CourseDashboard";
 import OutlinePage from "./pages/OutlinePage";
+import CoursePage from "./pages/coursePage.js";
+
 
 import { useAuth } from "./Auth/auth";
 import PrivateRoute from "./Auth/privateRoute";
@@ -203,6 +205,15 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
+          <Route path="/course/:courseId"
+           element={
+            <PrivateRoute>
+           <CoursePage user={user}/>
+           </PrivateRoute>
+           }
+          />
+
         </Routes>
       </Box>
     </>

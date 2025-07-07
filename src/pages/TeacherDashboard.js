@@ -1,10 +1,16 @@
-// src/pages/TeacherDashboard.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCoursesForTeacher } from "../Auth/getTeacherCourses";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../Auth/firebase";
-import { Box, Typography, Paper, Stack } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Paper,
+  Stack,
+  IconButton,
+} from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 export default function TeacherDashboard({ user }) {
   const navigate = useNavigate();
@@ -21,6 +27,7 @@ export default function TeacherDashboard({ user }) {
       const urls = {};
       for (const course of fetchedCourses) {
         const versionId = course.currentVersion;
+        if (!versionId) continue;
         const versionRef = doc(db, "courses", course.id, "versions", versionId);
         const versionSnap = await getDoc(versionRef);
         if (versionSnap.exists()) {
@@ -39,8 +46,14 @@ export default function TeacherDashboard({ user }) {
       course.id.toLowerCase().includes(filterText.toLowerCase())
   );
 
+  const handleMenuClick = (event, courseId) => {
+    event.stopPropagation();
+    console.log("More menu clicked for course:", courseId);
+    // Add menu logic here if needed
+  };
+
   return (
-    <Box>
+    <Box p={3}>
       <Typography variant="h5" mb={2}>
         My Courses
       </Typography>
@@ -73,7 +86,24 @@ export default function TeacherDashboard({ user }) {
               }}
               onClick={() => navigate(`/dashboard/course/${course.id}`)}
             >
-              <Typography>{course.title}</Typography>
+              <Box
+                sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+              >
+                <Typography
+                  sx={{ cursor: "pointer" }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/dashboard/course/${course.id}`);
+                  }}
+                >
+                  {course.title}
+                </Typography>
+                <IconButton
+                  onClick={(e) => handleMenuClick(e, course.id)}
+                >
+                  <MoreVertIcon />
+                </IconButton>
+              </Box>
             </Paper>
           ))
         ) : (
