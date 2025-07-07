@@ -12,7 +12,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 
-import { supabase } from '../Supabase';
+import { supabase } from "../supabase";
 
 export default function CoursePage({ user }) {
   const { courseId } = useParams();
