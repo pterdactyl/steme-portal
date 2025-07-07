@@ -21,6 +21,8 @@ import AdminCourses from './pages/AdminCourses';
 import AdminTeachers from './pages/AdminTeachers';
 import AdminStudents from './pages/AdminStudents';
 import CoursePage from "./pages/coursePage.js";
+import Course from './pages/Course';
+
 
 
 import 'primereact/resources/themes/lara-light-indigo/theme.css'; // Theme
@@ -76,6 +78,14 @@ export default function App() {
             }
           />
           <Route
+            path="/course"
+            element={
+              <PrivateRoute>
+                <Course user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/dashboard/student"
             element={
               <PrivateRoute>
@@ -125,7 +135,7 @@ export default function App() {
             }
           />
 
-          <Route path="/edit" 
+          <Route path="/edit/:courseCode" 
             element={
               <PrivateRoute>
                 <EditOutline user={user}/>

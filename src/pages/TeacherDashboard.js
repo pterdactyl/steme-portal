@@ -89,8 +89,8 @@ export default function TeacherDashboard({ user }) {
 
   const handleAction = (action) => {
     if (action === "Edit") {
-      console.log("yes");
-      navigate("/edit");
+      console.log("Navigating to edit:", selectedCourse);
+      navigate(`/edit/${selectedCourse}`);
     } else {
       console.log("na");
       alert(`${action} clicked for ${selectedCourse}`);
@@ -274,6 +274,10 @@ export default function TeacherDashboard({ user }) {
           </>
         )}
       </Box>
+
     </Box>
+    
+    
+    
   );
 }
