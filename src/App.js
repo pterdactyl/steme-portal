@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Login from "./Auth/login";
 import Signup from "./Auth/signup";
-import Navbar from "./components/Navbar";
+import StudentNavbar from "./components/StudentNavbar";
 import TeacherNavbar from "./components/TeacherNavbar";
 import AdminNavbar from './components/AdminNavbar';
 import Box from '@mui/material/Box';
@@ -24,6 +24,11 @@ import Course from './pages/Course';
 import CourseDashboard from "./pages/CourseDashboard";
 import OutlinePage from "./pages/OutlinePage";
 import CoursePage from "./pages/coursePage.js";
+import StudentCourse from './pages/StudentCourse'
+
+import StudentMarks from './pages/StudentMarks'
+import StudentClasslist from './pages/StudentClasslist'
+import StudentStream from './pages/StudentStream'
 
 
 import { useAuth } from "./Auth/auth";
@@ -88,13 +93,18 @@ export default function App() {
             }
           />
           <Route
-            path="/course"
+            path="/course/:courseId"
             element={
               <PrivateRoute>
-                <Course user={user} />
+                <StudentCourse user={user} />
               </PrivateRoute>
             }
-          />
+          >
+            <Route path="stream" element={<StudentStream user={user} />} />
+            <Route path="people" element={<StudentClasslist user={user} />} />
+            <Route path="marks" element={<StudentMarks user={user} />} />
+          </Route>
+          
           <Route
             path="/dashboard/student"
             element={
