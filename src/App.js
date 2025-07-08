@@ -20,7 +20,6 @@ import AdminCourses from './pages/AdminCourses';
 import AdminTeachers from './pages/AdminTeachers';
 import AdminStudents from './pages/AdminStudents';
 import CourseOutline from "./pages/CourseOutline"; 
-import Course from './pages/Course';
 import CourseDashboard from "./pages/CourseDashboard";
 import OutlinePage from "./pages/OutlinePage";
 import CoursePage from "./pages/coursePage.js";
@@ -74,7 +73,7 @@ export default function App() {
         ) : user?.role === 'teacher' ? (
           <TeacherNavbar user={user} onLogout={logout} />
         ) : user?.role === 'student' ? (
-          <Navbar user={user} onLogout={logout} />
+          <StudentNavbar user={user} onLogout={logout} />
         ) : null
       )}
       

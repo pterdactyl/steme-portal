@@ -3,7 +3,7 @@ import React from "react";
 import { AppBar, Toolbar, Typography, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-export default function Navbar({ user, onLogout }) {
+export default function StudentNavbar({ user, onLogout }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {

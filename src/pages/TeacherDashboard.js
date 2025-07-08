@@ -11,7 +11,7 @@ import {
   IconButton,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import ProfileMenu from "../components/ProfileMenu";
+
 
 
 
@@ -54,7 +54,6 @@ export default function TeacherDashboard({ user }) {
   const [exportMenuAnchor, setExportMenuAnchor] = useState(null);
 
 
-  const exportRef = useRef(null);
 
 
 
@@ -90,40 +89,11 @@ export default function TeacherDashboard({ user }) {
   };
 
   const exportToWord = () => {
-    if (!exportRef.current) return;
-    const header =
-      "<html xmlns:o='urn:schemas-microsoft-com:office:office' " +
-      "xmlns:w='urn:schemas-microsoft-com:office:word' " +
-      "xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body>";
-    const footer = "</body></html>";
-    const sourceHTML = header + exportRef.current.innerHTML + footer;
-
-    const blob = new Blob(["\ufeff", sourceHTML], {
-      type: "application/msword",
-    });
-
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${selectedCourse}-export.doc`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    handleExportMenuClose();
+    
   };
 
   const printContent = () => {
-    if (!exportRef.current) return;
-    const printWindow = window.open("", "", "width=900,height=650");
-    printWindow.document.write(
-      `<html><head><title>Print</title></head><body>${exportRef.current.innerHTML}</body></html>`
-    );
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
-    handleExportMenuClose();
+    
   };
 
   const selectedCourseObj = getCourseById(selectedCourse);
