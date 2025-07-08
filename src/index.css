@@ -11,3 +11,56 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* ============================================= */
+/* ===== PDF EXPORT OVERRIDE STYLES ========== */
+/* ============================================= */
+
+/* --- Container & Margins --- */
+#pdf-container {
+  /* This creates the main page margins.
+     [top] [right] [bottom] [left]
+     We'll set the top margin to a smaller value here. */
+  padding: 10mm 15mm 15mm 15mm !important;
+}
+
+
+/* --- Fix #1: The Large Top Gap --- */
+/*
+  This rule targets the VERY FIRST element inside the container
+  (likely your title H1) and removes its top margin specifically.
+  This prevents the "double margin" effect (container padding + element margin).
+*/
+#pdf-container > *:first-child {
+  margin-top: 0 !important;
+}
+
+/*
+  This rule sets a consistent, small bottom margin for most elements,
+  which was part of our previous fix for the gap.
+*/
+#pdf-container * {
+  margin-bottom: 8px !important;
+}
+
+
+/* --- Fix #2: The Cut-off Table --- */
+/* This part remains the same as it correctly fixes the width issue. */
+#pdf-container table {
+  table-layout: fixed !important;
+  width: 100% !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+
+/* --- Fix #3: The Bottom Table "Sticking Out" --- */
+/*
+  This rule targets the VERY LAST element inside our container
+  (which you said is the table at the bottom) and removes its
+  bottom margin. The page margin is handled by the container's
+  padding, so the last element doesn't need its own margin.
+*/
+#pdf-container > *:last-child {
+  margin-bottom: 0 !important;
+}

@@ -1,4 +1,4 @@
-// src/components/OutlineContent.js
+// src/components/OutlineContent.jsx 
 import React from "react";
 import '../styles/EditOutline.css';
 
@@ -20,17 +20,12 @@ export default function OutlineContent({
       <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 20, tableLayout: "fixed"}}>
         <tbody>
           <tr>
-            <td className="leftSide"><strong>Course Name</strong></td>
+            <td className="leftSide">Course Name</td>
             <td className="cellStyle">
               {viewOnly ? (
-                <div>{outline.courseName}</div>
+                <div className="view-text-style">{outline.courseName}</div>
               ) : (
-                <input
-                  type="text"
-                  value={outline.courseName}
-                  onChange={(e) => handleChange("courseName", e.target.value)}
-                  className="inputStyle"
-                />
+                <input type="text" value={outline.courseName} onChange={(e) => handleChange("courseName", e.target.value)} className="inputStyle" />
               )}
             </td>
           </tr>
@@ -38,14 +33,9 @@ export default function OutlineContent({
             <td className="leftSide"><strong>Grade</strong></td>
             <td className="cellStyle">
               {viewOnly ? (
-                <div>{outline.grade}</div>
+                <div className="view-text-style">{outline.grade}</div>
               ) : (
-                <input
-                  type="text"
-                  value={outline.grade}
-                  onChange={(e) => handleChange("grade", e.target.value)}
-                  className="inputStyle"
-                />
+                <input type="text" value={outline.grade} onChange={(e) => handleChange("grade", e.target.value)} className="inputStyle" />
               )}
             </td>
           </tr>
@@ -53,14 +43,9 @@ export default function OutlineContent({
             <td className="leftSide"><strong>Course Type</strong></td>
             <td className="cellStyle">
               {viewOnly ? (
-                <div>{outline.courseType}</div>
+                <div className="view-text-style">{outline.courseType}</div>
               ) : (
-                <input
-                  type="text"
-                  value={outline.courseType}
-                  onChange={(e) => handleChange("courseType", e.target.value)}
-                  className="inputStyle"
-                />
+                <input type="text" value={outline.courseType} onChange={(e) => handleChange("courseType", e.target.value)} className="inputStyle" />
               )}
             </td>
           </tr>
@@ -68,14 +53,9 @@ export default function OutlineContent({
             <td className="leftSide"><strong>Credit Value</strong></td>
             <td className="cellStyle">
               {viewOnly ? (
-                <div>{outline.credit}</div>
+                <div className="view-text-style">{outline.credit}</div>
               ) : (
-                <input
-                  type="text"
-                  value={outline.credit}
-                  onChange={(e) => handleChange("credit", e.target.value)}
-                  className="inputStyle"
-                />
+                <input type="text" value={outline.credit} onChange={(e) => handleChange("credit", e.target.value)} className="inputStyle" />
               )}
             </td>
           </tr>
@@ -83,23 +63,12 @@ export default function OutlineContent({
             <td className="leftSide"><strong>Description</strong></td>
             <td className="cellStyle">
               {viewOnly ? (
-                <div style={{
-                  whiteSpace: "pre-wrap",
-                  wordWrap: "break-word",
-                  width: "100%",
-                  maxWidth: "100%",
-                  overflowWrap: "break-word",
-                  padding: "8px",
-                  minHeight: "80px"
-                }}>{outline.description}</div>
+                <div className="view-textarea-style">{outline.description}</div>
               ) : (
                 <textarea
                   value={outline.description}
                   onChange={(e) => handleChange("description", e.target.value)}
-                  onInput={(e) => {
-                    e.target.style.height = "auto";
-                    e.target.style.height = `${e.target.scrollHeight}px`;
-                  }}
+                  onInput={(e) => { e.target.style.height = "auto"; e.target.style.height = `${e.target.scrollHeight}px`; }}
                   className="textareaStyle"
                 />
               )}
@@ -109,15 +78,12 @@ export default function OutlineContent({
             <td className="leftSide"><strong>Learning Goals</strong></td>
             <td className="cellStyle">
               {viewOnly ? (
-                <div style={{ whiteSpace: "pre-wrap" }}>{outline.learningGoals}</div>
+                <div className="view-textarea-style">{outline.learningGoals}</div>
               ) : (
                 <textarea
                   value={outline.learningGoals}
                   onChange={(e) => handleChange("learningGoals", e.target.value)}
-                  onInput={(e) => {
-                    e.target.style.height = "auto";
-                    e.target.style.height = `${e.target.scrollHeight}px`;
-                  }}
+                  onInput={(e) => { e.target.style.height = "auto"; e.target.style.height = `${e.target.scrollHeight}px`; }}
                   className="textareaStyle"
                 />
               )}
@@ -138,46 +104,10 @@ export default function OutlineContent({
                 <tbody>
                   {units.map((unit, index) => (
                     <tr key={index}>
-                      <td className="unitColumn">
-                        {viewOnly ? (
-                          unit.unitNum
-                        ) : (
-                          <input
-                            type="text"
-                            value={unit.unitNum}
-                            onChange={(e) => updateUnit(index, "unitNum", e.target.value)}
-                            className="inputStyle"
-                          />
-                        )}
-                      </td>
-                      <td className="descriptionColumn">
-                        {viewOnly ? (
-                          unit.unitDescription
-                        ) : (
-                          <textarea
-                            value={unit.unitDescription}
-                            onChange={(e) => updateUnit(index, "unitDescription", e.target.value)}
-                            className="unitDescription"
-                          />
-                        )}
-                      </td>
-                      <td className="hoursColumn">
-                        {viewOnly ? (
-                          unit.unitHours
-                        ) : (
-                          <input
-                            type="number"
-                            value={unit.unitHours}
-                            onChange={(e) => updateUnit(index, "unitHours", e.target.value)}
-                            className="inputHours"
-                          />
-                        )}
-                      </td>
-                      {!viewOnly && (
-                        <td className="actionColumn">
-                          <button onClick={() => removeUnit(index)}>Remove</button>
-                        </td>
-                      )}
+                      <td className="unitColumn">{viewOnly ? unit.unitNum : <input type="text" value={unit.unitNum} onChange={(e) => updateUnit(index, "unitNum", e.target.value)} className="inputStyle" />}</td>
+                      <td className="descriptionColumn">{viewOnly ? <div className="view-textarea-style">{unit.unitDescription}</div> : <textarea value={unit.unitDescription} onChange={(e) => updateUnit(index, "unitDescription", e.target.value)} className="unitDescription" />}</td>
+                      <td className="hoursColumn">{viewOnly ? unit.unitHours : <input type="number" value={unit.unitHours} onChange={(e) => updateUnit(index, "unitHours", e.target.value)} className="inputHours" />}</td>
+                      {!viewOnly && (<td className="actionColumn"><button onClick={() => removeUnit(index)}>Remove</button></td>)}
                     </tr>
                   ))}
                 </tbody>
@@ -189,37 +119,13 @@ export default function OutlineContent({
                 <tbody>
                   {finalAssessments.map((item, index) => (
                     <tr key={index}>
-                      <td style={{ border: "1px solid #ccc", padding: "6px", fontSize: "12px" }}>
-                        {item.description}
-                      </td>
-                      <td className="hoursColumn">
-                        {viewOnly ? (
-                          item.hours
-                        ) : (
-                          <input
-                            type="number"
-                            value={item.hours}
-                            onChange={(e) => updateFinalAssessment(index, e.target.value)}
-                            className="inputHours"
-                          />
-                        )}
-                      </td>
+                      <td style={{ border: "1px solid #ccc", padding: "6px", fontSize: "12px" }}>{item.description}</td>
+                      <td className="hoursColumn">{viewOnly ? item.hours : <input type="number" value={item.hours} onChange={(e) => updateFinalAssessment(index, e.target.value)} className="inputHours" />}</td>
                     </tr>
                   ))}
                   <tr>
                     <td style={{ border: "1px solid #ccc", padding: "6px", fontSize: "12px" }}>Total Hours</td>
-                    <td className="hoursColumn">
-                      {viewOnly ? (
-                        totalHours
-                      ) : (
-                        <input
-                          type="text"
-                          value={totalHours}
-                          readOnly
-                          className="inputHours inputHoursReadonly"
-                        />
-                      )}
-                    </td>
+                    <td className="hoursColumn">{viewOnly ? totalHours : <input type="text" value={totalHours} readOnly className="inputHours inputHoursReadonly" />}</td>
                   </tr>
                 </tbody>
               </table>
@@ -229,15 +135,12 @@ export default function OutlineContent({
             <td className="leftSide"><strong>Assessment</strong></td>
             <td className="cellStyle">
               {viewOnly ? (
-                <div style={{ whiteSpace: "pre-wrap" }}>{outline.assessment}</div>
+                <div className="view-textarea-style">{outline.assessment}</div>
               ) : (
                 <textarea
                   value={outline.assessment}
                   onChange={(e) => handleChange("assessment", e.target.value)}
-                  onInput={(e) => {
-                    e.target.style.height = "auto";
-                    e.target.style.height = `${e.target.scrollHeight}px`;
-                  }}
+                  onInput={(e) => { e.target.style.height = "auto"; e.target.style.height = `${e.target.scrollHeight}px`; }}
                   className="textareaStyle"
                 />
               )}
