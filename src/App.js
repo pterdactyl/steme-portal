@@ -1,29 +1,33 @@
-import Pathways from './pages/pathways'
-import Upload from "./pages/upload"
+import Pathways from './pages/Student/pathways'
+import Upload from "./pages/Student/upload"
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Login from "./Auth/login";
 import Signup from "./Auth/signup";
-import Navbar from "./components/Navbar";
+import StudentNavbar from "./components/StudentNavbar";
 import TeacherNavbar from "./components/TeacherNavbar";
 import AdminNavbar from './components/AdminNavbar';
 import Box from '@mui/material/Box';
 
-import TeacherDashboard from "./pages/TeacherDashboard";
-import StudentDashboard from "./pages/StudentDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import TeacherAttendance from "./pages/TeacherAttendance";
+import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
+import StudentDashboard from "./pages/Student/StudentDashboard";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import TeacherAttendance from "./pages/Teacher/TeacherAttendance";
 import ProfilePage from "./pages/ProfilePage";
-import EditOutline from "./pages/EditOutline";
+import EditOutline from "./pages/Teacher/EditOutline";
 import { getIdTokenResult } from "firebase/auth";
-import AdminCourses from './pages/AdminCourses';
-import AdminTeachers from './pages/AdminTeachers';
-import AdminStudents from './pages/AdminStudents';
-import CourseOutline from "./pages/CourseOutline"; 
-import Course from './pages/Course';
-import CourseDashboard from "./pages/CourseDashboard";
-import OutlinePage from "./pages/OutlinePage";
-import CoursePage from "./pages/coursePage.js";
+import AdminCourses from './pages/Admin/AdminCourses';
+import AdminTeachers from './pages/Admin/AdminTeachers';
+import AdminStudents from './pages/Admin/AdminStudents';
+import CourseOutline from "./pages/Student/CourseOutline"; 
+import CourseDashboard from "./pages/Teacher/CourseDashboard";
+import OutlinePage from "./pages/Teacher/OutlinePage";
+import CoursePage from "./pages/Teacher/coursePage.js";
+import StudentCourse from './pages/Student/StudentCourse'
+
+import StudentMarks from './pages/Student/StudentMarks'
+import StudentClasslist from './pages//Student/StudentClasslist'
+import StudentStream from './pages/Student/StudentStream'
 
 
 import { useAuth } from "./Auth/auth";
@@ -69,7 +73,7 @@ export default function App() {
         ) : user?.role === 'teacher' ? (
           <TeacherNavbar user={user} onLogout={logout} />
         ) : user?.role === 'student' ? (
-          <Navbar user={user} onLogout={logout} />
+          <StudentNavbar user={user} onLogout={logout} />
         ) : null
       )}
       
@@ -88,13 +92,18 @@ export default function App() {
             }
           />
           <Route
-            path="/course"
+            path="/course/:courseId"
             element={
               <PrivateRoute>
-                <Course user={user} />
+                <StudentCourse user={user} />
               </PrivateRoute>
             }
-          />
+          >
+            <Route path="stream" element={<StudentStream user={user} />} />
+            <Route path="people" element={<StudentClasslist user={user} />} />
+            <Route path="marks" element={<StudentMarks user={user} />} />
+          </Route>
+          
           <Route
             path="/dashboard/student"
             element={

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { db } from "../../Auth/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { useParams } from "react-router-dom";
-import '../styles/EditOutline.css';
+import '../../styles/EditOutline.css';
 
 export default function EditOutline() {
   const { courseId  } = useParams();

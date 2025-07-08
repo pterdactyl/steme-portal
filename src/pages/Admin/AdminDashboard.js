@@ -10,7 +10,7 @@ import {
   updateDoc,
   getDoc,
 } from "firebase/firestore";
-import { createCourseWithInitialVersion } from "../../Auth/createCourses";
+
 import {
   Typography,
   Box,
@@ -102,7 +102,13 @@ export default function AdminDashboard() {
     const teacherUIDs = selectedTeachers.map(t => t.value);
 
     try {
-      await createCourseWithInitialVersion(code, title, teacherUIDs);
+      console.log("Creating course with:", { code, title, teacherUIDs });
+      await fetch('http://localhost:4000/api/courses/create', {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify({ courseCode: code, title: title, teacherIds: teacherUIDs }),
+        headers: { 'Content-Type': 'application/json' }
+      });
       setMessage(`✅ Course "${title}" (${code}) created.`);
       setTitle("");
       setCode("");
