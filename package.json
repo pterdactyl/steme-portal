@@ -24,7 +24,6 @@
     "@tiptap/react": "^2.22.3",
     "@tiptap/starter-kit": "^2.22.3",
     "@toolpad/core": "^0.16.0",
-
     "firebase": "^11.9.1",
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.10.3",

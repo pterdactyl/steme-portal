@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ProfileMenu from "../components/ProfileMenu";
-import { createCourseWithInitialVersion } from "../Auth/createCourses";
+
 
 
 
@@ -51,13 +51,6 @@ export default function TeacherDashboard({ user }) {
     fetchCourses();
   }, [user]);
 
-  const handleCreate = () => {
-    const courseId = "ENG1D";
-    const title = "Grade 9 English Academic";
-    const teacherIds = ["OsZp2t0Z2dNWf5fphJGcRpitycJ3", "uid456"]; // replace with real user IDs
-
-    createCourseWithInitialVersion(courseId, title, teacherIds);
-  };
 
 
 

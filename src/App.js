@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Login from "./Auth/login";
 import Signup from "./Auth/signup";
-import Navbar from "./components/Navbar";
+import Navbar from "./components/StudentNavbar";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -20,7 +20,11 @@ import { getIdTokenResult } from "firebase/auth";
 import AdminCourses from './pages/AdminCourses';
 import AdminTeachers from './pages/AdminTeachers';
 import AdminStudents from './pages/AdminStudents';
-import Course from './pages/Course'
+import StudentCourse from './pages/StudentCourse'
+
+import StudentMarks from './pages/StudentMarks'
+import StudentClasslist from './pages/StudentClasslist'
+import StudentStream from './pages/StudentStream'
 
 
 import 'primereact/resources/themes/lara-light-indigo/theme.css'; // Theme
@@ -76,13 +80,18 @@ export default function App() {
             }
           />
           <Route
-            path="/course"
+            path="/course/:courseId"
             element={
               <PrivateRoute>
-                <Course user={user} />
+                <StudentCourse user={user} />
               </PrivateRoute>
             }
-          />
+          >
+            <Route path="stream" element={<StudentStream user={user} />} />
+            <Route path="people" element={<StudentClasslist user={user} />} />
+            <Route path="marks" element={<StudentMarks user={user} />} />
+          </Route>
+          
           <Route
             path="/dashboard/student"
             element={
