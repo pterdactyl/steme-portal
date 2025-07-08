@@ -1,9 +1,9 @@
 // src/pages/CourseDashboard.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCoursesForTeacher } from "../Auth/getTeacherCourses";
+import { getCoursesForTeacher } from "../../Auth/getTeacherCourses";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../Auth/firebase";
+import { db } from "../../Auth/firebase";
 import {
   Box,
   Typography,
@@ -206,7 +206,6 @@ export default function CourseDashboard({ user }) {
         transformOrigin={{ vertical: "top", horizontal: "left" }}
       >
         <MenuItem onClick={handleExportPdf}>Export as PDF</MenuItem>
-        <MenuItem onClick={handleExportWord}>Export as Word</MenuItem>
         <MenuItem onClick={handlePrint}>Print</MenuItem>
       </Menu>
     </Box>

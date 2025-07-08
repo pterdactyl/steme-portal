@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../Auth/firebase";
+import { db } from "../../Auth/firebase";
 
 export default function CourseOutline() {
   const { courseId } = useParams();

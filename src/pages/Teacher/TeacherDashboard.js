@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCoursesForTeacher } from "../Auth/getTeacherCourses";
+import { getCoursesForTeacher } from "../../Auth/getTeacherCourses";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../Auth/firebase";
+import { db } from "../../Auth/firebase";
 import {
   Box,
   Typography,

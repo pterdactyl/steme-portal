@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { supabase } from "../supabase"; // adjust path as needed
+import { supabase } from "../../supabase"; // adjust path as needed
 
 export default function FileUpload({ userId }) {
   const [file, setFile] = useState(null);

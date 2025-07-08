@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
-import { db } from "../Auth/firebase";
+import { db } from "../../Auth/firebase";
 import {
   collection,
   getDocs,

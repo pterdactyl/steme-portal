@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from "../Auth/firebase";
+import { storage } from "../../Auth/firebase";
 
 function UploadPage() {
   const [file, setFile] = useState(null);

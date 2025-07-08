@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Select from "react-select";
-import { auth, db } from "../Auth/firebase";
+import { auth, db } from "../../Auth/firebase";
 import {
   collection,
   getDocs,
@@ -10,7 +10,7 @@ import {
   updateDoc,
   getDoc,
 } from "firebase/firestore";
-import { createCourseWithInitialVersion } from "../Auth/createCourses";
+import { createCourseWithInitialVersion } from "../../Auth/createCourses";
 import {
   Typography,
   Box,
