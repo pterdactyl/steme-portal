@@ -14,6 +14,21 @@ import {
 
 import { supabase } from "../supabase";
 
+// Helper to format Firestore timestamp or Date to "YYYY-MM-DDTHH:mm"
+function formatDateForInput(date) {
+  if (!date) return "";
+  const d = date.seconds ? new Date(date.seconds * 1000) : new Date(date);
+  const pad = (n) => (n < 10 ? "0" + n : n);
+
+  const year = d.getFullYear();
+  const month = pad(d.getMonth() + 1);
+  const day = pad(d.getDate());
+  const hours = pad(d.getHours());
+  const minutes = pad(d.getMinutes());
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
 export default function CoursePage({ user }) {
   const { courseId } = useParams();
   const [course, setCourse] = useState(null);
@@ -26,6 +41,7 @@ export default function CoursePage({ user }) {
   const [file, setFile] = useState(null);
   const [fileUrl, setFileUrl] = useState("");
   const [editingAssignment, setEditingAssignment] = useState(null);
+  const [deadline, setDeadline] = useState("");
 
   useEffect(() => {
     async function fetchCourse() {
@@ -42,7 +58,12 @@ export default function CoursePage({ user }) {
     const unsub = onSnapshot(
       collection(db, "courses", courseId, "assignments"),
       (snapshot) => {
-        setAssignments(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+        setAssignments(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+        );
       }
     );
     return () => unsub();
@@ -80,17 +101,22 @@ export default function CoursePage({ user }) {
       title,
       description,
       fileUrl: uploadedUrl,
+      deadline: deadline ? new Date(deadline) : null,
       createdAt: serverTimestamp(),
     };
 
     if (editingAssignment) {
-      await setDoc(doc(db, "courses", courseId, "assignments", editingAssignment.id), data);
+      await setDoc(
+        doc(db, "courses", courseId, "assignments", editingAssignment.id),
+        data
+      );
     } else {
       await addDoc(collection(db, "courses", courseId, "assignments"), data);
     }
 
     setTitle("");
     setDescription("");
+    setDeadline("");
     setFile(null);
     setFileUrl("");
     setEditingAssignment(null);
@@ -107,6 +133,7 @@ export default function CoursePage({ user }) {
     setTitle(assignment.title);
     setDescription(assignment.description);
     setFileUrl(assignment.fileUrl || "");
+    setDeadline(formatDateForInput(assignment.deadline));
     setShowForm(true);
   };
 
@@ -119,7 +146,7 @@ export default function CoursePage({ user }) {
 
       {user?.role === "teacher" && (
         <button onClick={() => setShowForm(!showForm)}>
-          {showForm ? "Cancel" : "➕ New Assignment"}
+          {showForm ? "Cancel" : "+ New Assignment"}
         </button>
       )}
 
@@ -147,6 +174,16 @@ export default function CoursePage({ user }) {
             rows={4}
             style={{ width: "100%", marginBottom: "0.5rem" }}
           />
+
+          <input
+            type="datetime-local"
+            value={deadline}
+            onChange={(e) => setDeadline(e.target.value)}
+            min="2020-01-01T00:00"
+            max="2100-12-31T23:59"
+            style={{ width: "100%", marginBottom: "0.5rem" }}
+          />
+
           <input
             type="file"
             onChange={(e) => setFile(e.target.files[0])}
@@ -182,6 +219,21 @@ export default function CoursePage({ user }) {
           >
             <h3>{a.title}</h3>
             <p>{a.description}</p>
+
+            {a.deadline && (
+              <p>
+                 Deadline:{" "}
+                 {new Date(a.deadline?.seconds ? a.deadline.seconds * 1000 : a.deadline).toLocaleString(undefined, {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,  // true for AM/PM, false for 24 hour format
+               })}
+              </p>
+            )}
+
             {a.fileUrl && (
               <a href={a.fileUrl} target="_blank" rel="noreferrer">
                 View Attachment
@@ -189,12 +241,12 @@ export default function CoursePage({ user }) {
             )}
             {user?.role === "teacher" && (
               <div style={{ marginTop: "0.5rem" }}>
-                <button onClick={() => handleEdit(a)}>✏️ Edit</button>
+                <button onClick={() => handleEdit(a)}> 🖉 Edit</button>
                 <button
-                  onClick={() => handleDelete(a.id)}
+                  onClick={() => handleDelete(a.id)} 
                   style={{ marginLeft: "0.5rem", color: "red" }}
                 >
-                  🗑️ Delete
+                   Delete
                 </button>
               </div>
             )}
