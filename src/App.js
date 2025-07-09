@@ -2,11 +2,16 @@ import Pathways from './pages/Student/pathways'
 import Upload from "./pages/Student/upload"
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+
+import Pathways from './pages/pathways';
+import Upload from "./pages/upload";
+
 import Login from "./Auth/login";
 import Signup from "./Auth/signup";
 import StudentNavbar from "./components/StudentNavbar";
 import TeacherNavbar from "./components/TeacherNavbar";
 import AdminNavbar from './components/AdminNavbar';
+
 import Box from '@mui/material/Box';
 
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
@@ -31,6 +36,23 @@ import StudentCourse from './pages/Student/StudentCourse'
 import StudentMarks from './pages/Student/StudentMarks'
 import StudentClasslist from './pages//Student/StudentClasslist'
 import StudentStream from './pages/Student/StudentStream'
+import AdminCourses from './pages/AdminCourses';
+import AdminTeachers from './pages/AdminTeachers';
+import AdminStudents from './pages/AdminStudents';
+import CourseOutline from "./pages/CourseOutline"; 
+import Course from './pages/Course';
+import CourseDashboard from "./pages/CourseDashboard";
+import OutlinePage from "./pages/OutlinePage";
+
+import AssignmentsTab from "./pages/AssignmentsTab";
+import AnnouncementsTab from "./pages/AnnouncementsTab";
+// import GradesTab from "./pages/GradesTab";
+// import StudentsTab from "./pages/StudentsTab";
+// import CourseOutlineTab from "./pages/CourseOutlineTab";
+
+
+import { useAuth } from "./Auth/auth";
+import PrivateRoute from "./Auth/privateRoute";
 
 import "primereact/resources/themes/lara-light-indigo/theme.css";
 import "primereact/resources/primereact.min.css";
@@ -75,7 +97,7 @@ export default function App() {
           <StudentNavbar user={user} onLogout={logout} />
         ) : null
       )}
-      
+
       <Box p={!hideNavbar ? 3 : 0}>
         <Routes>
           <Route path="/" element={<Login />} />
@@ -170,7 +192,7 @@ export default function App() {
             }
           />
 
-          {/* ❗Distinct routes now */}
+          {/* Distinct routes */}
           <Route
             path="/course/:courseId"
             element={
@@ -179,21 +201,30 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
+          {/* Nested routing for CourseDashboard with tabs */}
           <Route
-            path="/dashboard/course/:courseId"
+            path="/dashboard/course/:courseId/*"
             element={
               <PrivateRoute>
                 <CourseDashboard user={user} />
               </PrivateRoute>
             }
-          />
+          >
+            <Route path="assignments" element={<AssignmentsTab user={user}/>} />
+            <Route index element={<AnnouncementsTab />} />
+            {/* <Route path="grades" element={<GradesTab />} />
+            <Route path="students" element={<StudentsTab />} />
+            <Route path="outline" element={<CourseOutlineTab />} />  */}
+          </Route> 
+
           <Route
-           path="/outline"
-           element={
-            <PrivateRoute>
-              <OutlinePage user={user} />
-            </PrivateRoute>
-          }
+            path="/outline"
+            element={
+              <PrivateRoute>
+                <OutlinePage user={user} />
+              </PrivateRoute>
+            }
           />
 
           {/* Admin pages */}
@@ -221,15 +252,7 @@ export default function App() {
               </PrivateRoute>
             }
           />
-
-          <Route path="/course/:courseId"
-           element={
-            <PrivateRoute>
-           <CoursePage user={user}/>
-           </PrivateRoute>
-           }
-          />
-
+                
         </Routes>
       </Box>
     </>
