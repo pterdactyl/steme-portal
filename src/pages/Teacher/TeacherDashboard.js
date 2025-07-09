@@ -12,11 +12,6 @@ import {
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
-
-
-
-
-
 export default function TeacherDashboard({ user }) {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);

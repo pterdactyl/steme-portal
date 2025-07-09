@@ -14,7 +14,10 @@ import StudentDashboard from "./pages/Student/StudentDashboard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import TeacherAttendance from "./pages/Teacher/TeacherAttendance";
 import ProfilePage from "./pages/ProfilePage";
+import { useAuth } from './Auth/auth';
+import PrivateRoute from './Auth/privateRoute';
 import EditOutline from "./pages/Teacher/EditOutline";
+import ViewOutline from "./pages//Teacher/ViewOutline";
 import { getIdTokenResult } from "firebase/auth";
 import AdminCourses from './pages/Admin/AdminCourses';
 import AdminTeachers from './pages/Admin/AdminTeachers';
@@ -28,10 +31,6 @@ import StudentCourse from './pages/Student/StudentCourse'
 import StudentMarks from './pages/Student/StudentMarks'
 import StudentClasslist from './pages//Student/StudentClasslist'
 import StudentStream from './pages/Student/StudentStream'
-
-
-import { useAuth } from "./Auth/auth";
-import PrivateRoute from "./Auth/privateRoute";
 
 import "primereact/resources/themes/lara-light-indigo/theme.css";
 import "primereact/resources/primereact.min.css";
@@ -159,6 +158,14 @@ export default function App() {
             element={
               <PrivateRoute>
                 <EditOutline user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/view/:courseId"
+            element={
+              <PrivateRoute>
+                <ViewOutline user={user} />
               </PrivateRoute>
             }
           />
