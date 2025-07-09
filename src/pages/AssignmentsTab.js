@@ -29,7 +29,7 @@ function formatDateForInput(date) {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
-export default function CoursePage({ user }) {
+export default function AssignmentsTab({ user }) {
   const { courseId } = useParams();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
