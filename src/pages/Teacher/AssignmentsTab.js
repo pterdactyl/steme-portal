@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { db } from "../Auth/firebase";
+import { db } from "../../Auth/firebase";
 import {
   doc,
   getDoc,
@@ -12,7 +12,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 
-import { supabase } from "../supabase";
+import { supabase } from "../../supabase";
 
 // Helper to format Firestore timestamp or Date to "YYYY-MM-DDTHH:mm"
 function formatDateForInput(date) {

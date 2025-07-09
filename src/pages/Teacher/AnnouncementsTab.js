@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { db } from "../Auth/firebase";
+import { db } from "../../Auth/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export default function AnnouncementsTab() {

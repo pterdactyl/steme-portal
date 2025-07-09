@@ -3,9 +3,6 @@ import Upload from "./pages/Student/upload"
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
-import Pathways from './pages/pathways';
-import Upload from "./pages/upload";
-
 import Login from "./Auth/login";
 import Signup from "./Auth/signup";
 import StudentNavbar from "./components/StudentNavbar";
@@ -30,29 +27,17 @@ import AdminStudents from './pages/Admin/AdminStudents';
 import CourseOutline from "./pages/Student/CourseOutline"; 
 import CourseDashboard from "./pages/Teacher/CourseDashboard";
 import OutlinePage from "./pages/Teacher/OutlinePage";
-import CoursePage from "./pages/Teacher/coursePage.js";
 import StudentCourse from './pages/Student/StudentCourse'
 
 import StudentMarks from './pages/Student/StudentMarks'
 import StudentClasslist from './pages//Student/StudentClasslist'
 import StudentStream from './pages/Student/StudentStream'
-import AdminCourses from './pages/AdminCourses';
-import AdminTeachers from './pages/AdminTeachers';
-import AdminStudents from './pages/AdminStudents';
-import CourseOutline from "./pages/CourseOutline"; 
-import Course from './pages/Course';
-import CourseDashboard from "./pages/CourseDashboard";
-import OutlinePage from "./pages/OutlinePage";
-
-import AssignmentsTab from "./pages/AssignmentsTab";
-import AnnouncementsTab from "./pages/AnnouncementsTab";
+import AssignmentsTab from "./pages/Teacher/AssignmentsTab.js";
+import AnnouncementsTab from "./pages/Teacher/AnnouncementsTab.js";
 // import GradesTab from "./pages/GradesTab";
 // import StudentsTab from "./pages/StudentsTab";
 // import CourseOutlineTab from "./pages/CourseOutlineTab";
 
-
-import { useAuth } from "./Auth/auth";
-import PrivateRoute from "./Auth/privateRoute";
 
 import "primereact/resources/themes/lara-light-indigo/theme.css";
 import "primereact/resources/primereact.min.css";
