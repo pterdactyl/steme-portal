@@ -1,24 +1,55 @@
-/* EditOutline.css */
+/* EditOutline.css
+
+/* ================================== */
+/* ===== SHARED & BASE STYLES ======= */
+/* ================================== */
 
 .cellStyle {
-  border: 1px solid #000000;
+  border: 0.5px solid #000000;
   padding: 8px;
   vertical-align: top;
 }
 
 .leftSide {
-  border: 1px solid #000000;
-  padding: 8px;
+  border: 0.5px solid #000000;
+  padding: 4px;
   vertical-align: top;
   width: 200px;
   font-weight: bold;
+  font-size: 14px;
 }
+
+/* --- Sub-header Styles (for nested tables) --- */
+.subHeaderStyle {
+  border: 1px solid #ccc;
+  padding: 6px;
+  background-color: #ADDFFF;
+  font-size: 12px;
+}
+.subHeaderWidth10 { width: 10%; }
+.subHeaderWidth20 { width: 20%; }
+.subHeaderWidth60 { width: 60%; }
+
+/* --- Table Column Styles --- */
+.unitColumn, .descriptionColumn, .hoursColumn, .actionColumn {
+  border: 1px solid #ccc;
+  padding: 6px;
+  font-size: 12px; /* Base font size for table cells */
+}
+.hoursColumn { width: 20%; }
+
+
+/* ===================================== */
+/* ===== EDIT MODE: INPUT STYLES ======= */
+/* ===================================== */
 
 .inputStyle {
   width: 100%;
   padding: 6px;
   font-size: 12px;
   border: none;
+  background-color: transparent; /* Match the cell background */
+  box-sizing: border-box;
 }
 
 .inputHours {
@@ -26,67 +57,55 @@
   padding: 6px;
   font-size: 12px;
   border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
 .inputHoursReadonly {
   background-color: #eee;
+  font-weight: bold;
 }
 
-
-.textareaStyle {
+.textareaStyle, .unitDescription {
   width: 100%;
-  min-height: 100px;
-  padding: 8px;
-  font-size: 14px;
+  padding: 6px;
+  font-size: 12px;
   resize: none;
   border: none;
   outline: none;
   overflow: hidden;
   background-color: transparent;
+  box-sizing: border-box;
+  font-family: inherit; /* Ensures it matches surrounding text font */
 }
 
-.subHeaderStyle {
-  border: 1px solid #ccc;
-  padding: 6px;
-  background-color: #ADDFFF;
-  font-size: 12px;
-}
 
-.subHeaderWidth10 {
-  width: 10%;
-}
-.subHeaderWidth20 {
-  width: 20%;
-}
-.subHeaderWidth60 {
-  width: 60%;
-}
+/* ================================================= */
+/* ===== VIEW MODE: TEXT MIMICKING STYLES (NEW) ==== */
+/* ================================================= */
 
-.unitColumn {
-  border: 1px solid #ccc;
-  padding: 6px;
-}
-
-.descriptionColumn {
-  border: 1px solid #ccc;
-  padding: 6px;
-}
-
-.unitDescription {
+/*
+  This class will be applied to the DIVs that replace your INPUTS.
+  It mimics the .inputStyle but for plain text.
+*/
+.view-text-style {
   width: 100%;
-  padding: 6px;
-  font-size: 12px;
-  resize: none;
-  border: none;
+  padding: 6px; /* Match the input padding */
+  font-size: 12px; /* Match the input font size */
+  box-sizing: border-box;
+  line-height: 1.4; /* Improves readability */
 }
 
-.hoursColumn {
-  border: 1px solid #ccc;
-  padding: 6px;
-  width: 20%;
-}
-
-.actionColumn {
-  border: 1px solid #ccc;
-  padding: 6px;
+/*
+  This class will be applied to the DIVs that replace your TEXTAREAS.
+  It mimics the .textareaStyle.
+*/
+.view-textarea-style {
+  width: 100%;
+  padding: 6px; /* Match the textarea padding */
+  font-size: 12px; /* Match the textarea font size */
+  box-sizing: border-box;
+  min-height: 20px; /* Give it some default height */
+  white-space: pre-wrap; /* Respects line breaks and spaces */
+  word-wrap: break-word; /* Prevents long text from overflowing */
+  font-family: inherit;
 }

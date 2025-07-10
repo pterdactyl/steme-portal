@@ -1,214 +1,223 @@
-// src/pages/CourseDashboard.js
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getCoursesForTeacher } from "../Auth/getTeacherCourses";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../Auth/firebase";
-import {
-  Box,
-  Typography,
-  Paper,
-  Stack,
-  IconButton,
-  Menu,
-  MenuItem,
-  Tooltip,
-  TextField,
-} from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 
-export default function CourseDashboard({ user }) {
-  const navigate = useNavigate();
+// export default function TeacherDashboard({ user }) {
+//   const navigate = useNavigate();
+//   const [courses, setCourses] = useState([]);
+//   const [outlineForExport, setOutlineForExport] = useState(null);
+//   const [unitsForExport, setUnitsForExport] = useState([]);
+//   const [finalAssessmentsForExport, setFinalAssessmentsForExport] = useState([]);
+//   const [totalHoursForExport, setTotalHoursForExport] = useState(0);
+//   const [isExportContentReady, setIsExportContentReady] = useState(false);
 
-  const [courses, setCourses] = useState([]);
-  const [pdfUrls, setPdfUrls] = useState({});
-  const [filterText, setFilterText] = useState("");
+//   const [isExporting, setIsExporting] = useState(false);
+//   const exportContainerRef = useRef(null);
 
-  // Menu states
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [exportAnchorEl, setExportAnchorEl] = useState(null);
-  const [selectedCourse, setSelectedCourse] = useState(null);
+//   useEffect(() => {
+//     const fetchCourses = async () => {
+//       if (!user?.uid) return;
+//       const fetchedCourses = await getCoursesForTeacher(user.uid);
+//       setCourses(fetchedCourses);
+//     };
+//     fetchCourses();
+//   }, [user]);
 
-  // Selected course for PDF preview
-  const [selectedCourseId, setSelectedCourseId] = useState(null);
+//   // useEffect for PDF Generation
+//   useEffect(() => {
+//     if (isExporting && exportContainerRef.current) {
+//       const element = exportContainerRef.current;
+//       const options = {
+//         margin: 0,
+//         filename: `${outlineForExport.courseCode}_${outlineForExport.courseName}_Outline.pdf`,
+//         image: { type: "jpeg", quality: 0.98 },
+//         html2canvas: { scale: 2, logging: true, useCORS: true },
+//         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+//         pagebreak: { mode: ['css', 'legacy'] },
+//       };
 
-  useEffect(() => {
-    async function fetchCourses() {
-      if (!user?.uid) return;
+//       console.log("Starting PDF generation from ref element...");
+//       // Timeout ensures browser has painted the new elements
+//       setTimeout(async () => {
+//         try {
+//           await html2pdf().from(element).set(options).save();
+//           console.log("PDF generation successful.");
+//         } catch (error) {
+//           console.error("PDF generation failed:", error);
+//           alert("Failed to generate PDF. Check console for errors.");
+//         } finally {
+//           setIsExporting(false);
+//           handleExportMenuClose();
+//         }
+//       }, 50);
+//     }
+//   }, [isExporting, outlineForExport]);
 
-      const fetchedCourses = await getCoursesForTeacher(user.uid);
-      setCourses(fetchedCourses);
+//   const [anchorEl, setAnchorEl] = useState(null);
+//   const [selectedCourse, setSelectedCourse] = useState(null);
+//   const [exportMenuAnchor, setExportMenuAnchor] = useState(null);
+//   const [filterText, setFilterText] = useState("");
 
-      const urls = {};
-      for (const course of fetchedCourses) {
-        if (!course.currentVersion) continue;
-        const versionRef = doc(db, "courses", course.id, "versions", course.currentVersion);
-        const versionSnap = await getDoc(versionRef);
-        if (versionSnap.exists()) {
-          urls[course.id] = versionSnap.data().pdf;
-        }
-      }
-      setPdfUrls(urls);
-    }
+//   const handleMenuClick = (event, courseId) => {
+//     setAnchorEl(event.currentTarget);
+//     setSelectedCourse(courseId);
+//   };
 
-    fetchCourses();
-  }, [user]);
+//   const handleMenuClose = () => {
+//     setAnchorEl(null);
+//     setSelectedCourse(null);
+//   };
 
-  const filteredCourses = courses.filter(
-    (course) =>
-      course.title.toLowerCase().includes(filterText.toLowerCase()) ||
-      course.id.toLowerCase().includes(filterText.toLowerCase())
-  );
+//   const handleExportClick = async (event) => {
+//     setExportMenuAnchor(event.currentTarget);
+//     setIsExportContentReady(false);
+//     if (selectedCourse) {
+//       const docRef = doc(db, "courseOutlines", selectedCourse);
+//       const docSnap = await getDoc(docRef);
+//       if (docSnap.exists()) {
+//         const data = docSnap.data();
+//         setOutlineForExport({ ...data, courseCode: selectedCourse });
+//         setUnitsForExport(data.units || []);
+//         setFinalAssessmentsForExport(data.finalAssessments || []);
+//         setTotalHoursForExport(data.totalHours || 0);
+//         setIsExportContentReady(true);
+//       } else {
+//         alert("Outline not found for export!");
+//         setOutlineForExport(null);
+//         setIsExportContentReady(false);
+//       }
+//     }
+//   };
 
-  const handleMenuClick = (event, course) => {
-    event.stopPropagation();
-    setAnchorEl(event.currentTarget);
-    setSelectedCourse(course);
-  };
+//   const handleExportMenuClose = () => {
+//     setExportMenuAnchor(null);
+//     setOutlineForExport(null);
+//     setUnitsForExport([]);
+//     setFinalAssessmentsForExport([]);
+//     setTotalHoursForExport(0);
+//     setIsExportContentReady(false);
+//   };
 
-  const handleExportClick = (event) => {
-    event.stopPropagation();
-    setExportAnchorEl(event.currentTarget);
-  };
+//   const handleExportPdf = () => {
+//     if (selectedCourse) {
+//       const url = pdfUrls[selectedCourse.id];
+//       if (url) window.open(url, "_blank");
+//     }
+//     handleCloseMenus();
+//   };
 
-  const handleExportPdf = () => {
-    if (selectedCourse) {
-      const url = pdfUrls[selectedCourse.id];
-      if (url) window.open(url, "_blank");
-    }
-    handleCloseMenus();
-  };
+//   const handleAction = (action) => {
+//     if (action === "Edit") navigate(`/edit/${selectedCourse}`);
+//     else alert(`${action} clicked for ${selectedCourse}`);
+//     handleMenuClose();
+//   };
 
-  const handleExportWord = () => {
-    alert("Export to Word coming soon.");
-    handleCloseMenus();
-  };
+//   const exportToPDF = () => {
+//     if (!isExportContentReady || !outlineForExport) {
+//       console.error("Data not ready for export.");
+//       return;
+//     }
+//     setIsExporting(true);
+//   };
 
-  const handlePrint = () => {
-    window.print();
-    handleCloseMenus();
-  };
+//   // The printContent function remains unchanged
+//   const printContent = () => {
+//     if (!isExporting && outlineForExport && isExportContentReady) {
+//         const tempDivForPrint = document.createElement('div');
+//         document.body.appendChild(tempDivForPrint);
 
-  const handleEdit = () => {
-    if (selectedCourse) {
-      navigate(`/edit/${selectedCourse.id}`);
-    }
-    handleCloseMenus();
-  };
+//         const reactRootForPrint = createRoot(tempDivForPrint);
+//         reactRootForPrint.render(
+//             <OutlineContent
+//                 outline={outlineForExport}
+//                 units={unitsForExport}
+//                 finalAssessments={finalAssessmentsForExport}
+//                 totalHours={totalHoursForExport}
+//                 viewOnly={true}
+//             />
+//         );
 
-  const handleHistory = () => {
-    if (selectedCourse) {
-      navigate(`/course/${selectedCourse.id}`);
-    }
-    handleCloseMenus();
-  };
+//         setTimeout(() => {
+//             const printWindow = window.open("", "", "width=900,height=650");
+//             printWindow.document.write(`<html><head><title>${outlineForExport.courseCode} Outline</title></head><body>${tempDivForPrint.innerHTML}</body></html>`);
+//             printWindow.document.close();
+//             printWindow.focus();
+//             printWindow.print();
+//             printWindow.close();
 
-  const handleCloseMenus = () => {
-    setAnchorEl(null);
-    setExportAnchorEl(null);
-    setSelectedCourse(null);
-  };
+//             reactRootForPrint.unmount();
+//             document.body.removeChild(tempDivForPrint);
+//             handleExportMenuClose();
+//         }, 100);
+//     }
+//   };
 
-  return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" mb={3}>
-        Course Outlines
-      </Typography>
 
-      <TextField
-        placeholder="Search courses..."
-        fullWidth
-        value={filterText}
-        onChange={(e) => setFilterText(e.target.value)}
-        sx={{ mb: 4 }}
-      />
+//   const filteredCourses = courses.filter(
+//     (course) =>
+//       course.title.toLowerCase().includes(filterText.toLowerCase()) ||
+//       course.id.toLowerCase().includes(filterText.toLowerCase())
+//   );
 
-      <Stack spacing={2}>
-        {filteredCourses.length === 0 ? (
-          <Typography>No courses found.</Typography>
-        ) : (
-          filteredCourses.map((course) => (
-            <Paper
-              key={course.id}
-              sx={{
-                p: 2,
-                bgcolor: selectedCourseId === course.id ? "#bbdefb" : "#e3f2fd",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                cursor: "pointer",
-                userSelect: "none",
-              }}
-              onClick={() => setSelectedCourseId(course.id)}
-            >
-              <Box>
-                <Typography variant="h6">{course.title}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Course ID: {course.id}
-                </Typography>
-              </Box>
-              <Tooltip title="Options">
-                <IconButton
-                  onClick={(e) => handleMenuClick(e, course)}
-                  size="small"
-                  aria-controls={anchorEl ? "course-menu" : undefined}
-                  aria-haspopup="true"
-                >
-                  <MoreVertIcon />
-                </IconButton>
-              </Tooltip>
-            </Paper>
-          ))
-        )}
-      </Stack>
+//   return (
+//     <>
+//       <Box p={4}>
+//         <Box mb={2} maxWidth={300}>
+//             <input type="text" placeholder="Search courses..." value={filterText} onChange={(e) => setFilterText(e.target.value)} style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #ccc", fontSize: "14px" }}/>
+//         </Box>
+//         <Stack spacing={2}>
+//             {filteredCourses.length > 0 ? (
+//                 filteredCourses.map((course) => (
+//                     <Paper key={course.id} sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "center", bgcolor: "#b3e5fc" }}>
+//                         <Typography sx={{ cursor: "pointer" }} onClick={() => { navigate(`/view/${course.id}`); }}>
+//                             {course.title || course.id || "Untitled Course"}
+//                         </Typography>
+//                         <IconButton onClick={(e) => handleMenuClick(e, course.id)}>
+//                             <MoreVertIcon />
+//                         </IconButton>
+//                     </Paper>
+//                 ))
+//             ) : (
+//                 <Typography>You do not have any courses currently.</Typography>
+//             )}
+//         </Stack>
+//         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+//             <MenuItem onClick={() => handleAction("Edit")}>Edit</MenuItem>
+//             <MenuItem onClick={handleExportClick}>Export</MenuItem>
+//             <MenuItem onClick={() => { alert(`View History clicked for ${selectedCourse}`); handleMenuClose(); }}>View History</MenuItem>
+//         </Menu>
 
-      {/* PDF Viewer */}
-      {selectedCourseId && pdfUrls[selectedCourseId] ? (
-        <Box mt={6}>
-          <Typography variant="h5" gutterBottom>
-            Outline for {courses.find((c) => c.id === selectedCourseId)?.title}
-          </Typography>
-          <iframe
-            src={pdfUrls[selectedCourseId]}
-            title="Course Outline PDF"
-            width="100%"
-            height="700px"
-            style={{ border: "1px solid #ccc", borderRadius: 4 }}
-          />
-        </Box>
-      ) : selectedCourseId ? (
-        <Typography mt={6} color="error">
-          No outline PDF available for this course.
-        </Typography>
-      ) : null}
+//         {/* --- UPDATED Export Menu --- */}
+//         <Menu anchorEl={exportMenuAnchor} open={Boolean(exportMenuAnchor)} onClose={handleExportMenuClose}>
+//             <MenuItem onClick={exportToPDF} disabled={!isExportContentReady}>Export as PDF</MenuItem>
+//             <MenuItem onClick={printContent} disabled={!isExportContentReady}>Print</MenuItem>
+//         </Menu>
+//       </Box>
 
-      {/* Main Menu */}
-      <Menu
-        id="course-menu"
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleCloseMenus}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <MenuItem onClick={handleExportClick}>Export</MenuItem>
-        <MenuItem onClick={handleEdit}>Edit</MenuItem>
-        <MenuItem onClick={handleHistory}>History</MenuItem>
-      </Menu>
-
-      {/* Export Submenu */}
-      <Menu
-        id="export-submenu"
-        anchorEl={exportAnchorEl}
-        open={Boolean(exportAnchorEl)}
-        onClose={handleCloseMenus}
-        anchorOrigin={{ vertical: "center", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "left" }}
-      >
-        <MenuItem onClick={handleExportPdf}>Export as PDF</MenuItem>
-        <MenuItem onClick={handleExportWord}>Export as Word</MenuItem>
-        <MenuItem onClick={handlePrint}>Print</MenuItem>
-      </Menu>
-    </Box>
-  );
-}
+//       {/* Exporting Overlay and Container */}
+//       {isExporting && outlineForExport && (
+//         <>
+//           <div style={{
+//             position: 'fixed',
+//             top: 0,
+//             left: 0,
+//             opacity: 0,
+//             pointerEvents: 'none',
+//           }}>
+//             <div ref={exportContainerRef} id="pdf-container" style={{
+//               width: '210mm',
+//               backgroundColor: 'white',
+//               padding: '15mm',
+//               boxSizing: 'border-box'
+//             }}>
+//               <OutlineContent
+//                 outline={outlineForExport}
+//                 units={unitsForExport}
+//                 finalAssessments={finalAssessmentsForExport}
+//                 totalHours={totalHoursForExport}
+//                 viewOnly={true}
+//               />
+//             </div>
+//           </div>
+//         </>
+//       )}
+//     </>
+//   );
+// }
