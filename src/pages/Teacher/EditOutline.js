@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { db } from "../../Auth/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import '../../styles/EditOutline.css';
 import OutlineContent from "./OutlineContent";
+import { AuthContext } from "../../Auth/AuthContext";
 
 export default function EditOutline() {
   const { courseId } = useParams();
+  const { userId } = useContext(AuthContext); 
 
   const [outline, setOutline] = useState({
     courseId: courseId  || "",
@@ -83,20 +83,34 @@ export default function EditOutline() {
     alert("Saved locally!");
   };
 
-  const handleSaveToFirestore = async () => {
+  const handleSaveToAzure = async () => {
     try {
-      const docRef = doc(db, "courseOutlines", courseId  || "defaultCode");
-      await setDoc(docRef, {
-        ...outline,
-        units,
-        finalAssessments,
-        totalHours,
-        timestamp: new Date(),
+      const response = await fetch(`http://localhost:4000/api/outlines/${courseId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          course_name: outline.courseName,
+          grade: outline.grade,
+          course_type: outline.courseType,
+          credit: outline.credit,
+          description: outline.description,
+          learning_goals: outline.learningGoals,
+          assessment: outline.assessment,
+          units: units,
+          final_assessments: finalAssessments,
+          total_hours: totalHours,
+          updated_by: userId,
+        }),
       });
-      alert("Saved to Firestore!");
+  
+      if (!response.ok) throw new Error("Failed to save outline to Azure");
+  
+      alert("Outline saved to Azure!");
     } catch (error) {
-      console.error("Firestore Save Error:", error.code, error.message);
-      alert(`Failed to save: ${error.message}`);
+      console.error("Azure Save Error:", error);
+      alert(`Failed to save to Azure: ${error.message}`);
     }
   };
   
@@ -116,11 +130,11 @@ export default function EditOutline() {
       />
 
       <div style={{ maxWidth: 900, margin: "0 auto", padding: 20 }}>
-        <button onClick={handleSaveToFirestore} style={{ padding: "10px 20px", marginRight: 10 }}>
-          Save to Firestore
+        <button onClick={handleSaveToAzure} style={{ padding: "10px 20px", marginRight: 10 }}>
+          Save Changes
         </button>
         <button onClick={handleSaveLocal} style={{ padding: "10px 20px" }}>
-          Save Locally
+          Publish Changes (click when finished editing)
         </button>
       </div>
     </div>

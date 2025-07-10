@@ -5,6 +5,7 @@ const router = express.Router();
 import config from "../config/azureDb.js"; // You can update this based on your connection config
 
 // Add user to the DB
+// Add user or return existing user with role and id
 router.post("/", async (req, res) => {
   const { email, name } = req.body;
 
@@ -16,24 +17,42 @@ router.post("/", async (req, res) => {
     const pool = await sql.connect(config);
 
     // Check if user already exists
-    const result = await pool
+    const existingUserResult = await pool
       .request()
       .input("email", sql.VarChar, email)
-      .query("SELECT * FROM Users WHERE email = @email");
+      .query("SELECT id, role FROM Users WHERE email = @email");
 
-    if (result.recordset.length > 0) {
-      return res.status(200).json({ message: "User already exists" });
+    if (existingUserResult.recordset.length > 0) {
+      const user = existingUserResult.recordset[0];
+      return res.status(200).json({ 
+        message: "User already exists", 
+        id: user.id, 
+        role: user.role 
+      });
     }
-    console.log("test");
-    // Insert new user with default 'student' role
+
+    // Insert new user with default role = 'student'
     await pool
       .request()
       .input("email", sql.VarChar, email)
       .input("name", sql.VarChar, name)
       .input("role", sql.VarChar, "student")
-      .query("INSERT INTO users (email, name, role) VALUES (@email, @name, @role)");
+      .query("INSERT INTO Users (email, name, role) VALUES (@email, @name, @role)");
 
-    res.status(201).json({ message: "User added successfully" });
+    // Fetch and return the new user's id and role
+    const newUserResult = await pool
+      .request()
+      .input("email", sql.VarChar, email)
+      .query("SELECT id, role FROM Users WHERE email = @email");
+
+    const newUser = newUserResult.recordset[0];
+
+    res.status(201).json({
+      message: "User added successfully",
+      id: newUser.id,
+      role: newUser.role
+    });
+
   } catch (err) {
     console.error("DB error:", err);
     res.status(500).json({ error: "Server error" });

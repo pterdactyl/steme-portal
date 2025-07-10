@@ -1,28 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../../Auth/firebase";
 import { Box, Typography, Paper, Stack } from "@mui/material";
+import { AuthContext } from "../../Auth/AuthContext";
 
-export default function StudentDashboard({ user }) {
+export default function StudentDashboard() {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user, role, userId } = useContext(AuthContext);
 
   useEffect(() => {
     async function getStudentCourses() {
-      if (!user?.uid) return;
+      if (!userId) return; // or user?.userId depending on your auth
+
       try {
-        const q = query(
-          collection(db, "courses"),
-          where("studentIds", "array-contains", user.uid)
-        );
-        const snapshot = await getDocs(q);
-        const courseList = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setCourses(courseList);
+        const res = await fetch(`http://localhost:4000/api/courses?studentId=${userId}`);
+        if (!res.ok) throw new Error("Failed to fetch courses");
+        const data = await res.json();
+        setCourses(data);
       } catch (error) {
         console.error("Error fetching student courses:", error);
       } finally {
@@ -65,7 +60,6 @@ export default function StudentDashboard({ user }) {
               onClick={() => navigate(`/course/${course.id}`)}
             >
               <Typography variant="h6">{course.title}</Typography>
-              {/* No menu icon for students */}
             </Paper>
           ))}
         </Stack>

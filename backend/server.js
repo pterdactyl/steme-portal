@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import courseRoutes from './routes/courseRoutes.js';
 import usersRoute from './routes/users.js';
+import outlinesRoute from './routes/outlines.js';
 
 
 
@@ -28,6 +29,7 @@ app.use(express.json());
 // Routes
 app.use('/api/courses', courseRoutes);
 app.use("/api/users", usersRoute);
+app.use("/api/outlines", outlinesRoute);
 
 
 app.get('/', (req, res) => {

@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Outlet } from "react-router-dom";
-import { db } from "../../Auth/firebase";
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { Box, Typography, Tabs, Tab } from "@mui/material";
 
 export default function CourseDashboard() {
@@ -15,44 +13,15 @@ export default function CourseDashboard() {
 
   useEffect(() => {
     async function fetchCourse() {
-      try {
-        const courseRef = doc(db, "courses", courseId);
-        const courseSnap = await getDoc(courseRef);
-        if (courseSnap.exists()) {
-          const data = courseSnap.data();
-          setCourseData(data);
-      
-
-          if (data.currentVersion) {
-            const versionRef = doc(db, "courses", courseId, "versions", data.currentVersion);
-            const versionSnap = await getDoc(versionRef);
-            setOutlineUrl(versionSnap.exists() ? versionSnap.data().pdf : null);
-          } else {
-            setOutlineUrl(null);
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching course data:", err);
-      }
+      const res = await fetch(`http://localhost:4000/api/courses/${courseId}`);
+      const data = await res.json();
+      setCourseData(data);
     }
     fetchCourse();
   }, [courseId]);
 
   useEffect(() => {
-    async function fetchStudents() {
-      try {
-        const q = query(
-          collection(db, "users"),
-          where("role", "==", "student"),
-          where("courseIds", "array-contains", courseId)
-        );
-        const snapshot = await getDocs(q);
-        setStudents(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-      } catch (err) {
-        console.error("Error fetching students:", err);
-      }
-    }
-    fetchStudents();
+    
   }, [courseId]);
 
   const tabs = [
@@ -78,15 +47,18 @@ export default function CourseDashboard() {
     );
   };
 
-  if (!courseData) {
-    return <Typography p={3}>Loading course data...</Typography>;
-  }
 
   return (
     <Box p={3}>
-      <Typography variant="h4" mb={2}>
-        {courseData.title || "Course Dashboard"}
-      </Typography>
+      <Box mb={2}>
+        <Typography variant="h6" sx={{ lineHeight: 1.3 }}>
+          {courseData?.course_code || "Course Code"}
+        </Typography>
+
+        <Typography variant="subtitle1" color="text.secondary" sx={{ lineHeight: 1.2 }}>
+          {courseData?.teachers?.[0]?.name || "Unnamed Teacher"}
+        </Typography>
+      </Box>
 
       <Tabs
        value={tabValue}
