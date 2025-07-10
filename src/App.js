@@ -1,9 +1,11 @@
 import Pathways from './pages/pathways'
 import Upload from "./pages/upload"
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Login from "./Auth/login";
-import Signup from "./Auth/signup";
+import { useMsal } from "@azure/msal-react";
+import { AuthContext } from "./Auth/AuthContext";
+
 import StudentNavbar from "./components/StudentNavbar";
 import TeacherNavbar from "./components/TeacherNavbar";
 import AdminNavbar from './components/AdminNavbar';
@@ -15,7 +17,6 @@ import AdminDashboard from "./pages/AdminDashboard";
 import TeacherAttendance from "./pages/TeacherAttendance";
 import ProfilePage from "./pages/ProfilePage";
 import EditOutline from "./pages/EditOutline";
-import { getIdTokenResult } from "firebase/auth";
 import AdminCourses from './pages/AdminCourses';
 import AdminTeachers from './pages/AdminTeachers';
 import AdminStudents from './pages/AdminStudents';
@@ -30,7 +31,7 @@ import StudentClasslist from './pages/StudentClasslist'
 import StudentStream from './pages/StudentStream'
 
 
-import { useAuth } from "./Auth/auth";
+
 import PrivateRoute from "./Auth/privateRoute";
 
 import "primereact/resources/themes/lara-light-indigo/theme.css";
@@ -38,49 +39,39 @@ import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 
 export default function App() {
-  const { user, firebaseUser, logout } = useAuth();
+
+  const { accounts } = useMsal();
+  const { user, role, loading } = useContext(AuthContext);
   const location = useLocation();
-  const [isAdmin, setAdmin] = useState(false);
-  const hideNavbar = ["/", "/signup"].includes(location.pathname);
+  const [error, setError] = useState("");
+  const hideNavbar = ["/"].includes(location.pathname);
 
-  useEffect(() => {
-    const checkClaims = async () => {
-      if (firebaseUser) {
-        const tokenResult = await getIdTokenResult(firebaseUser);
-        setAdmin(tokenResult.claims.admin);
-      } else {
-        setAdmin(false);
-      }
-    };
-    checkClaims();
-  }, [user, firebaseUser]);
+  
 
+  if (loading) return null;
+
+  // Redirect on base route based on role
   if (user && location.pathname === "/") {
-    if (isAdmin) {
-      return <Navigate to="/dashboard/admin" replace />;
-    } else if (user.role === "teacher") {
-      return <Navigate to="/courses" replace />;
-    } else if (user.role === "student") {
-      return <Navigate to="/dashboard/student" replace />;
-    }
+    if (role === "admin") return <Navigate to="/dashboard/admin" replace />;
+    if (role === "teacher") return <Navigate to="/courses" replace />;
+    if (role === "student") return <Navigate to="/dashboard/student" replace />;
   }
 
   return (
     <>
       {!hideNavbar && (
-        isAdmin ? (
-          <AdminNavbar user={user} onLogout={logout} />
-        ) : user?.role === 'teacher' ? (
-          <TeacherNavbar user={user} onLogout={logout} />
-        ) : user?.role === 'student' ? (
-          <StudentNavbar user={user} onLogout={logout} />
+        role === "admin" ? (
+          <AdminNavbar user={user} />
+        ) : role === "teacher" ? (
+          <TeacherNavbar user={user} />
+        ) : role === "student" ? (
+          <StudentNavbar user={user} />
         ) : null
       )}
       
       <Box p={!hideNavbar ? 3 : 0}>
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
 
           {/* Dashboards */}
           <Route

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../Auth/firebase";
 
+
 export default function StudentCourseNavbar() {
   const { courseId } = useParams();
   const location = useLocation();
