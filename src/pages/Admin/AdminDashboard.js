@@ -1,96 +1,45 @@
 import React, { useState, useEffect, useRef } from "react";
 import Select from "react-select";
-import { auth, db } from "../../Auth/firebase";
 import {
-  collection,
-  getDocs,
-  query,
-  where,
-  doc,
-  updateDoc,
-  getDoc,
-} from "firebase/firestore";
-
-import {
-  Typography,
-  Box,
-  Button,
-  IconButton,
-  Stack,
-  Paper,
-  Menu,
-  MenuItem,
+  Typography, Box, Button, IconButton, Stack, Paper, Menu, MenuItem
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 export default function AdminDashboard() {
-  const [claims, setClaims] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-
   const [title, setTitle] = useState("");
   const [code, setCode] = useState("");
   const [allTeachers, setAllTeachers] = useState([]);
   const [selectedTeachers, setSelectedTeachers] = useState([]);
   const [message, setMessage] = useState("");
-
   const [courses, setCourses] = useState([]);
   const [editingCourseId, setEditingCourseId] = useState(null);
   const [pdfUrls, setPdfUrls] = useState({});
-
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const exportRef = useRef(null);
 
-  // Fetch admin claims
   useEffect(() => {
-    async function fetchClaims() {
-      const user = auth.currentUser;
-      if (user) {
-        const tokenResult = await user.getIdTokenResult(true);
-        setClaims(tokenResult.claims);
+    async function fetchData() {
+      try {
+        const [teacherRes, courseRes] = await Promise.all([
+          fetch('http://localhost:4000/api/users/teachers'),
+          fetch('http://localhost:4000/api/courses')
+        ]);
+        const teachers = await teacherRes.json();
+        const courses = await courseRes.json();
+
+        setAllTeachers(teachers.map(t => ({ value: t.id, label: t.name })));
+        setCourses(courses);
+        setLoading(false);
+      } catch (err) {
+        setMessage("❌ Error fetching data");
+        setLoading(false);
       }
-      setLoading(false);
     }
-    fetchClaims();
-  }, []);
-
-  // Fetch teachers
-  useEffect(() => {
-    async function fetchTeachers() {
-      const q = query(collection(db, "users"), where("role", "==", "teacher"));
-      const snapshot = await getDocs(q);
-      const options = snapshot.docs.map(doc => ({
-        value: doc.id,
-        label: doc.data().fullName,
-      }));
-      setAllTeachers(options);
-    }
-    fetchTeachers();
-  }, []);
-
-  // Fetch courses and PDF URLs
-  useEffect(() => {
-    async function fetchCoursesAndPDFs() {
-      const snapshot = await getDocs(collection(db, "courses"));
-      const courseData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setCourses(courseData);
-
-      const pdfs = {};
-      for (const course of courseData) {
-        if (course.currentVersion) {
-          const versionRef = doc(db, "courses", course.id, "versions", course.currentVersion);
-          const versionSnap = await getDoc(versionRef);
-          if (versionSnap.exists()) {
-            pdfs[course.id] = versionSnap.data().pdf;
-          }
-        }
-      }
-      setPdfUrls(pdfs);
-    }
-
-    fetchCoursesAndPDFs();
+    fetchData();
   }, [message]);
 
   const handleCreateCourse = async () => {
@@ -99,281 +48,195 @@ export default function AdminDashboard() {
       return;
     }
 
-    const teacherUIDs = selectedTeachers.map(t => t.value);
-
     try {
-      console.log("Creating course with:", { code, title, teacherUIDs });
       await fetch('http://localhost:4000/api/courses/create', {
         method: 'POST',
-        credentials: 'include',
-        body: JSON.stringify({ courseCode: code, title: title, teacherIds: teacherUIDs }),
+        body: JSON.stringify({
+          courseCode: code,
+          title,
+          teacherIds: selectedTeachers.map(t => t.value)
+        }),
         headers: { 'Content-Type': 'application/json' }
       });
-      setMessage(`✅ Course "${title}" (${code}) created.`);
+      setMessage(`✅ Course "${title}" created.`);
       setTitle("");
       setCode("");
       setSelectedTeachers([]);
       setShowForm(false);
-    } catch (error) {
-      setMessage("❌ Error creating course: " + error.message);
+    } catch (err) {
+      setMessage("❌ Error creating course.");
     }
   };
 
   const handleUpdateCourse = async () => {
-    if (!editingCourseId || selectedTeachers.length === 0) {
-      setMessage("❌ Please select teachers.");
-      return;
-    }
-
-    const courseRef = doc(db, "courses", editingCourseId);
-    const teacherUIDs = selectedTeachers.map(t => t.value);
-
     try {
-      await updateDoc(courseRef, {
-        teacherIds: teacherUIDs,
-        title,
-        id: code,
+      await fetch(`http://localhost:4000/api/courses/${editingCourseId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          title,
+          courseCode: code,
+          teacherIds: selectedTeachers.map(t => t.value)
+        }),
+        headers: { 'Content-Type': 'application/json' }
       });
-      setMessage(`✅ Course "${title}" updated.`);
+      setMessage("✅ Course updated.");
       setEditingCourseId(null);
+      setTitle("");
+      setCode("");
       setSelectedTeachers([]);
     } catch (err) {
-      setMessage("❌ Error updating course: " + err.message);
+      setMessage("❌ Error updating course.");
     }
   };
 
   const handleEditClick = (course) => {
     setEditingCourseId(course.id);
+    setShowForm(false); // Close create form
     setTitle(course.title);
-    setCode(course.id);
-    const teacherOptions = allTeachers.filter(t => course.teacherIds?.includes(t.value));
-    setSelectedTeachers(teacherOptions);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingCourseId(null);
-    setTitle("");
-    setCode("");
-    setSelectedTeachers([]);
-  };
-
-  const handleExportClick = (event, courseId) => {
-    setMenuAnchor(event.currentTarget);
-    setSelectedCourse(courseId);
-  };
-
-  const handleMenuClose = () => {
-    setMenuAnchor(null);
-    setSelectedCourse(null);
+    setCode(course.course_code);
+    const matchingTeachers = allTeachers.filter(t =>
+      course.teachers?.some(teacher => teacher.id === t.value)
+    );
+    setSelectedTeachers(matchingTeachers);
   };
 
   const exportToWord = () => {
     if (!exportRef.current) return;
-    const sourceHTML = `
-      <html xmlns:o='urn:schemas-microsoft-com:office:office'
-            xmlns:w='urn:schemas-microsoft-com:office:word'
-            xmlns='http://www.w3.org/TR/REC-html40'>
-        <head><meta charset='utf-8'></head><body>
-          ${exportRef.current.innerHTML}
-        </body></html>
-    `;
-    const blob = new Blob(["\ufeff", sourceHTML], {
-      type: "application/msword",
-    });
-
+    const html = `
+      <html><head><meta charset="utf-8"></head><body>
+        ${exportRef.current.innerHTML}
+      </body></html>`;
+    const blob = new Blob(["\ufeff", html], { type: "application/msword" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = `${selectedCourse}-export.doc`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    handleMenuClose();
-  };
-
-  const printContent = () => {
-    if (!exportRef.current) return;
-    const printWindow = window.open("", "", "width=900,height=650");
-    printWindow.document.write(`<html><head><title>Print</title></head><body>${exportRef.current.innerHTML}</body></html>`);
-    printWindow.document.close();
-    printWindow.print();
-    handleMenuClose();
+    setMenuAnchor(null);
   };
 
   if (loading) return <p>Loading...</p>;
-  if (!claims?.admin) return <p>Access denied. Admins only.</p>;
 
   return (
-    <div style={{ maxWidth: 800, margin: "20px auto", fontFamily: "Arial, sans-serif" }}>
+    <div style={{ maxWidth: 800, margin: "20px auto" }}>
       <Typography variant="h4" mb={2}>Admin Dashboard</Typography>
 
       <Button
         variant="contained"
-        onClick={() => setShowForm(!showForm)}
+        onClick={() => {
+          setShowForm(prev => {
+            if (!prev) {
+              setTitle("");
+              setCode("");
+              setSelectedTeachers([]);
+              setEditingCourseId(null); // Clear edit mode
+            }
+            return !prev;
+          });
+        }}
         sx={{ mb: 2 }}
       >
         {showForm ? "Cancel" : "➕ Create New Course"}
       </Button>
 
       {showForm && (
-        <Box mb={3} p={2} sx={{ border: "1px solid #ccc", borderRadius: 2 }}>
-          <div style={{ marginBottom: 10 }}>
-            <label>Course Title:</label>
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Grade 11 Functions"
-              style={{ marginLeft: 10, width: "100%" }}
-            />
-          </div>
-
-          <div style={{ marginBottom: 10 }}>
-            <label>Course Code:</label>
-            <input
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="e.g. MCR3U"
-              style={{ marginLeft: 10, width: "100%" }}
-            />
-          </div>
-
-          <div style={{ marginBottom: 10 }}>
-            <label>Select Teachers:</label>
-            <Select
-              isMulti
-              options={allTeachers}
-              value={selectedTeachers}
-              onChange={setSelectedTeachers}
-              placeholder="Select one or more teachers"
-            />
-          </div>
-
-          <Button variant="contained" onClick={handleCreateCourse}>
-            Create Course
+        <Box mb={3} p={2} border="1px solid #ccc" borderRadius={2} sx={{ position: "relative" }}>
+          <Button
+            size="small"
+            onClick={() => setShowForm(false)}
+            sx={{ position: "absolute", top: 8, right: 8 }}
+            variant="outlined"
+            color="error"
+          >
+            ❌
           </Button>
+
+          <Typography variant="subtitle1" mb={1}>Create New Course</Typography>
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Course Title"
+            style={{ display: 'block', marginBottom: 10, width: '100%' }}
+          />
+          <input
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="Course Code"
+            style={{ display: 'block', marginBottom: 10, width: '100%' }}
+          />
+          <Select
+            isMulti
+            options={allTeachers}
+            value={selectedTeachers}
+            onChange={setSelectedTeachers}
+            placeholder="Select Teachers"
+          />
+          <Button variant="contained" onClick={handleCreateCourse} sx={{ mt: 2 }}>Create</Button>
         </Box>
       )}
 
       {message && (
-        <Typography sx={{ mt: 2, color: message.startsWith("✅") ? "green" : "red" }}>
-          {message}
-        </Typography>
+        <Typography color={message.startsWith("✅") ? "green" : "red"}>{message}</Typography>
       )}
 
-      <Typography variant="h5" mt={4} mb={2}>All Courses</Typography>
-
       <Stack spacing={2}>
-        {courses.map((course) => (
+        {courses.map(course => (
           <Box key={course.id}>
-            <Paper
-              sx={{
-                p: 2,
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                bgcolor: "#e0f7fa",
-              }}
-            >
-              <Box
-                sx={{ cursor: "pointer" }}
-                onClick={() => {
-                  const url = pdfUrls[course.id];
-                  if (url) {
-                    window.open(url, "_blank");
-                  } else {
-                    alert("PDF not available.");
-                  }
-                }}
-              >
-                <Typography variant="subtitle1">{course.title}</Typography>
-                <Typography variant="body2" color="textSecondary">
-                  {course.id}
-                </Typography>
+            <Paper sx={{ p: 2, display: "flex", justifyContent: "space-between" }}>
+              <Box onClick={() => window.open(pdfUrls[course.id], "_blank")}>
+                <Typography>{course.title}</Typography>
+                <Typography variant="caption">{course.course_code}</Typography>
               </Box>
-
               <Box>
-                <IconButton onClick={() => handleEditClick(course)}>
-                  <EditIcon />
-                </IconButton>
-                <IconButton onClick={(e) => handleExportClick(e, course.id)}>
+                <IconButton onClick={() => handleEditClick(course)}><EditIcon /></IconButton>
+                <IconButton onClick={(e) => { setMenuAnchor(e.currentTarget); setSelectedCourse(course.id); }}>
                   <MoreVertIcon />
                 </IconButton>
               </Box>
             </Paper>
 
             {editingCourseId === course.id && (
-              <Box mt={1} mb={2} p={2} sx={{ border: "1px solid #ccc", borderRadius: 2 }}>
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                  <Typography variant="subtitle1">Edit Course</Typography>
-                  <Button onClick={handleCancelEdit} color="error" size="small" variant="outlined">
-                    ❌ 
-                  </Button>
-                </Box>
+              <Box mt={1} p={2} sx={{ border: "1px solid #ccc", borderRadius: 2, position: "relative" }}>
+                <Button
+                  size="small"
+                  onClick={() => setEditingCourseId(null)}
+                  sx={{ position: "absolute", top: 8, right: 8 }}
+                  variant="outlined"
+                  color="error"
+                >
+                  ❌
+                </Button>
 
-                <div style={{ marginBottom: 10 }}>
-                  <label>Course Title:</label>
+                <Typography>Edit Course</Typography>
+                  <Typography fontWeight={500} sx={{ mt: 2 }}>Title</Typography>
                   <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    style={{ marginLeft: 10, width: "100%" }}
+                    placeholder="Course Title"
+                    style={{ display: 'block', marginBottom: 10, width: '100%' }}
                   />
-                </div>
-
-                <div style={{ marginBottom: 10 }}>
-                  <label>Select Teachers:</label>
-                  <Select
-                    isMulti
-                    options={allTeachers}
-                    value={selectedTeachers}
-                    onChange={setSelectedTeachers}
+                  <Typography fontWeight={500}>Course Code</Typography>
+                  <input
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    placeholder="Course Code"
+                    style={{ display: 'block', marginBottom: 10, width: '100%' }}
                   />
-                </div>
-
-                <Button variant="contained" onClick={handleUpdateCourse}>
-                  Update Course
-                </Button>
+                <Button variant="contained" onClick={handleUpdateCourse} sx={{ mt: 2 }}>Update</Button>
               </Box>
             )}
           </Box>
         ))}
       </Stack>
 
-      <Menu
-        anchorEl={menuAnchor}
-        open={Boolean(menuAnchor)}
-        onClose={handleMenuClose}
-      >
+      <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
         <MenuItem onClick={exportToWord}>Export as Word</MenuItem>
-        <MenuItem onClick={printContent}>Print</MenuItem>
-        <MenuItem onClick={() => {
-          alert(`View History clicked for ${selectedCourse}`);
-          handleMenuClose();
-        }}>
-          View History
-        </MenuItem>
+        <MenuItem onClick={() => window.print()}>Print</MenuItem>
       </Menu>
 
-      {/* Hidden export content */}
-      <Box
-        ref={exportRef}
-        sx={{
-          position: "fixed",
-          top: "-10000px",
-          left: "-10000px",
-          width: 600,
-          bgcolor: "white",
-          p: 2,
-          boxShadow: 3,
-          zIndex: -1,
-        }}
-      >
-        {selectedCourse && (
-          <>
-            <Typography variant="h5">{selectedCourse}</Typography>
-            <Typography mt={2}>
-              This is the export content for {selectedCourse}.
-            </Typography>
-          </>
-        )}
+      <Box ref={exportRef} sx={{ display: "none" }}>
+        {selectedCourse && <Typography>{selectedCourse}</Typography>}
       </Box>
     </div>
   );

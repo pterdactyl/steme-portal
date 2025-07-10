@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
-import { db } from "../../Auth/firebase";
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  doc,
-  updateDoc,
-} from "firebase/firestore";
 import {
   Typography,
   Box,
@@ -27,130 +18,107 @@ export default function AdminTeachers() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Fetch all teachers
   useEffect(() => {
-    async function fetchTeachers() {
-      const q = query(collection(db, "users"), where("role", "==", "teacher"));
-      const snapshot = await getDocs(q);
-      const teachersList = snapshot.docs.map((doc) => ({
-        uid: doc.id,
-        ...doc.data(),
-      }));
-      setTeachers(teachersList);
-    }
+    async function fetchData() {
+      const [teacherRes, courseRes] = await Promise.all([
+        fetch('http://localhost:4000/api/users/teachers'),
+        fetch('http://localhost:4000/api/courses')
+      ]);
 
-    fetchTeachers();
-  }, []);
+      const teachers = await teacherRes.json();
+      const courses = await courseRes.json();
 
-  // Fetch all courses
-  useEffect(() => {
-    async function fetchCourses() {
-      const snapshot = await getDocs(collection(db, "courses"));
-      const coursesList = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setCourses(coursesList);
+      setTeachers(teachers);
+      setCourses(courses);
       setLoading(false);
     }
 
-    fetchCourses();
+    fetchData();
   }, []);
 
-  // When teacher changes, update assigned courses
   useEffect(() => {
     if (!selectedTeacher) {
       setSelectedCourses([]);
       return;
     }
-    const assigned = courses.filter((course) =>
-      course.teacherIds?.includes(selectedTeacher.uid)
+
+    const assigned = courses.filter(course =>
+      course.teachers?.some(t => t.id === selectedTeacher.id)
     );
-    const selected = assigned.map((course) => ({
+
+    const selected = assigned.map(course => ({
       value: course.id,
-      label: course.title,
+      label: course.title
     }));
+
     setSelectedCourses(selected);
   }, [selectedTeacher, courses]);
 
-  // Options for all courses (for select dropdown)
-  const courseOptions = courses.map((course) => ({
+  const courseOptions = courses.map(course => ({
     value: course.id,
-    label: course.title,
+    label: course.title
   }));
 
-  // Handle saving course assignments for the teacher
   const handleSave = async () => {
     if (!selectedTeacher) return;
+
     setSaving(true);
     setMessage("");
 
     try {
-      const selectedCourseIds = selectedCourses.map((c) => c.value);
+      const courseIds = selectedCourses.map(c => c.value);
 
-      // Update each course's teacherIds accordingly
-      const updates = courses.map(async (course) => {
-        const hasTeacher = course.teacherIds?.includes(selectedTeacher.uid);
-        const shouldHaveTeacher = selectedCourseIds.includes(course.id);
-
-        if (hasTeacher && !shouldHaveTeacher) {
-          const updatedIds = course.teacherIds.filter((id) => id !== selectedTeacher.uid);
-          const courseRef = doc(db, "courses", course.id);
-          await updateDoc(courseRef, { teacherIds: updatedIds });
-        } else if (!hasTeacher && shouldHaveTeacher) {
-          const updatedIds = course.teacherIds ? [...course.teacherIds, selectedTeacher.uid] : [selectedTeacher.uid];
-          const courseRef = doc(db, "courses", course.id);
-          await updateDoc(courseRef, { teacherIds: updatedIds });
-        }
+      await fetch(`http://localhost:4000/api/users/teachers/${selectedTeacher.id}/courses`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ courseIds })
       });
 
-      await Promise.all(updates);
+      const updatedCourseRes = await fetch('http://localhost:4000/api/courses');
+      const updatedCourses = await updatedCourseRes.json();
+
+      setCourses(updatedCourses); // This will trigger the selectedCourses update
       setMessage("✅ Courses updated for teacher.");
-    } catch (error) {
-      setMessage("❌ Error updating courses: " + error.message);
+    } catch (err) {
+      setMessage("❌ Error: " + err.message);
     }
 
     setSaving(false);
   };
 
   return (
-    <Box maxWidth={900} margin="20px auto" fontFamily="Arial, sans-serif" padding={2}>
-      <Typography variant="h4" mb={3}>
-        Teacher Management
-      </Typography>
+    <Box maxWidth={900} margin="20px auto" padding={2}>
+      <Typography variant="h4" mb={3}>Teacher Management</Typography>
 
       <Box display="flex" gap={4}>
-        {/* Teacher List */}
         <Paper sx={{ flex: 1, maxHeight: 600, overflowY: "auto", padding: 2 }}>
           <Typography variant="h6" mb={1}>All Teachers</Typography>
           <Stack spacing={1}>
-            {teachers.length === 0 && <Typography>No teachers found.</Typography>}
             {teachers.map((teacher) => (
               <Box
-                key={teacher.uid}
+                key={teacher.id}
+                onClick={() => setSelectedTeacher(teacher)}
                 sx={{
                   padding: "8px 12px",
                   borderRadius: 1,
-                  backgroundColor: selectedTeacher?.uid === teacher.uid ? "#b3e5fc" : "#f0f0f0",
+                  backgroundColor: selectedTeacher?.id === teacher.id ? "#b3e5fc" : "#f0f0f0",
                   cursor: "pointer",
                   "&:hover": { backgroundColor: "#90caf9" },
                 }}
-                onClick={() => setSelectedTeacher(teacher)}
               >
-                {teacher.fullName || teacher.email || teacher.uid}
+                {teacher.name || teacher.email}
               </Box>
             ))}
           </Stack>
         </Paper>
 
-        {/* Selected Teacher Courses and Edit */}
         <Paper sx={{ flex: 2, padding: 2, minHeight: 300 }}>
           {!selectedTeacher ? (
-            <Typography>Select a teacher to view and edit courses.</Typography>
+            <Typography>Select a teacher to assign courses.</Typography>
           ) : (
             <>
               <Typography variant="h6" mb={2}>
-                Courses Assigned to {selectedTeacher.fullName || selectedTeacher.email}
+                Assign Courses to {selectedTeacher.name}
               </Typography>
 
               {loading ? (
@@ -162,7 +130,7 @@ export default function AdminTeachers() {
                     options={courseOptions}
                     value={selectedCourses}
                     onChange={setSelectedCourses}
-                    placeholder="Select courses to assign"
+                    placeholder="Select courses"
                   />
 
                   <Box mt={2}>
@@ -172,10 +140,7 @@ export default function AdminTeachers() {
                   </Box>
 
                   {message && (
-                    <Typography
-                      mt={2}
-                      color={message.startsWith("✅") ? "green" : "red"}
-                    >
+                    <Typography mt={2} color={message.startsWith("✅") ? "green" : "red"}>
                       {message}
                     </Typography>
                   )}
