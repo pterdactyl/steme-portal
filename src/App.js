@@ -1,8 +1,6 @@
 import Pathways from './pages/Student/pathways'
 import Upload from "./pages/Student/upload"
 import React, { useState, useEffect, useContext } from "react";
-import Pathways from './pages/pathways'
-import Upload from "./pages/upload"
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 import Login from "./Auth/login";
@@ -24,6 +22,7 @@ import ProfilePage from "./pages/ProfilePage";
 import PrivateRoute from './Auth/privateRoute';
 import EditOutline from "./pages/Teacher/EditOutline";
 import ViewOutline from "./pages//Teacher/ViewOutline";
+import OutlineHistory from './pages/Teacher/OutlineHistory'
 
 import AdminCourses from './pages/Admin/AdminCourses';
 import AdminTeachers from './pages/Admin/AdminTeachers';
@@ -172,9 +171,18 @@ export default function App() {
             }
           />
 
+          <Route
+            path="/course/:courseId/history"
+            element={
+              <PrivateRoute>
+                <OutlineHistory user={user} />
+              </PrivateRoute>
+            }
+          />
+
           {/* Distinct routes */}
           <Route
-            path="/course/:courseId"
+            path="/student/course/:courseId"
             element={
               <PrivateRoute>
                 <CourseOutline />
