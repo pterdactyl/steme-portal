@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import courseRoutes from './routes/courseRoutes.js';
+import usersRoute from './routes/users.js';
+
+
 
 dotenv.config();
 const app = express();
@@ -24,6 +27,8 @@ app.use(express.json());
 
 // Routes
 app.use('/api/courses', courseRoutes);
+app.use("/api/users", usersRoute);
+
 
 app.get('/', (req, res) => {
   res.send('API is working!');
