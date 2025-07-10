@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Login from "./Auth/login";
 import Signup from "./Auth/signup";
-import Navbar from "./components/Navbar";
+import Navbar from "./components/StudentNavbar.js";
 import TeacherNavbar from "./components/TeacherNavbar";
 import AdminNavbar from './components/AdminNavbar';
 import Box from '@mui/material/Box';
@@ -24,7 +24,7 @@ import Course from './pages/Course';
 import CourseDashboard from "./pages/CourseDashboard";
 import OutlinePage from "./pages/OutlinePage";
 import CoursePage from "./pages/coursePage.js";
-
+import CourseSelection from "./pages/CourseSelection.js"
 
 import { useAuth } from "./Auth/auth";
 import PrivateRoute from "./Auth/privateRoute";
@@ -150,6 +150,14 @@ export default function App() {
             element={
               <PrivateRoute>
                 <EditOutline user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route 
+            path="/course-selection" 
+            element={
+              <PrivateRoute>
+                <CourseSelection user={user} />
               </PrivateRoute>
             }
           />

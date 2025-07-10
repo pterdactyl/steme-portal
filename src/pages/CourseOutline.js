@@ -101,32 +101,32 @@ export default function CourseOutline() {
       <section style={{ marginBottom: "2rem" }}>
         {courseData["Course Code"] && (
           <p>
-            <strong>Course Code</strong> {courseData["Course Code"]}
+            <strong>Course Code:</strong> {courseData["Course Code"]}
           </p>
         )}
         {courseData["Course Type"] && (
           <p>
-            <strong>Course Type</strong> {courseData["Course Type"]}
+            <strong>Course Type:</strong> {courseData["Course Type"]}
           </p>
         )}
         {courseData["Credit Value"] && (
           <p>
-            <strong>Credit Value</strong> {courseData["Credit Value"]}
+            <strong>Credit Value:</strong> {courseData["Credit Value"]}
           </p>
         )}
         {courseData["Grade"] && (
           <p>
-            <strong>Grade</strong> {courseData["Grade"]}
+            <strong>Grade:</strong> {courseData["Grade"]}
           </p>
         )}
         {courseData["Prerequisite"] && (
           <p>
-            <strong>Prerequisite</strong> {courseData["Prerequisite"]}
+            <strong>Prerequisite:</strong> {courseData["Prerequisite"]}
           </p>
         )}
         {courseData["Course Description"] && (
           <p>
-            <strong>Course Description</strong> {courseData["Course Description"]}
+            <strong>Course Description:</strong> {courseData["Course Description"]}
           </p>
         )}
       </section>
