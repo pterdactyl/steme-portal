@@ -1,8 +1,6 @@
 import Pathways from './pages/Student/pathways'
 import Upload from "./pages/Student/upload"
 import React, { useState, useEffect, useContext } from "react";
-import Pathways from './pages/pathways'
-import Upload from "./pages/upload"
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 import Login from "./Auth/login";
