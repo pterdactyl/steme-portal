@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../Auth/firebase";
 
 export default function CourseOutline() {
   const { courseId } = useParams();
@@ -12,20 +10,12 @@ export default function CourseOutline() {
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const docRef = doc(db, "studentCourseOutlines", courseId);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          setCourseData(docSnap.data());
-          setError(null);
-        } else {
-          setError("Course not found.");
-          setCourseData(null);
-        }
+        const res = await fetch(`/api/course-outlines/${courseId}`);
+        if (!res.ok) throw new Error("Course not found");
+        const data = await res.json();
+        setCourseData(data);
       } catch (err) {
-        setError(`Failed to load course data: ${err.message}`);
-        setCourseData(null);
-        console.error(err);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -39,7 +29,6 @@ export default function CourseOutline() {
     }
   }, [courseId]);
 
-  // Custom render function for Assessment Breakdown
   const renderAssessmentBreakdown = (data) => {
     if (!data || typeof data !== "object") return null;
 
@@ -60,11 +49,11 @@ export default function CourseOutline() {
             <strong>Final Assessment Percentage:</strong> {data.finalAssessmentPercentage}%
           </li>
         )}
-        {data["Final Assessment"] && typeof data["Final Assessment"] === "object" && (
+        {data.finalAssessment && typeof data.finalAssessment === "object" && (
           <li>
             <strong>Final Assessment:</strong>
             <ul>
-              {Object.entries(data["Final Assessment"]).map(([key, val]) => (
+              {Object.entries(data.finalAssessment).map(([key, val]) => (
                 <li key={key}>
                   {key}: {val}
                 </li>
@@ -72,11 +61,11 @@ export default function CourseOutline() {
             </ul>
           </li>
         )}
-        {data["Category Weights"] && typeof data["Category Weights"] === "object" && (
+        {data.categoryWeights && typeof data.categoryWeights === "object" && (
           <li>
             <strong>Category Weights:</strong>
             <ul>
-              {Object.entries(data["Category Weights"]).map(([key, val]) => (
+              {Object.entries(data.categoryWeights).map(([key, val]) => (
                 <li key={key}>
                   {key}: {val}
                 </li>
@@ -94,45 +83,30 @@ export default function CourseOutline() {
 
   return (
     <div style={{ fontFamily: "Arial, sans-serif", maxWidth: 900, margin: "auto", padding: 20 }}>
-      {/* Course Title at the top */}
-      <h1 style={{ textAlign: "center", marginBottom: "1rem" }}>{courseData["Course Title"]}</h1>
+      <h1 style={{ textAlign: "center", marginBottom: "1rem" }}>{courseData.courseTitle}</h1>
 
-      {/* Course Details */}
       <section style={{ marginBottom: "2rem" }}>
-        {courseData["Course Code"] && (
-          <p>
-            <strong>Course Code:</strong> {courseData["Course Code"]}
-          </p>
+        {courseData.courseCode && (
+          <p><strong>Course Code:</strong> {courseData.courseCode}</p>
         )}
-        {courseData["Course Type"] && (
-          <p>
-            <strong>Course Type:</strong> {courseData["Course Type"]}
-          </p>
+        {courseData.courseType && (
+          <p><strong>Course Type:</strong> {courseData.courseType}</p>
         )}
-        {courseData["Credit Value"] && (
-          <p>
-            <strong>Credit Value:</strong> {courseData["Credit Value"]}
-          </p>
+        {courseData.creditValue && (
+          <p><strong>Credit Value:</strong> {courseData.creditValue}</p>
         )}
-        {courseData["Grade"] && (
-          <p>
-            <strong>Grade:</strong> {courseData["Grade"]}
-          </p>
+        {courseData.grade && (
+          <p><strong>Grade:</strong> {courseData.grade}</p>
         )}
-        {courseData["Prerequisite"] && (
-          <p>
-            <strong>Prerequisite:</strong> {courseData["Prerequisite"]}
-          </p>
+        {courseData.prerequisite && (
+          <p><strong>Prerequisite:</strong> {courseData.prerequisite}</p>
         )}
-        {courseData["Course Description"] && (
-          <p>
-            <strong>Course Description:</strong> {courseData["Course Description"]}
-          </p>
+        {courseData.description && (
+          <p><strong>Course Description:</strong> {courseData.description}</p>
         )}
       </section>
 
-      {/* Units Overview Table */}
-      {Array.isArray(courseData["Units Overview"]) && (
+      {Array.isArray(courseData.unitsOverview) && (
         <section style={{ marginBottom: "2rem" }}>
           <h2>Units Overview</h2>
           <table
@@ -148,11 +122,11 @@ export default function CourseOutline() {
               </tr>
             </thead>
             <tbody>
-              {courseData["Units Overview"].map((unit, idx) => (
-                <tr key={idx} style={{ borderBottom: "1px solid #ddd" }}>
-                  <td>{unit.Unit}</td>
-                  <td>{unit.Title}</td>
-                  <td>{unit.Time || ""}</td>
+              {courseData.unitsOverview.map((unit, idx) => (
+                <tr key={idx}>
+                  <td>{unit.unit}</td>
+                  <td>{unit.title}</td>
+                  <td>{unit.time || ""}</td>
                 </tr>
               ))}
             </tbody>
@@ -160,11 +134,10 @@ export default function CourseOutline() {
         </section>
       )}
 
-      {/* Assessment Breakdown */}
-      {courseData["Assessment Breakdown"] && (
+      {courseData.assessmentBreakdown && (
         <section>
           <h2>Assessment Breakdown</h2>
-          {renderAssessmentBreakdown(courseData["Assessment Breakdown"])}
+          {renderAssessmentBreakdown(courseData.assessmentBreakdown)}
         </section>
       )}
     </div>

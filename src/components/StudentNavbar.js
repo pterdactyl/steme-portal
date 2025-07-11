@@ -2,13 +2,15 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useMsal } from "@azure/msal-react";
 
 export default function StudentNavbar({ user, onLogout }) {
   const navigate = useNavigate();
 
+  const { instance } = useMsal();
+  
   const handleLogout = () => {
-    onLogout?.();
-    navigate("/");
+    instance.logoutRedirect();
   };
 
   const handleDashboardClick = () => {

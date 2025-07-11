@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./CourseSelection.css";
 import CourseModal from "../components/CourseModal";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db, auth } from "../Auth/firebase";
+import { AuthContext } from "../Auth/AuthContext";
 
 const gradeLevels = ["Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const currentGrade = "Grade 9";
@@ -70,31 +69,32 @@ const initialCourses = {
 };
 
 export default function CourseSelection() {
+  const { user } = useContext(AuthContext);
+  
   const [courses, setCourses] = useState(initialCourses);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalGrade, setModalGrade] = useState(null);
   const [filterGroup, setFilterGroup] = useState(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
-  const user = auth.currentUser;
-
   // Load saved courses on mount
   useEffect(() => {
-    if (!user) return;
+    if (!user?.email) return;
 
     const loadSavedCourses = async () => {
       try {
-        const docRef = doc(db, "submittedCourses", `${user.uid}_${currentGrade}`);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data?.courses) {
-            setCourses((prev) => ({
-              ...prev,
-              [currentGrade]: data.courses,
-            }));
-            setHasSubmitted(true);
-          }
+        const res = await fetch(
+          `/api/courses?email=${encodeURIComponent(user.email)}&grade=${encodeURIComponent(currentGrade)}`
+        );
+        if (!res.ok) throw new Error("Failed to fetch courses");
+        const data = await res.json();
+
+        if (data?.courses) {
+          setCourses(prev => ({
+            ...prev,
+            [currentGrade]: data.courses,
+          }));
+          setHasSubmitted(true);
         }
       } catch (error) {
         console.error("Error loading saved courses:", error);
@@ -105,7 +105,6 @@ export default function CourseSelection() {
   }, [user]);
 
   const handleAddCourse = (grade, group = null) => {
-    // Allow adding/removing in current and future grades only
     if (gradeLevels.indexOf(grade) < gradeLevels.indexOf(currentGrade)) return;
     if (grade === currentGrade && hasSubmitted) return;
     setModalGrade(grade);
@@ -116,11 +115,11 @@ export default function CourseSelection() {
   const handleSelectCourse = (course) => {
     if (!modalGrade) return;
 
-    setCourses((prev) => {
+    setCourses(prev => {
       const existing = prev[modalGrade] || [];
 
       const filtered = course.group
-        ? existing.filter((c) => c.group !== course.group)
+        ? existing.filter(c => c.group !== course.group)
         : existing;
 
       return {
@@ -134,30 +133,34 @@ export default function CourseSelection() {
   };
 
   const handleRemoveCourse = (grade, courseId) => {
-    // Can't remove in past grades or after submission for current grade
     if (gradeLevels.indexOf(grade) < gradeLevels.indexOf(currentGrade)) return;
     if (grade === currentGrade && hasSubmitted) return;
 
-    setCourses((prev) => ({
+    setCourses(prev => ({
       ...prev,
-      [grade]: prev[grade].filter((c) => c.id !== courseId),
+      [grade]: prev[grade].filter(c => c.id !== courseId),
     }));
   };
 
   const handleSubmitCourses = async (grade) => {
-    const selected = courses[grade] || [];
-    if (!user) {
+    if (!user?.email) {
       alert("❌ You must be logged in to submit courses.");
       return;
     }
 
     try {
-      await setDoc(doc(db, "submittedCourses", `${user.uid}_${grade}`), {
-        userId: user.uid,
-        grade,
-        submittedAt: new Date().toISOString(),
-        courses: selected,
+      const response = await fetch("/api/courses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: user.email,
+          grade,
+          courses: courses[grade] || [],
+        }),
       });
+
+      if (!response.ok) throw new Error("Failed to save courses");
+
       alert(`✅ Courses submitted for ${grade}!`);
       setHasSubmitted(true);
     } catch (error) {
@@ -166,10 +169,9 @@ export default function CourseSelection() {
     }
   };
 
-  // Credit summary counts
   const getCreditCounts = () => {
     let total = 0;
-    let earned = 0; // Assume 0 since not completed
+    let earned = 0; // You can customize earned logic
     let planned = 0;
 
     gradeLevels.forEach((grade) => {
@@ -188,9 +190,9 @@ export default function CourseSelection() {
   const { total, earned, planned } = getCreditCounts();
 
   const takenCourseIds = new Set();
-Object.values(courses).forEach((gradeCourses) => {
-  gradeCourses.forEach((c) => takenCourseIds.add(c.id));
-});
+  Object.values(courses).forEach((gradeCourses) => {
+    gradeCourses.forEach((c) => takenCourseIds.add(c.id));
+  });
 
   return (
     <div className="planner-container">
@@ -206,11 +208,11 @@ Object.values(courses).forEach((gradeCourses) => {
           const selected = courses[grade] || [];
           const isCurrent = grade === currentGrade;
           const isFuture = gradeLevels.indexOf(grade) > gradeLevels.indexOf(currentGrade);
-          const artsCourse = selected.find((c) => c.group === "arts");
-          const nonArtsCourses = selected.filter((c) => c.group !== "arts");
+          const artsCourse = selected.find(c => c.group === "arts");
+          const nonArtsCourses = selected.filter(c => c.group !== "arts");
 
           const totalCredits = selected.reduce((sum, c) => sum + c.credits, 0);
-          const maxCredits = 8; // Max 8 credits per year
+          const maxCredits = 8;
           const emptySlots = Math.max(0, Math.floor(maxCredits - totalCredits));
           const needsArts = grade === "Grade 9" && !artsCourse;
 
@@ -222,7 +224,6 @@ Object.values(courses).forEach((gradeCourses) => {
                 <span className="sub">{isCurrent ? "Current Grade" : isFuture ? "Plan Ahead" : "Completed"}</span>
               </div>
 
-              {/* Non-arts courses */}
               {nonArtsCourses.map((course) => (
                 <div
                   key={course.id}
@@ -274,7 +275,7 @@ Object.values(courses).forEach((gradeCourses) => {
                 </div>
               )}
 
-              {/* Empty slots for electives and other courses */}
+              {/* Empty slots */}
               {Array.from({ length: emptySlots - (needsArts ? 1 : 0) }).map((_, i) => (
                 <div
                   key={i}
@@ -285,7 +286,7 @@ Object.values(courses).forEach((gradeCourses) => {
                 </div>
               ))}
 
-              {/* Submit button only on current grade if not submitted */}
+              {/* Submit button for current grade */}
               {isCurrent && !hasSubmitted && (
                 <button className="submit-grade-btn" onClick={() => handleSubmitCourses(grade)}>
                   Submit All Courses
@@ -296,20 +297,19 @@ Object.values(courses).forEach((gradeCourses) => {
         })}
       </div>
 
- <CourseModal
-  open={modalOpen}
-  onClose={() => {
-    setModalOpen(false);
-    setFilterGroup(null);
-  }}
-  onSelect={handleSelectCourse}
-  courseOptions={
-    filterGroup === "arts"
-      ? artsCourses.filter((c) => !takenCourseIds.has(c.id))
-      : availableCourses.filter((c) => !takenCourseIds.has(c.id))
-  }
-/>
-
+      <CourseModal
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setFilterGroup(null);
+        }}
+        onSelect={handleSelectCourse}
+        courseOptions={
+          filterGroup === "arts"
+            ? artsCourses.filter(c => !takenCourseIds.has(c.id))
+            : availableCourses.filter(c => !takenCourseIds.has(c.id))
+        }
+      />
     </div>
   );
 }

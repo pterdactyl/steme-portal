@@ -911,7 +911,7 @@ export default function Pathways() {
         <div
           className={`course-node ${!isRelevant ? "dimmed" : ""}`}
           style={nodeStyle}
-          onClick={isDummy ? undefined : () => navigate(`/course/${course.id}`)}
+          onClick={isDummy ? undefined : () => navigate(`/view/${course.id}`)}
         >
           {course.id}
         </div>

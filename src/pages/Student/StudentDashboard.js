@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../../Auth/firebase";
 import { Box, Typography, Paper, Stack } from "@mui/material";
 
 export default function StudentDashboard({ user }) {
@@ -12,17 +10,12 @@ export default function StudentDashboard({ user }) {
   useEffect(() => {
     async function getStudentCourses() {
       if (!user?.uid) return;
+
       try {
-        const q = query(
-          collection(db, "courses"),
-          where("studentIds", "array-contains", user.uid)
-        );
-        const snapshot = await getDocs(q);
-        const courseList = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setCourses(courseList);
+        const res = await fetch(`/api/courses/student/${user.uid}`);
+        if (!res.ok) throw new Error("Failed to fetch courses");
+        const data = await res.json();
+        setCourses(data);
       } catch (error) {
         console.error("Error fetching student courses:", error);
       } finally {
@@ -62,10 +55,9 @@ export default function StudentDashboard({ user }) {
                   bgcolor: "#82b1ff",
                 },
               }}
-              onClick={() => navigate(`/course/${course.id}/details/stream`)}
+              onClick={() => navigate(`/course/${course.id}/stream`)}
             >
               <Typography variant="h6">{course.title}</Typography>
-              {/* No menu icon for students */}
             </Paper>
           ))}
         </Stack>

@@ -1,89 +1,77 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
-import { getIdTokenResult } from "firebase/auth";
-
-import Box from "@mui/material/Box";
+import { useMsal } from "@azure/msal-react";
 
 import Login from "./Auth/login";
-import Signup from "./Auth/signup";
-import { useAuth } from "./Auth/auth";
-import PrivateRoute from "./Auth/privateRoute";
+import { AuthContext } from "./Auth/AuthContext";
 
 import StudentNavbar from "./components/StudentNavbar";
 import TeacherNavbar from "./components/TeacherNavbar";
 import AdminNavbar from "./components/AdminNavbar";
 
-import Pathways from "./pages/Student/pathways";
-import Upload from "./pages/Student/upload";
+import Box from "@mui/material/Box";
+
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import TeacherAttendance from "./pages/Teacher/TeacherAttendance";
 import ProfilePage from "./pages/ProfilePage";
+
+import PrivateRoute from "./Auth/privateRoute";
 import EditOutline from "./pages/Teacher/EditOutline";
 import ViewOutline from "./pages/Teacher/ViewOutline";
+
 import AdminCourses from "./pages/Admin/AdminCourses";
 import AdminTeachers from "./pages/Admin/AdminTeachers";
 import AdminStudents from "./pages/Admin/AdminStudents";
-
+import CourseOutline from "./pages/Student/CourseOutline";
+import CourseDashboard from "./pages/Teacher/CourseDashboard";
+import OutlinePage from "./pages/Teacher/OutlinePage";
 import StudentCourse from "./pages/Student/StudentCourse";
+
 import StudentMarks from "./pages/Student/StudentMarks";
 import StudentClasslist from "./pages/Student/StudentClasslist";
 import StudentStream from "./pages/Student/StudentStream";
+import AssignmentsTab from "./pages/Teacher/AssignmentsTab.js";
+import AnnouncementsTab from "./pages/Teacher/AnnouncementsTab.js";
 
-import CourseOutline from "./pages/Student/CourseOutline"; // If you still want this for something else
-import CourseDashboard from "./pages/Teacher/CourseDashboard";
-import OutlinePage from "./pages/Teacher/OutlinePage";
+import Pathways from "./pages/Student/pathways";
+import Upload from "./pages/Student/upload";
 import CourseSelection from "./pages/CourseSelection";
 
-import AssignmentsTab from "./pages/Teacher/AssignmentsTab";
-import AnnouncementsTab from "./pages/Teacher/AnnouncementsTab";
-
-// PrimeReact styles
 import "primereact/resources/themes/lara-light-indigo/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 
 export default function App() {
-  const { user, firebaseUser, logout } = useAuth();
+  useMsal(); // Hook for side effects
+  const { user, role, loading } = useContext(AuthContext);
   const location = useLocation();
-  const [isAdmin, setAdmin] = useState(false);
-  const hideNavbar = ["/", "/signup"].includes(location.pathname);
+  const hideNavbar = ["/"].includes(location.pathname);
 
-  useEffect(() => {
-    async function checkClaims() {
-      if (firebaseUser) {
-        const tokenResult = await getIdTokenResult(firebaseUser);
-        setAdmin(!!tokenResult.claims.admin);
-      } else {
-        setAdmin(false);
-      }
-    }
-    checkClaims();
-  }, [user, firebaseUser]);
+  if (loading) return null;
 
+  // Redirect on base route based on role
   if (user && location.pathname === "/") {
-    if (isAdmin) return <Navigate to="/dashboard/admin" replace />;
-    if (user.role === "teacher") return <Navigate to="/courses" replace />;
-    if (user.role === "student") return <Navigate to="/dashboard/student" replace />;
+    if (role === "admin") return <Navigate to="/dashboard/admin" replace />;
+    if (role === "teacher") return <Navigate to="/courses" replace />;
+    if (role === "student") return <Navigate to="/dashboard/student" replace />;
   }
 
   return (
     <>
       {!hideNavbar &&
-        (isAdmin ? (
-          <AdminNavbar user={user} onLogout={logout} />
-        ) : user?.role === "teacher" ? (
-          <TeacherNavbar user={user} onLogout={logout} />
-        ) : user?.role === "student" ? (
-          <StudentNavbar user={user} onLogout={logout} />
+        (role === "admin" ? (
+          <AdminNavbar user={user} />
+        ) : role === "teacher" ? (
+          <TeacherNavbar user={user} />
+        ) : role === "student" ? (
+          <StudentNavbar user={user} />
         ) : null)}
 
       <Box p={!hideNavbar ? 3 : 0}>
         <Routes>
-          {/* Public */}
           <Route path="/" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
 
           {/* Dashboards */}
           <Route
@@ -94,6 +82,19 @@ export default function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/course/:courseId"
+            element={
+              <PrivateRoute>
+                <StudentCourse user={user} />
+              </PrivateRoute>
+            }
+          >
+            <Route path="stream" element={<StudentStream user={user} />} />
+            <Route path="people" element={<StudentClasslist user={user} />} />
+            <Route path="marks" element={<StudentMarks user={user} />} />
+          </Route>
+
           <Route
             path="/dashboard/student"
             element={
@@ -111,22 +112,23 @@ export default function App() {
             }
           />
 
-          {/* Student Course with nested tabs */}
+          {/* Other pages */}
           <Route
-            path="/course/:courseId/details"
+            path="/attendance"
             element={
               <PrivateRoute>
-                <StudentCourse user={user} />
+                <TeacherAttendance user={user} />
               </PrivateRoute>
             }
-          >
-            <Route index element={<StudentStream user={user} />} />
-            <Route path="stream" element={<StudentStream user={user} />} />
-            <Route path="people" element={<StudentClasslist user={user} />} />
-            <Route path="marks" element={<StudentMarks user={user} />} />
-          </Route>
-
-          {/* Other student pages */}
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <ProfilePage user={user} />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/pathways"
             element={
@@ -144,24 +146,6 @@ export default function App() {
             }
           />
           <Route
-            path="/course-selection"
-            element={
-              <PrivateRoute>
-                <CourseSelection user={user} />
-              </PrivateRoute>
-            }
-          />
-
-          {/* Teacher-only */}
-          <Route
-            path="/attendance"
-            element={
-              <PrivateRoute>
-                <TeacherAttendance user={user} />
-              </PrivateRoute>
-            }
-          />
-          <Route
             path="/edit/:courseId"
             element={
               <PrivateRoute>
@@ -169,6 +153,26 @@ export default function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/view/:courseId"
+            element={
+              <PrivateRoute>
+                <ViewOutline user={user} />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Distinct route for CourseOutline */}
+          <Route
+            path="/course/:courseId"
+            element={
+              <PrivateRoute>
+                <CourseOutline />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Nested routing for CourseDashboard with tabs */}
           <Route
             path="/dashboard/course/:courseId/*"
             element={
@@ -179,7 +183,9 @@ export default function App() {
           >
             <Route path="assignments" element={<AssignmentsTab user={user} />} />
             <Route index element={<AnnouncementsTab />} />
+            {/* Additional tabs can be added here */}
           </Route>
+
           <Route
             path="/outline"
             element={
@@ -189,7 +195,7 @@ export default function App() {
             }
           />
 
-          {/* Admin-only */}
+          {/* Admin pages */}
           <Route
             path="/admin/courses"
             element={
@@ -215,8 +221,15 @@ export default function App() {
             }
           />
 
-          {/* Optional fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Added CourseSelection Route */}
+          <Route
+            path="/course-selection"
+            element={
+              <PrivateRoute>
+                <CourseSelection />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </Box>
     </>
