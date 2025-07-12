@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCoursesForTeacher } from "../../Auth/getTeacherCourses";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../Auth/firebase";
+import { AuthContext } from "../../Auth/AuthContext";
 import {
   Box,
   Typography,
@@ -12,98 +10,64 @@ import {
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
-export default function TeacherDashboard({ user }) {
+export default function TeacherDashboard() {
   const navigate = useNavigate();
+  const { user, role, userId } = useContext(AuthContext);
+
   const [courses, setCourses] = useState([]);
-  const [pdfUrls, setPdfUrls] = useState({});
   const [filterText, setFilterText] = useState("");
 
   useEffect(() => {
     const fetchCourses = async () => {
-      if (!user?.uid) return;
-      const fetchedCourses = await getCoursesForTeacher(user.uid);
-      setCourses(fetchedCourses);
-
-      const urls = {};
-      for (const course of fetchedCourses) {
-        const versionId = course.currentVersion;
-        if (!versionId) continue;
-        const versionRef = doc(db, "courses", course.id, "versions", versionId);
-        const versionSnap = await getDoc(versionRef);
-        if (versionSnap.exists()) {
-          urls[course.id] = versionSnap.data().pdf;
-        }
+      if (!userId || role !== "teacher") {
+        setCourses([]);
+        return;
       }
-      setPdfUrls(urls);
+
+      try {
+        const response = await fetch(`http://localhost:4000/api/courses?teacherId=${userId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch courses");
+        }
+
+        const data = await response.json();
+        setCourses(data);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+        setCourses([]);
+      }
     };
 
     fetchCourses();
-  }, [user]);
-
-
-
-
+  }, [userId, role]);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
-  const [exportMenuAnchor, setExportMenuAnchor] = useState(null);
 
-
-
-
+  const handleMenuClick = (event, courseId) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+    setSelectedCourse(courseId);
+  };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
     setSelectedCourse(null);
   };
 
-  const handleExportClick = (event) => {
-    setExportMenuAnchor(event.currentTarget);
-  };
-
-  const handleExportMenuClose = () => {
-    setExportMenuAnchor(null);
-  };
-
   const handleAction = (action) => {
     if (action === "Edit") {
-      console.log("Navigating to edit:", selectedCourse);
       navigate(`/edit/${selectedCourse}`);
     } else {
-      console.log("na");
-      alert(`${action} clicked for ${selectedCourse}`);
+      alert(`${action} clicked for course ID ${selectedCourse}`);
     }
     handleMenuClose();
   };
 
-  const getCourseById = (id) => courses.find((c) => c.id === id);
-
-  // Export functions
-  const exportToPDF = () => {
-    
-  };
-
-  const exportToWord = () => {
-    
-  };
-
-  const printContent = () => {
-    
-  };
-
-  const selectedCourseObj = getCourseById(selectedCourse);
-
-  const filteredCourses = courses.filter(
-    (course) =>
-      course.title.toLowerCase().includes(filterText.toLowerCase()) ||
-      course.id.toLowerCase().includes(filterText.toLowerCase())
+  const filteredCourses = courses.filter(course =>
+    course.title.toLowerCase().includes(filterText.toLowerCase()) ||
+    course.course_code.toLowerCase().includes(filterText.toLowerCase())
   );
-
-  const handleMenuClick = (event, courseId) => {
-    event.stopPropagation();
-    console.log("More menu clicked for course:", courseId);
-    // Add menu logic here if needed
-  };
 
   return (
     <Box p={3}>
@@ -140,7 +104,11 @@ export default function TeacherDashboard({ user }) {
               onClick={() => navigate(`/dashboard/course/${course.id}`)}
             >
               <Box
-                sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
               >
                 <Typography
                   sx={{ cursor: "pointer" }}
@@ -151,9 +119,7 @@ export default function TeacherDashboard({ user }) {
                 >
                   {course.title}
                 </Typography>
-                <IconButton
-                  onClick={(e) => handleMenuClick(e, course.id)}
-                >
+                <IconButton onClick={(e) => handleMenuClick(e, course.id)}>
                   <MoreVertIcon />
                 </IconButton>
               </Box>

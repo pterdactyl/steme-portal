@@ -1,4 +1,6 @@
-import React, { useContext } from "react";
+import Pathways from './pages/Student/pathways'
+import Upload from "./pages/Student/upload"
+import React, { useState, useEffect, useContext } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useMsal } from "@azure/msal-react";
 
@@ -19,7 +21,8 @@ import ProfilePage from "./pages/ProfilePage";
 
 import PrivateRoute from "./Auth/privateRoute";
 import EditOutline from "./pages/Teacher/EditOutline";
-import ViewOutline from "./pages/Teacher/ViewOutline";
+import ViewOutline from "./pages//Teacher/ViewOutline";
+import OutlineHistory from './pages/Teacher/OutlineHistory'
 
 import AdminCourses from "./pages/Admin/AdminCourses";
 import AdminTeachers from "./pages/Admin/AdminTeachers";
@@ -162,9 +165,18 @@ export default function App() {
             }
           />
 
-          {/* Distinct route for CourseOutline */}
           <Route
-            path="/course/:courseId"
+            path="/course/:courseId/history"
+            element={
+              <PrivateRoute>
+                <OutlineHistory user={user} />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Distinct routes */}
+          <Route
+            path="/student/course/:courseId"
             element={
               <PrivateRoute>
                 <CourseOutline />

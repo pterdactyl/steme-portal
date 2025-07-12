@@ -1,9 +1,6 @@
 // src/pages/CourseDashboard.js
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCoursesForTeacher } from "../../Auth/getTeacherCourses";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../Auth/firebase";
 import OutlineContent from "./OutlineContent";
 import '../../styles/EditOutline.css';
 import html2pdf from "html2pdf.js";
@@ -20,12 +17,14 @@ import {
   TextField,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { AuthContext } from "../../Auth/AuthContext";
 
-export default function OnlinePage({ user }) {
+export default function OutlinePage() {
   const navigate = useNavigate();
+  const { user, role, userId } = useContext(AuthContext);
   const [courses, setCourses] = useState([]);
   const [filterText, setFilterText] = useState("");
-
+ 
   // State for menus and selection
   const [anchorEl, setAnchorEl] = useState(null);
   const [exportAnchorEl, setExportAnchorEl] = useState(null);
@@ -36,14 +35,20 @@ export default function OnlinePage({ user }) {
   const [isExporting, setIsExporting] = useState(false);
   const exportContainerRef = useRef(null);
 
-  // Fetch courses and their existing PDF URLs
+  // 🔁 Fetch courses from Azure SQL backend
   useEffect(() => {
     async function fetchCourses() {
-      if (!user?.uid) return;
-      const fetchedCourses = await getCoursesForTeacher(user.uid);
-      setCourses(fetchedCourses);
+      try {
+        console.log(userId);
+        console.log(user);
+        const res = await fetch(`http://localhost:4000/api/courses?teacherId=${userId}`);
+        const data = await res.json();
+        setCourses(data);
+      } catch (err) {
+        console.error("Failed to fetch courses from Azure:", err);
+      }
     }
-    fetchCourses();
+    if (userId) fetchCourses();
   }, [user]);
 
   // useEffect for On-the-Fly PDF Generation
@@ -103,52 +108,69 @@ export default function OnlinePage({ user }) {
 
   const exportToPDF = async () => {
     if (!selectedCourse) return;
-    
-    // Fetch data needed for on-the-fly generation
-    const docRef = doc(db, "courseOutlines", selectedCourse.id);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-        setOutlineForExport({ ...docSnap.data(), courseCode: selectedCourse.id });
-        setIsExporting(true); // This triggers the useEffect
-    } else {
-        alert("Outline content not found for generation!");
+  
+    try {
+      const res = await fetch(`http://localhost:4000/api/outlines/${selectedCourse.id}`);
+      if (!res.ok) throw new Error("Outline not found");
+  
+      const outlineData = await res.json();
+      console.log(outlineData); 
+      setOutlineForExport({
+        courseCode: selectedCourse.id,
+        courseName: outlineData.course_name || "",
+        grade: outlineData.grade || "",
+        courseType: outlineData.course_type || "",
+        credit: outlineData.credit || "",
+        description: outlineData.description || "",
+        learningGoals: outlineData.learning_goals || "",
+        assessment: outlineData.assessment || "",
+        units: outlineData.units || [],
+        finalAssessments: outlineData.final_assessments || [],
+        totalHours: outlineData.total_hours || 0,
+      });
+  
+      setIsExporting(true);
+    } catch (error) {
+      console.error("Failed to fetch outline for export:", error);
+      alert(`Failed to export PDF: ${error.message}`);
     }
+  
     handleCloseMenus();
   };
 
   const printContent = async () => {
-    if (!selectedCourse) return;
-    const docRef = doc(db, "courseOutlines", selectedCourse.id);
-    const docSnap = await getDoc(docRef);
+    // if (!selectedCourse) return;
+    // const docRef = doc(db, "courseOutlines", selectedCourse.id);
+    // const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
-        const outlineData = { ...docSnap.data(), courseCode: selectedCourse.id };
-        const tempDivForPrint = document.createElement('div');
-        document.body.appendChild(tempDivForPrint);
-        const reactRootForPrint = createRoot(tempDivForPrint);
-        reactRootForPrint.render(
-            <OutlineContent
-                outline={outlineData}
-                units={outlineData.units || []}
-                finalAssessments={outlineData.finalAssessments || []}
-                totalHours={outlineData.totalHours || 0}
-                viewOnly={true}
-            />
-        );
-        setTimeout(() => {
-            const printWindow = window.open("", "", "width=900,height=650");
-            printWindow.document.write(`<html><head><title>${outlineData.courseCode} Outline</title></head><body>${tempDivForPrint.innerHTML}</body></html>`);
-            printWindow.document.close();
-            printWindow.focus();
-            printWindow.print();
-            printWindow.close();
-            reactRootForPrint.unmount();
-            document.body.removeChild(tempDivForPrint);
-        }, 100);
-    } else {
-        alert("Outline content not found for printing!");
-    }
-    handleCloseMenus();
+    // if (docSnap.exists()) {
+    //     const outlineData = { ...docSnap.data(), courseCode: selectedCourse.id };
+    //     const tempDivForPrint = document.createElement('div');
+    //     document.body.appendChild(tempDivForPrint);
+    //     const reactRootForPrint = createRoot(tempDivForPrint);
+    //     reactRootForPrint.render(
+    //         <OutlineContent
+    //             outline={outlineData}
+    //             units={outlineData.units || []}
+    //             finalAssessments={outlineData.finalAssessments || []}
+    //             totalHours={outlineData.totalHours || 0}
+    //             viewOnly={true}
+    //         />
+    //     );
+    //     setTimeout(() => {
+    //         const printWindow = window.open("", "", "width=900,height=650");
+    //         printWindow.document.write(`<html><head><title>${outlineData.courseCode} Outline</title></head><body>${tempDivForPrint.innerHTML}</body></html>`);
+    //         printWindow.document.close();
+    //         printWindow.focus();
+    //         printWindow.print();
+    //         printWindow.close();
+    //         reactRootForPrint.unmount();
+    //         document.body.removeChild(tempDivForPrint);
+    //     }, 100);
+    // } else {
+    //     alert("Outline content not found for printing!");
+    // }
+    // handleCloseMenus();
   };
 
   const handleEdit = () => {
@@ -157,7 +179,7 @@ export default function OnlinePage({ user }) {
   };
 
   const handleHistory = () => {
-    if (selectedCourse) navigate(`/course/${selectedCourse.id}`);
+    if (selectedCourse) navigate(`/course/${selectedCourse.id}/history`);
     handleCloseMenus();
   };
 
@@ -194,7 +216,7 @@ export default function OnlinePage({ user }) {
             >
               <Box>
                 <Typography variant="h6">{course.title}</Typography>
-                <Typography variant="body2" color="text.secondary">Course ID: {course.id}</Typography>
+                <Typography variant="body2" color="text.secondary">{course.course_code}</Typography>
               </Box>
               <Tooltip title="Options">
                 <IconButton onClick={(e) => handleMenuClick(e, course)} size="small">

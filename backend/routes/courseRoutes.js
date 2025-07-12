@@ -5,11 +5,13 @@ import sql from 'mssql';
 
 const router = express.Router();
 
-// Fetch Courses
+// Fetch All Courses (Can filter by TeacherID and/or StudentID)
 router.get('/', async (req, res) => {
+  const { teacherId, studentId } = req.query;
   const pool = await sql.connect(config);
 
-  const result = await pool.request().query(`
+  // Base query with joins for teachers and students
+  let query = `
     SELECT 
       c.id AS course_id,
       c.title,
@@ -19,11 +21,39 @@ router.get('/', async (req, res) => {
     FROM Courses c
     LEFT JOIN CourseTeachers ct ON c.id = ct.course_id
     LEFT JOIN Users u ON ct.teacher_id = u.id
-  `);
+  `;
 
-  // Group by course
+  // Join student table if filtering by studentId
+  if (studentId) {
+    query += `
+      INNER JOIN StudentCourses sc ON c.id = sc.course_id
+    `;
+  }
+
+  // Build WHERE conditions
+  const whereConditions = [];
+  if (teacherId) {
+    whereConditions.push(`ct.teacher_id = @teacherId`);
+  }
+  if (studentId) {
+    whereConditions.push(`sc.student_id = @studentId`);
+  }
+  if (whereConditions.length > 0) {
+    query += ' WHERE ' + whereConditions.join(' AND ');
+  }
+
+  const request = pool.request();
+  if (teacherId) {
+    request.input('teacherId', sql.Int, teacherId);
+  }
+  if (studentId) {
+    request.input('studentId', sql.Int, studentId);
+  }
+
+  const result = await request.query(query);
+
+  // Group by course and collect teachers
   const coursesMap = {};
-
   for (const row of result.recordset) {
     const { course_id, title, course_code, teacher_id, teacher_name } = row;
 
@@ -37,12 +67,15 @@ router.get('/', async (req, res) => {
     }
 
     if (teacher_id && teacher_name) {
-      coursesMap[course_id].teachers.push({ id: teacher_id, name: teacher_name });
+      // Avoid duplicate teachers for a course
+      const exists = coursesMap[course_id].teachers.some(t => t.id === teacher_id);
+      if (!exists) {
+        coursesMap[course_id].teachers.push({ id: teacher_id, name: teacher_name });
+      }
     }
   }
 
-  const courses = Object.values(coursesMap);
-  res.json(courses);
+  res.json(Object.values(coursesMap));
 });
 
 
@@ -95,6 +128,53 @@ router.put('/:id', async (req, res) => {
   } catch (err) {
     console.error('Error updating course:', err);
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Fetch info from a Course
+router.get('/:courseId', async (req, res) => {
+  const { courseId } = req.params;
+
+  try {
+    const pool = await sql.connect(config);
+
+    // Get course details + teacher(s)
+    const result = await pool.request()
+      .input('courseId', sql.Int, courseId)
+      .query(`
+        SELECT 
+          c.id AS course_id,
+          c.title,
+          c.course_code,
+          u.id AS teacher_id,
+          u.name AS teacher_name
+        FROM Courses c
+        LEFT JOIN CourseTeachers ct ON c.id = ct.course_id
+        LEFT JOIN Users u ON ct.teacher_id = u.id
+        WHERE c.id = @courseId
+      `);
+
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ error: "Course not found" });
+    }
+
+    // Group teachers
+    const { course_id, title, course_code } = result.recordset[0];
+    const teachers = result.recordset
+      .filter(r => r.teacher_id)
+      .map(r => ({ id: r.teacher_id, name: r.teacher_name }));
+
+    res.json({
+      id: course_id,
+      title,
+      course_code,
+      teachers,
+
+    });
+
+  } catch (err) {
+    console.error("Error fetching course by ID:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 

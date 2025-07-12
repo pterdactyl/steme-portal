@@ -1,18 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, Paper, Stack } from "@mui/material";
+import { AuthContext } from "../../Auth/AuthContext";
 
-export default function StudentDashboard({ user }) {
+export default function StudentDashboard() {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user, role, userId } = useContext(AuthContext);
 
   useEffect(() => {
     async function getStudentCourses() {
-      if (!user?.uid) return;
+      if (!userId) {
+        setCourses([]);
+        setLoading(false);
+        return;
+      }
 
       try {
-        const res = await fetch(`/api/courses/student/${user.uid}`);
+        const res = await fetch(`http://localhost:4000/api/courses?studentId=${userId}`);
         if (!res.ok) throw new Error("Failed to fetch courses");
         const data = await res.json();
         setCourses(data);
@@ -24,7 +30,7 @@ export default function StudentDashboard({ user }) {
     }
 
     getStudentCourses();
-  }, [user]);
+  }, [userId]);
 
   if (loading) {
     return <Typography>Loading...</Typography>;
@@ -37,7 +43,9 @@ export default function StudentDashboard({ user }) {
       </Typography>
 
       {courses.length === 0 ? (
-        <Typography>You are not enrolled in any courses.</Typography>
+        <Typography color="text.secondary">
+          You are not enrolled in any courses yet. Please contact your teacher or administrator.
+        </Typography>
       ) : (
         <Stack spacing={2}>
           {courses.map((course) => (
