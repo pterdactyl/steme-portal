@@ -1,46 +1,55 @@
-import { useParams, Link, Outlet, useLocation } from "react-router-dom";
+import { useParams, Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Box, Tabs, Tab, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../Auth/firebase";
-
 
 export default function StudentCourseNavbar() {
   const { courseId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const [teacherName, setTeacherName] = useState("");
 
-  const currentTab = location.pathname.split("/").pop(); // gets 'stream', 'people', etc.
+  // Determine active tab from URL
+  const pathParts = location.pathname.split("/");
+  const currentTab = pathParts[pathParts.length - 1];
 
-  const tabIndex = {
+  const tabIndexMap = {
     stream: 0,
     people: 1,
     marks: 2,
-  }[currentTab] || 0;
+  };
+  const isTabRoute = ["stream", "people", "marks"].includes(currentTab);
+  const tabIndex = isTabRoute ? tabIndexMap[currentTab] : 0;
 
+  // Fetch teacher name from backend (Azure SQL via API)
   useEffect(() => {
-    async function fetchTeacher() {
-      // Get course document
-      const courseRef = doc(db, "courses", courseId);
-      const courseSnap = await getDoc(courseRef);
-
-      if (courseSnap.exists()) {
-        const { teacherIds } = courseSnap.data();
-        if (teacherIds?.[0]) {
-          const teacherRef = doc(db, "users", teacherIds[0]);
-          const teacherSnap = await getDoc(teacherRef);
-          if (teacherSnap.exists()) {
-            setTeacherName(teacherSnap.data().fullName || "Unknown Teacher");
-          }
-        }
+    async function fetchTeacherName() {
+      try {
+        const res = await fetch(`http://localhost:4000/api/teacher-name?courseId=${courseId}`);
+        if (!res.ok) throw new Error("Failed to fetch teacher name");
+        const data = await res.json();
+        setTeacherName(data.fullName || "Unassigned Teacher");
+      } catch (err) {
+        console.error("Error fetching teacher name:", err);
+        setTeacherName("Unassigned Teacher");
       }
     }
 
-    fetchTeacher();
+    fetchTeacherName();
   }, [courseId]);
 
   return (
     <Box p={2}>
+      {/* Back to dashboard */}
+      <Typography
+        variant="body2"
+        color="primary"
+        sx={{ cursor: "pointer", mb: 2 }}
+        onClick={() => navigate("/dashboard/student")}
+      >
+        ← Back to My Courses
+      </Typography>
+
+      {/* Header and tabs */}
       <Box display="flex" alignItems="center" gap={4}>
         <Box>
           <Typography variant="h6">{courseId}</Typography>
@@ -55,6 +64,7 @@ export default function StudentCourseNavbar() {
         </Tabs>
       </Box>
 
+      {/* Render current tab content */}
       <Box mt={3}>
         <Outlet />
       </Box>

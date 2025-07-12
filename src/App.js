@@ -1,5 +1,3 @@
-import Pathways from './pages/Student/pathways'
-import Upload from "./pages/Student/upload"
 import React, { useState, useEffect, useContext } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useMsal } from "@azure/msal-react";

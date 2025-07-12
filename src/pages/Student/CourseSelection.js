@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./CourseSelection.css";
-import CourseModal from "../components/CourseModal";
-import { AuthContext } from "../Auth/AuthContext";
+import CourseModal from "../../components/CourseModal";
+import { AuthContext } from "../../Auth/AuthContext";
 
 const gradeLevels = ["Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const currentGrade = "Grade 9";

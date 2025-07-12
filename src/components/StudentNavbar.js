@@ -14,13 +14,17 @@ export default function StudentNavbar({ user, onLogout }) {
   };
 
   const handleDashboardClick = () => {
-    if (!user) return;
-    if (user.role === "teacher") {
-      navigate("/dashboard/teacher");
-    } else if (user.role === "student") {
-      navigate("/dashboard/student");
-    }
-  };
+  console.log("User:", user);
+  console.log("Role:", user?.role);
+
+  if (!user) return;
+
+  if (user.role === "teacher") {
+    navigate("/dashboard/teacher");
+  } else if (user.role === "student") {
+    navigate("/dashboard/student");
+  }
+};
 
   return (
     <AppBar position="static">
@@ -35,7 +39,7 @@ export default function StudentNavbar({ user, onLogout }) {
 
         {user ? (
           <>
-            <Button color="inherit" onClick={handleDashboardClick}>
+            <Button color="inherit" onClick={() => navigate("/dashboard/student")}>
               Courses
             </Button>
             <Button color="inherit" onClick={() => navigate("/pathways")}>
