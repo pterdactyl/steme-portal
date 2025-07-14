@@ -38,7 +38,7 @@ import AnnouncementsTab from "./pages/Teacher/AnnouncementsTab.js";
 
 import Pathways from "./pages/Student/pathways";
 import Upload from "./pages/Student/upload";
-import CourseSelection from "./pages/CourseSelection";
+import CourseSelection from "./pages/Student/CourseSelection";
 
 import "primereact/resources/themes/lara-light-indigo/theme.css";
 import "primereact/resources/primereact.min.css";
