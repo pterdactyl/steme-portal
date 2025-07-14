@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 export default function AssignmentsTab({ user }) {
-  const { courseId: courseCode } = useParams(); // this is the course code like "ENG1D"
+  const { courseId } = useParams(); // this is the course code like "ENG1D"
 
-  const [courseId, setCourseId] = useState(null); // numeric course_id
+
   const [assignments, setAssignments] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
@@ -15,27 +15,28 @@ export default function AssignmentsTab({ user }) {
   const [editAssignmentId, setEditAssignmentId] = useState(null);
 
   // First, get numeric course_id from course_code
-  useEffect(() => {
-    async function fetchCourseId() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(`http://localhost:4000/api/assignments/course?course_code=${courseCode}`);
-        if (!res.ok) throw new Error("Failed to fetch course ID");
-        const data = await res.json();
-        setCourseId(data.course_id);
-      } catch (err) {
-        console.error(err);
-        setError("Could not load course info");
-        setCourseId(null);
-      }
-      setLoading(false);
-    }
-    fetchCourseId();
-  }, [courseCode]);
+  // useEffect(() => {
+  //   async function fetchCourseId() {
+  //     setLoading(true);
+  //     setError(null);
+  //     try {
+  //       const res = await fetch(`http://localhost:4000/api/assignments/course?course_code=${courseCode}`);
+  //       if (!res.ok) throw new Error("Failed to fetch course ID");
+  //       const data = await res.json();
+  //       setCourseId(data.course_id);
+  //     } catch (err) {
+  //       console.error(err);
+  //       setError("Could not load course info");
+  //       setCourseId(null);
+  //     }
+  //     setLoading(false);
+  //   }
+  //   fetchCourseId();
+  // }, [courseCode]);
 
   // Once we have courseId, fetch assignments
   useEffect(() => {
+    console.log("courseId:", courseId);
     if (!courseId) return;
 
     async function fetchAssignments() {
@@ -198,7 +199,7 @@ export default function AssignmentsTab({ user }) {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h1>Assignments for Course {courseCode}</h1>
+      <h1>Assignments for Course </h1>
 
       {user?.role === "teacher" && (
         <button onClick={() => setShowForm((show) => !show)}>
