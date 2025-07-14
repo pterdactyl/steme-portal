@@ -35,6 +35,10 @@ import StudentClasslist from "./pages/Student/StudentClasslist";
 import StudentStream from "./pages/Student/StudentStream";
 import AssignmentsTab from "./pages/Teacher/AssignmentsTab.js";
 import AnnouncementsTab from "./pages/Teacher/AnnouncementsTab.js";
+import GradesTab from "./pages/Teacher/GradesTab";
+import StudentsTab from "./pages/Teacher/StudentsTab";
+import CourseOutlineTab from "./pages/Teacher/CourseOutlineTab";
+
 
 import Pathways from "./pages/Student/pathways";
 import Upload from "./pages/Student/upload";
@@ -193,8 +197,10 @@ export default function App() {
           >
             <Route path="assignments" element={<AssignmentsTab user={user} />} />
             <Route index element={<AnnouncementsTab />} />
-            {/* Additional tabs can be added here */}
-          </Route>
+            <Route path="grades" element={<GradesTab />} />
+            <Route path="students" element={<StudentsTab />} />
+            <Route path="outline" element={<CourseOutlineTab />} />
+          </Route> 
 
           <Route
             path="/outline"

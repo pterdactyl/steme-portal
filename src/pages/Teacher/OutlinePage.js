@@ -116,7 +116,7 @@ export default function OutlinePage() {
       const outlineData = await res.json();
       console.log(outlineData); 
       setOutlineForExport({
-        courseCode: selectedCourse.id,
+        courseCode: selectedCourse.course_code,
         courseName: outlineData.course_name || "",
         grade: outlineData.grade || "",
         courseType: outlineData.course_type || "",
@@ -174,12 +174,14 @@ export default function OutlinePage() {
   };
 
   const handleEdit = () => {
-    if (selectedCourse) navigate(`/edit/${selectedCourse.id}`);
+    if (selectedCourse) {
+      navigate(`/edit/${selectedCourse.id}`, { state: { course: selectedCourse } });
+    }
     handleCloseMenus();
   };
 
   const handleHistory = () => {
-    if (selectedCourse) navigate(`/course/${selectedCourse.id}/history`);
+    if (selectedCourse) navigate(`/course/${selectedCourse.id}/history`, { state: { course: selectedCourse } });
     handleCloseMenus();
   };
 
@@ -212,7 +214,7 @@ export default function OutlinePage() {
                   bgcolor: '#bbdefb', 
                 },
               }}
-              onClick={() => navigate(`/view/${course.id}`)} 
+              onClick={() => navigate(`/view/${course.id}`, { state: { course } })}
             >
               <Box>
                 <Typography variant="h6">{course.title}</Typography>

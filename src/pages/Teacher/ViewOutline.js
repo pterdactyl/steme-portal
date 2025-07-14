@@ -1,8 +1,5 @@
-// src/pages/Teacher/ViewOutline.jsx 
 import React, { useEffect, useState } from "react";
-import { db } from "../../Auth/firebase";
-import { doc, getDoc } from "firebase/firestore";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import OutlineContent from "./OutlineContent";
 
 export default function ViewOutline() {
@@ -11,6 +8,9 @@ export default function ViewOutline() {
   const [outline, setOutline] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const location = useLocation(); 
+  const courseFromState = location.state?.course;
 
   useEffect(() => {
     if (!courseId) {
@@ -21,16 +21,27 @@ export default function ViewOutline() {
 
     const fetchData = async () => {
       try {
-        const docRef = doc(db, "courseOutlines", courseId);
-        const docSnap = await getDoc(docRef);
+        const res = await fetch(`http://localhost:4000/api/outlines/${courseId}`);
+        if (!res.ok) throw new Error("Failed to fetch outline");
 
-        if (docSnap.exists()) {
-          setOutline({ ...docSnap.data(), courseId: courseId }); 
-        } else {
-          setOutline(null);
-        }
+        const data = await res.json();
+
+        setOutline({
+          courseId,
+          courseCode: courseFromState?.course_code || "",
+          courseName: data.course_name || "",
+          grade: data.grade || "",
+          courseType: data.course_type || "",
+          credit: data.credit || "",
+          description: data.description || "",
+          learningGoals: data.learning_goals || "",
+          assessment: data.assessment || "",
+          units: data.units || [],
+          finalAssessments: data.final_assessments || [],
+          totalHours: data.total_hours || 0,
+        });
       } catch (err) {
-        console.error("Firebase fetch error:", err);
+        console.error("Fetch error:", err);
         setError("Failed to load course data. Please try again later.");
       } finally {
         setLoading(false);
@@ -50,8 +61,14 @@ export default function ViewOutline() {
 
   if (!outline) {
     const blankOutline = {
-      courseId: courseId, courseName: "No Outline Found", grade: "", courseType: "",
-      credit: "", description: "", learningGoals: "", assessment: "",
+      courseId,
+      courseName: "No Outline Found",
+      grade: "",
+      courseType: "",
+      credit: "",
+      description: "",
+      learningGoals: "",
+      assessment: "",
     };
     return (
       <OutlineContent
@@ -67,9 +84,9 @@ export default function ViewOutline() {
   return (
     <OutlineContent
       outline={outline}
-      units={outline.units || []}
-      finalAssessments={outline.finalAssessments || []}
-      totalHours={outline.totalHours || 0}
+      units={outline.units}
+      finalAssessments={outline.finalAssessments}
+      totalHours={outline.totalHours}
       viewOnly={true}
     />
   );

@@ -109,3 +109,59 @@
   word-wrap: break-word; /* Prevents long text from overflowing */
   font-family: inherit;
 }
+
+/* ============================= */
+/* ===== BUTTON STYLES ======== */
+/* ============================= */
+
+/* Base button style */
+.outline-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+/* Toggle buttons */
+.toggle-btn {
+  padding: 10px 20px;
+  margin-right: 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 2px solid #ccc;
+  background-color: #f3f4f6;
+  color: #374151;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.toggle-btn:hover {
+  background-color: #e5e7eb;
+}
+
+.toggle-btn.active {
+  background-color: #111827;
+  color: white;
+  border-color: #111827;
+  cursor: default;
+}
+
+
+/* Save Draft */
+.save-btn {
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  margin-right: 16px;
+}
+
+/* Publish */
+.publish-btn {
+  background-color: #10b981;
+  color: white;
+  border: none;
+}
