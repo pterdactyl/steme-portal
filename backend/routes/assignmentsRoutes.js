@@ -1,16 +1,19 @@
 import express from 'express';
+import config from "../config/azureDb.js";
+import sql from 'mssql';
+
 const router = express.Router();
-import { getPool, sql } from '../db.js';
 
 // GET assignments by numeric course_id
 router.get('/', async (req, res) => {
   const course_id = req.query.course_id;
+  console.log(course_id);
   if (!course_id) {
     return res.status(400).json({ error: 'Missing course_id query parameter' });
   }
 
   try {
-    const pool = await getPool();
+    const pool = await sql.connect(config);
     const result = await pool.request()
       .input('course_id', sql.Int, course_id)
       .query('SELECT * FROM Assignments WHERE course_id = @course_id ORDER BY created_at DESC');
@@ -51,12 +54,13 @@ router.post('/', async (req, res) => {
 // GET numeric course_id by course_code
 router.get('/course', async (req, res) => {
   const course_code = req.query.course_code;
+  console.log(course_code);
   if (!course_code) {
     return res.status(400).json({ error: 'Missing course_code query parameter' });
   }
 
   try {
-    const pool = await getPool();
+    const pool = await sql.connect(config);
     const result = await pool.request()
       .input('course_code', sql.NVarChar, course_code)
       .query('SELECT id FROM Courses WHERE course_code = @course_code');
