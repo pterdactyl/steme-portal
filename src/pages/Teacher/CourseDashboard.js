@@ -30,23 +30,34 @@ export default function CourseDashboard() {
     { label: "Grades & Feedback", path: "grades" },
     { label: "Students", path: "students" },
     { label: "Course Outline", path: "outline" },
+    { label: "Attendance", path: "attendance" },
   ];
 
-  const lastSegment = location.pathname.split("/").pop();
-  const currentTabIndex = tabs.findIndex((tab) =>
-  tab.path === lastSegment || (tab.path === "" && location.pathname.endsWith(courseId))
-  );
-  const tabValue = currentTabIndex === -1 ? 0 : currentTabIndex;
+  const currentTabIndex = tabs.findIndex(tab => {
+    const fullPath = `/dashboard/course/${courseId}/${tab.path}`;
+    return (
+      location.pathname === fullPath ||
+      (tab.path === "" && location.pathname === `/dashboard/course/${courseId}`) ||
+      (tab.path && location.pathname.startsWith(fullPath + "/")) // Matches attendance/2/history
+    );
+  });
+  const tabValue = currentTabIndex === -1 ? false : currentTabIndex;
 
   const handleTabChange = (e, newVal) => {
     const selectedPath = tabs[newVal].path;
-    navigate(
-      selectedPath === ""
-        ? `/dashboard/course/${courseId}`
-        : `/dashboard/course/${courseId}/${selectedPath}`
-    );
+    const basePath = `/dashboard/course/${courseId}`;
+    const targetPath = selectedPath === "" ? basePath : `${basePath}/${selectedPath}`;
+  
+    // Only navigate if it's actually different
+    if (location.pathname !== targetPath) {
+      navigate(targetPath);
+    } else {
+      // Force navigation to reset nested component
+      navigate(targetPath, { replace: true });
+    }
+  
+    console.log("Navigating to:", targetPath);
   };
-
 
   return (
     <Box p={3}>

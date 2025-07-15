@@ -14,7 +14,6 @@ import Box from "@mui/material/Box";
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
-import TeacherAttendance from "./pages/Teacher/TeacherAttendance";
 import ProfilePage from "./pages/ProfilePage";
 
 import PrivateRoute from "./Auth/privateRoute";
@@ -38,6 +37,8 @@ import AnnouncementsTab from "./pages/Teacher/AnnouncementsTab.js";
 import GradesTab from "./pages/Teacher/GradesTab";
 import StudentsTab from "./pages/Teacher/StudentsTab";
 import CourseOutlineTab from "./pages/Teacher/CourseOutlineTab";
+import AttendanceTab from "./pages/Teacher/AttendanceTab"
+import AttendanceHistory from "./pages/Teacher/AttendanceHistory.js";
 
 
 import Pathways from "./pages/Student/pathways";
@@ -119,14 +120,6 @@ export default function App() {
 
           {/* Other pages */}
           <Route
-            path="/attendance"
-            element={
-              <PrivateRoute>
-                <TeacherAttendance user={user} />
-              </PrivateRoute>
-            }
-          />
-          <Route
             path="/profile"
             element={
               <PrivateRoute>
@@ -200,6 +193,8 @@ export default function App() {
             <Route path="grades" element={<GradesTab />} />
             <Route path="students" element={<StudentsTab />} />
             <Route path="outline" element={<CourseOutlineTab />} />
+            <Route path="attendance" element={<AttendanceTab/>}/>
+            <Route path="attendance/:studentId/history" element={<AttendanceHistory />} />
           </Route> 
 
           <Route
