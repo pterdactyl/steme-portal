@@ -1,14 +1,37 @@
-// src/pages/StudentStream.js
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Paper, TextField, Button, Stack } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Paper,
+  TextField,
+  Button,
+  Stack,
+  CircularProgress,
+} from "@mui/material";
 
 export default function StudentStream({ user, courseId }) {
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [course, setCourse] = useState(null);  // <-- for course info
 
-  // Fetch posts from backend when courseId changes
+  useEffect(() => {
+    async function fetchCourse() {
+      if (!courseId) return;
+      try {
+        const res = await fetch(`http://localhost:4000/api/courses/${courseId}`);
+        if (!res.ok) throw new Error("Failed to load course info");
+        const data = await res.json();
+        setCourse(data);
+      } catch (err) {
+        console.error("Error fetching course info:", err);
+      }
+    }
+
+    fetchCourse();
+  }, [courseId]);
+
   useEffect(() => {
     async function fetchPosts() {
       if (!courseId) return;
@@ -18,7 +41,11 @@ export default function StudentStream({ user, courseId }) {
         const res = await fetch(`http://localhost:4000/api/courses/${courseId}/posts`);
         if (!res.ok) throw new Error("Failed to load posts");
         const data = await res.json();
-        setPosts(data);
+
+        const sorted = data.sort(
+          (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+        );
+        setPosts(sorted);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -28,31 +55,47 @@ export default function StudentStream({ user, courseId }) {
     fetchPosts();
   }, [courseId]);
 
-  const handlePost = () => {
+  const handlePost = async () => {
     if (!newPost.trim()) return;
 
     const newEntry = {
-      id: Date.now(),
       author: user?.fullName || "You",
       content: newPost,
-      timestamp: new Date().toLocaleDateString(),
     };
 
-    setPosts((prevPosts) => [newEntry, ...prevPosts]);
-    setNewPost("");
+    try {
+      const res = await fetch(`http://localhost:4000/api/courses/${courseId}/posts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newEntry),
+      });
 
-    // TODO: Send newEntry to backend to save post persistently
+      if (!res.ok) throw new Error("Failed to post message");
+
+      const savedPost = await res.json();
+      setPosts((prev) => [savedPost, ...prev]);
+      setNewPost("");
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   if (loading) {
-    return <Typography>Loading posts...</Typography>;
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
     <Box>
       <Typography variant="h5" mb={2}>
-        Stream
-      </Typography>
+  {course ? `${course.course_code}` : "Stream"}
+</Typography>
 
       {error && (
         <Typography color="error" mb={2}>
@@ -73,7 +116,11 @@ export default function StudentStream({ user, courseId }) {
             value={newPost}
             onChange={(e) => setNewPost(e.target.value)}
           />
-          <Button variant="contained" onClick={handlePost} disabled={!newPost.trim()}>
+          <Button
+            variant="contained"
+            onClick={handlePost}
+            disabled={!newPost.trim()}
+          >
             Post
           </Button>
         </Stack>
@@ -84,9 +131,13 @@ export default function StudentStream({ user, courseId }) {
           <Typography color="text.secondary">No posts yet.</Typography>
         ) : (
           posts.map((post) => (
-            <Paper key={post.id} sx={{ p: 2 }}>
-              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                {post.author} • {post.timestamp}
+            <Paper key={post.id || post._id} sx={{ p: 2 }}>
+              <Typography
+                variant="subtitle2"
+                color="text.secondary"
+                gutterBottom
+              >
+                {post.author} • {new Date(post.timestamp).toLocaleString()}
               </Typography>
               <Typography>{post.content}</Typography>
             </Paper>

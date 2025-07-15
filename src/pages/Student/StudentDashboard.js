@@ -7,7 +7,7 @@ export default function StudentDashboard() {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { user, role, userId } = useContext(AuthContext);
+  const { userId } = useContext(AuthContext);
 
   useEffect(() => {
     async function getStudentCourses() {
@@ -63,7 +63,7 @@ export default function StudentDashboard() {
                   bgcolor: "#82b1ff",
                 },
               }}
-              onClick={() => navigate(`/course/${course.id}/stream`)}
+              onClick={() => navigate(`/student/stream/${course.id}`)}  // <-- Corrected navigation path here
             >
               <Typography variant="h6">{course.title}</Typography>
             </Paper>

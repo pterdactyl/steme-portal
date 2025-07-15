@@ -6,6 +6,8 @@ import courseRoutes from './routes/courseRoutes.js';
 import assignmentsRoutes from './routes/assignmentsRoutes.js';
 import usersRoute from './routes/users.js';
 import outlinesRoute from './routes/outlines.js';
+import attendanceRoutes from './routes/attendanceRoutes.js';
+import viewOutlineRoutes from './routes/viewOutlineRoutes.js';
 
 
 
@@ -30,6 +32,9 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/assignments', assignmentsRoutes);
 app.use("/api/users", usersRoute);
 app.use("/api/outlines", outlinesRoute);
+app.use('/api/attendance', attendanceRoutes);
+app.use("/api/view-outline", viewOutlineRoutes);
+
 
 
 

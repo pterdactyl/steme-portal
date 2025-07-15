@@ -1,14 +1,12 @@
-import { Box } from "@mui/material";
-import StudentCourseNavbar from "../../components/StudentCourseNavbar";
-import { Outlet } from "react-router-dom";
+// src/pages/Student/StudentCourse.js
+import React from "react";
+import { useParams } from "react-router-dom";
+import StudentStreamWithTabs from "./StudentStreamWithTabs";
 
-export default function StudentCourse() {
+export default function StudentCourse({ user }) {
+  const { courseId } = useParams();
+
   return (
-    <Box p={2}>
-      <StudentCourseNavbar />
-      <Box mt={3}>
-        <Outlet />
-      </Box>
-    </Box>
+    <StudentStreamWithTabs user={user} courseId={courseId} />
   );
 }

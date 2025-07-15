@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Paper, Stack, CircularProgress } from "@mui/material";
 
-export default function StudentClassList({ courseId }) {
+export default function StudentClasslist({ courseId }) {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

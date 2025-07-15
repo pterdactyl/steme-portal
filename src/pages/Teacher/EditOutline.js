@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
-import '../../styles/EditOutline.css';
+import "../../styles/EditOutline.css";
 import OutlineContent from "./OutlineContent";
 import { AuthContext } from "../../Auth/AuthContext";
 
 export default function EditOutline() {
   const { courseId } = useParams();
-  const { userId } = useContext(AuthContext); 
+  const { userId } = useContext(AuthContext);
 
   const [outline, setOutline] = useState({
-    courseId: courseId  || "",
+    courseId: courseId || "",
     courseName: "",
     grade: "",
     courseType: "",
@@ -25,10 +25,10 @@ export default function EditOutline() {
     { description: "Final Exam", hours: "" },
   ]);
 
-  const localOutlineKey = `courseOutline_${courseId }`;
-  const localUnitsKey = `courseOutlineUnits_${courseId }`;
-  const localFinalsKey = `courseOutlineFinalAssessments_${courseId }`;
-  const localTotalHoursKey = `courseOutlineTotalHours_${courseId }`;
+  const localOutlineKey = `courseOutline_${courseId}`;
+  const localUnitsKey = `courseOutlineUnits_${courseId}`;
+  const localFinalsKey = `courseOutlineFinalAssessments_${courseId}`;
+  const localTotalHoursKey = `courseOutlineTotalHours_${courseId}`;
 
   useEffect(() => {
     const savedOutline = localStorage.getItem(localOutlineKey);
@@ -104,16 +104,21 @@ export default function EditOutline() {
           updated_by: userId,
         }),
       });
-  
-      if (!response.ok) throw new Error("Failed to save outline to Azure");
-  
-      alert("Outline saved to Azure!");
+
+      if (response.ok) {
+        const data = await response.json().catch(() => null);
+        console.log("Azure Save Success:", data);
+        alert("Outline saved to Azure!");
+      } else {
+        const errorText = await response.text();
+        throw new Error(`Azure responded with ${response.status}: ${errorText}`);
+      }
     } catch (error) {
       console.error("Azure Save Error:", error);
       alert(`Failed to save to Azure: ${error.message}`);
     }
   };
-  
+
   return (
     <div>
       <OutlineContent
