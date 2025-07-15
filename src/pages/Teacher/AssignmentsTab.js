@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 export default function AssignmentsTab({ user }) {
+
   const { courseId } = useParams(); // this is the course code like "ENG1D"
 
 
@@ -201,10 +202,25 @@ export default function AssignmentsTab({ user }) {
     <div style={{ padding: "2rem" }}>
       <h1>Assignments for Course </h1>
 
-      {user?.role === "teacher" && (
-        <button onClick={() => setShowForm((show) => !show)}>
-          {showForm ? "Cancel" : "+ New Assignment"}
-        </button>
+      { (
+        <button
+  onClick={() => {
+    if (showForm) {
+      // Cancel: hide and clear form
+      setShowForm(false);
+      setTitle("");
+      setDescription("");
+      setDeadline("");
+      setEditAssignmentId(null);
+    } else {
+      // New Assignment: show form
+      setShowForm(true);
+    }
+  }}
+>
+  {showForm ? "Cancel" : "+ New Assignment"}
+</button>
+
       )}
 
       {showForm && (
