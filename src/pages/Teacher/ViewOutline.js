@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import OutlineContent from "./OutlineContent";
 
 export default function ViewOutline() {
@@ -8,6 +8,9 @@ export default function ViewOutline() {
   const [outline, setOutline] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const location = useLocation(); 
+  const courseFromState = location.state?.course;
 
   useEffect(() => {
     if (!courseCode) {
@@ -18,10 +21,25 @@ export default function ViewOutline() {
 
     const fetchOutline = async () => {
       try {
-        const response = await fetch(`http://localhost:4000/api/view-outline/${courseCode}`);
-        if (!response.ok) throw new Error("Failed to fetch outline");
-        const data = await response.json();
-        setOutline(data);
+        const res = await fetch(`http://localhost:4000/api/outlines/${courseId}`);
+        if (!res.ok) throw new Error("Failed to fetch outline");
+
+        const data = await res.json();
+
+        setOutline({
+          courseId,
+          courseCode: courseFromState?.course_code || "",
+          courseName: data.course_name || "",
+          grade: data.grade || "",
+          courseType: data.course_type || "",
+          credit: data.credit || "",
+          description: data.description || "",
+          learningGoals: data.learning_goals || "",
+          assessment: data.assessment || "",
+          units: data.units || [],
+          finalAssessments: data.final_assessments || [],
+          totalHours: data.total_hours || 0,
+        });
       } catch (err) {
         console.error("Fetch error:", err);
         setError("Failed to load course data. Please try again later.");
@@ -70,9 +88,9 @@ export default function ViewOutline() {
   return (
     <OutlineContent
       outline={outline}
-      units={outline.units || []}
-      finalAssessments={outline.finalAssessments || []}
-      totalHours={outline.totalHours || 0}
+      units={outline.units}
+      finalAssessments={outline.finalAssessments}
+      totalHours={outline.totalHours}
       viewOnly={true}
     />
   );

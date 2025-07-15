@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useParams } from "react-router-dom";
-import "../../styles/EditOutline.css";
+import { useParams, useLocation } from "react-router-dom";
+import '../../styles/EditOutline.css';
 import OutlineContent from "./OutlineContent";
 import { AuthContext } from "../../Auth/AuthContext";
 
@@ -8,8 +8,14 @@ export default function EditOutline() {
   const { courseId } = useParams();
   const { userId } = useContext(AuthContext);
 
+  const location = useLocation(); 
+  const courseFromState = location.state?.course;
+  const [viewMode, setViewMode] = useState("draft"); // "draft" or "published"
+  const [isLoading, setIsLoading] = useState(false);
+
   const [outline, setOutline] = useState({
-    courseId: courseId || "",
+    courseCode: "",
+    courseId: courseId  || "",
     courseName: "",
     grade: "",
     courseType: "",
@@ -25,19 +31,43 @@ export default function EditOutline() {
     { description: "Final Exam", hours: "" },
   ]);
 
-  const localOutlineKey = `courseOutline_${courseId}`;
-  const localUnitsKey = `courseOutlineUnits_${courseId}`;
-  const localFinalsKey = `courseOutlineFinalAssessments_${courseId}`;
-  const localTotalHoursKey = `courseOutlineTotalHours_${courseId}`;
 
   useEffect(() => {
-    const savedOutline = localStorage.getItem(localOutlineKey);
-    const savedUnits = localStorage.getItem(localUnitsKey);
-    const savedFinals = localStorage.getItem(localFinalsKey);
-    if (savedOutline) setOutline(JSON.parse(savedOutline));
-    if (savedUnits) setUnits(JSON.parse(savedUnits));
-    if (savedFinals) setFinalAssessments(JSON.parse(savedFinals));
-  }, [localOutlineKey, localUnitsKey, localFinalsKey]);
+    async function fetchOutline() {
+      if (!courseId || !userId) return;
+      setIsLoading(true);
+      try {
+        const endpoint =
+          viewMode === "draft"
+            ? `http://localhost:4000/api/outlines/${courseId}/draft?teacherId=${userId}`
+            : `http://localhost:4000/api/outlines/${courseId}`;
+  
+        const res = await fetch(endpoint);
+        if (!res.ok) throw new Error("Failed to load outline");
+  
+        const data = await res.json();
+        setOutline({
+          courseId,
+          courseCode: courseFromState?.course_code || "",
+          courseName: data.course_name || "",
+          grade: data.grade || "",
+          courseType: data.course_type || "",
+          credit: data.credit || "",
+          description: data.description || "",
+          learningGoals: data.learning_goals || "",
+          assessment: data.assessment || "",
+        });
+        setUnits(data.units || []);
+        setFinalAssessments(data.final_assessments || []);
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  
+    fetchOutline();
+  }, [courseId, userId, viewMode]);
 
   useEffect(() => {
     const textareas = document.querySelectorAll("textarea");
@@ -75,15 +105,36 @@ export default function EditOutline() {
     units.reduce((sum, unit) => sum + (parseFloat(unit.unitHours) || 0), 0) +
     finalAssessments.reduce((sum, f) => sum + (parseFloat(f.hours) || 0), 0);
 
-  const handleSaveLocal = () => {
-    localStorage.setItem(localOutlineKey, JSON.stringify(outline));
-    localStorage.setItem(localUnitsKey, JSON.stringify(units));
-    localStorage.setItem(localFinalsKey, JSON.stringify(finalAssessments));
-    localStorage.setItem(localTotalHoursKey, totalHours);
-    alert("Saved locally!");
-  };
+    const handleSaveDraft = async () => {
+      try {
+        const response = await fetch(`http://localhost:4000/api/outlines/${courseId}/draft`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            course_name: outline.courseName,
+            grade: outline.grade,
+            course_type: outline.courseType,
+            credit: outline.credit,
+            description: outline.description,
+            learning_goals: outline.learningGoals,
+            assessment: outline.assessment,
+            units,
+            final_assessments: finalAssessments,
+            total_hours: totalHours,
+            updated_by: userId,
+            course_code: courseFromState?.course_code
+          }),
+        });
+    
+        if (!response.ok) throw new Error("Failed to save draft");
+        alert("Draft saved!");
+      } catch (err) {
+        console.error(err);
+        alert("Failed to save draft");
+      }
+    };
 
-  const handleSaveToAzure = async () => {
+  const handlePublish = async () => {
     try {
       const response = await fetch(`http://localhost:4000/api/outlines/${courseId}`, {
         method: "POST",
@@ -102,6 +153,7 @@ export default function EditOutline() {
           final_assessments: finalAssessments,
           total_hours: totalHours,
           updated_by: userId,
+          course_code: courseFromState?.course_code
         }),
       });
 
@@ -121,6 +173,23 @@ export default function EditOutline() {
 
   return (
     <div>
+      <div style={{ textAlign: "center", margin: "30px 0" }}>
+        <button
+          onClick={() => setViewMode("draft")}
+          disabled={viewMode === "draft"}
+          className={`outline-btn toggle-btn ${viewMode === "draft" ? "active" : ""}`}
+        >
+          Edit My Draft
+        </button>
+        <button
+          onClick={() => setViewMode("published")}
+          disabled={viewMode === "published"}
+          className={`outline-btn toggle-btn ${viewMode === "published" ? "active" : ""}`}
+        >
+          Edit Latest Version
+        </button>
+      </div>
+
       <OutlineContent
         outline={outline}
         units={units}
@@ -134,12 +203,12 @@ export default function EditOutline() {
         removeUnit={removeUnit}
       />
 
-      <div style={{ maxWidth: 900, margin: "0 auto", padding: 20 }}>
-        <button onClick={handleSaveToAzure} style={{ padding: "10px 20px", marginRight: 10 }}>
-          Save Changes
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: 20, textAlign: "center" }}>
+        <button onClick={handleSaveDraft} className="outline-btn save-btn">
+          Save Draft (locally)
         </button>
-        <button onClick={handleSaveLocal} style={{ padding: "10px 20px" }}>
-          Publish Changes (click when finished editing)
+        <button onClick={handlePublish} className="outline-btn publish-btn">
+          Publish Changes
         </button>
       </div>
     </div>

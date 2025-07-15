@@ -185,14 +185,15 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Fetch a course by ID (with teachers)
+// Fetch info from a Course including teachers and students
 router.get('/:courseId', async (req, res) => {
   const courseId = parseInt(req.params.courseId);
 
   try {
     const pool = await sql.connect(config);
 
-    const result = await pool.request()
+    // 1. Get course + teacher(s)
+    const courseResult = await pool.request()
       .input('courseId', sql.Int, courseId)
       .query(`
         SELECT 
@@ -207,16 +208,37 @@ router.get('/:courseId', async (req, res) => {
         WHERE c.id = @courseId
       `);
 
-    if (result.recordset.length === 0) {
-      return res.status(404).json({ error: 'Course not found' });
+    if (courseResult.recordset.length === 0) {
+      return res.status(404).json({ error: "Course not found" });
     }
 
-    const { course_id, title, course_code } = result.recordset[0];
-    const teachers = result.recordset
+    // Extract and group teachers
+    const { course_id, title, course_code } = courseResult.recordset[0];
+    const teachers = courseResult.recordset
       .filter(r => r.teacher_id)
       .map(r => ({ id: r.teacher_id, name: r.teacher_name }));
 
-    res.json({ id: course_id, title, course_code, teachers });
+    // 2. Get students in the course
+    const studentResult = await pool.request()
+      .input('courseId', sql.Int, courseId)
+      .query(`
+        SELECT u.id, u.name, u.email
+        FROM StudentCourses cs
+        JOIN Users u ON cs.student_id = u.id
+        WHERE cs.course_id = @courseId
+      `);
+
+    const students = studentResult.recordset;
+
+    // 3. Send full course info
+    res.json({
+      id: course_id,
+      title,
+      course_code,
+      teachers,
+      students,
+    });
+
   } catch (err) {
     console.error('Error fetching course:', err);
     res.status(500).json({ error: 'Server error fetching course' });
