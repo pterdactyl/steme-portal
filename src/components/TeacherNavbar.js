@@ -33,10 +33,6 @@ export default function TeacherNavbar({ user, onLogout }) {
               Courses
             </Button>
 
-            <Button color="inherit" onClick={() => navigate("/attendance")}>
-              Attendance
-            </Button>
-
             {/* Outline button navigates to the new Outline page */}
             <Button color="inherit" onClick={() => navigate("/outline")}>
               Outlines
