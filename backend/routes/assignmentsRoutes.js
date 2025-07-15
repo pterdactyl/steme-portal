@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    const pool = await getPool();
+    const pool = await sql.connect(config);
     const result = await pool.request()
       .input('course_id', sql.Int, course_id)
       .input('title', sql.NVarChar, title)
@@ -90,8 +90,8 @@ router.put('/:id', async (req, res) => {
   }
 
   try {
-    const pool = await getPool();
-    // Execute the UPDATE query and capture the result
+    const pool = await sql.connect(config);
+  
     const result = await pool.request()
       .input('id', sql.Int, id)
       .input('course_id', sql.Int, course_id)
@@ -126,15 +126,14 @@ router.delete('/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    const pool = await getPool();
-    // Execute the DELETE query
+    const pool = await sql.connect(config);
+    
     await pool.request()
       .input('id', sql.Int, id)
       .query('DELETE FROM Assignments WHERE id = @id');
 
     res.json({ message: 'Assignment deleted successfully' });
   } catch (err) {
-    // Log the error details for debugging
     console.error('Error deleting assignment:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
