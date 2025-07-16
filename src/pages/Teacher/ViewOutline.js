@@ -3,7 +3,7 @@ import { useParams, useLocation } from "react-router-dom";
 import OutlineContent from "./OutlineContent";
 
 export default function ViewOutline() {
-  const { courseId } = useParams();
+  const { courseCode } = useParams();  // ✅ use courseCode, not courseId
 
   const [outline, setOutline] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -13,22 +13,21 @@ export default function ViewOutline() {
   const courseFromState = location.state?.course;
 
   useEffect(() => {
-    if (!courseId) {
-      setError("No course ID provided in URL.");
+    if (!courseCode) {
+      setError("No course code provided in URL.");
       setLoading(false);
       return;
     }
 
-    const fetchData = async () => {
+    const fetchOutline = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/outlines/${courseId}`);
+        const res = await fetch(`http://localhost:4000/api/outlines/${courseCode}`);
         if (!res.ok) throw new Error("Failed to fetch outline");
 
         const data = await res.json();
 
         setOutline({
-          courseId,
-          courseCode: courseFromState?.course_code || "",
+          courseCode: courseCode,
           courseName: data.course_name || "",
           grade: data.grade || "",
           courseType: data.course_type || "",
@@ -48,20 +47,24 @@ export default function ViewOutline() {
       }
     };
 
-    fetchData();
-  }, [courseId]);
+    fetchOutline();
+  }, [courseCode]);
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '50px' }}>Loading...</div>;
+    return <div style={{ textAlign: "center", padding: "50px" }}>Loading...</div>;
   }
 
   if (error) {
-    return <div style={{ textAlign: 'center', padding: '50px', color: 'red' }}>Error: {error}</div>;
+    return (
+      <div style={{ textAlign: "center", padding: "50px", color: "red" }}>
+        Error: {error}
+      </div>
+    );
   }
 
   if (!outline) {
     const blankOutline = {
-      courseId,
+      courseCode: courseCode,
       courseName: "No Outline Found",
       grade: "",
       courseType: "",

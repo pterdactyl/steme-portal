@@ -8,6 +8,8 @@ import usersRoute from './routes/users.js';
 import outlinesRoute from './routes/outlines.js';
 import attendanceRoutes from './routes/attendance.js'
 
+import viewOutlineRoutes from './routes/viewOutlineRoutes.js';
+import announcementsRouter from './routes/announcements.js';
 
 
 dotenv.config();
@@ -27,11 +29,13 @@ app.options('*', cors(corsOptions));
 app.use(express.json());
 
 // Routes
-app.use('/api/courses', courseRoutes);
+app.use('/api/courses', courseRoutes); 
 app.use('/api/assignments', assignmentsRoutes);
 app.use("/api/users", usersRoute);
 app.use("/api/outlines", outlinesRoute);
-app.use("/api/attendance", attendanceRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use("/api/view-outline", viewOutlineRoutes);
+app.use('/api/courses', announcementsRouter);
 
 
 

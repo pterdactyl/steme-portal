@@ -6,7 +6,7 @@ import { AuthContext } from "../../Auth/AuthContext";
 
 export default function EditOutline() {
   const { courseId } = useParams();
-  const { userId } = useContext(AuthContext); 
+  const { userId } = useContext(AuthContext);
 
   const location = useLocation(); 
   const courseFromState = location.state?.course;
@@ -30,7 +30,6 @@ export default function EditOutline() {
     { description: "Independent Study Unit", hours: "" },
     { description: "Final Exam", hours: "" },
   ]);
-
 
 
   useEffect(() => {
@@ -157,16 +156,21 @@ export default function EditOutline() {
           course_code: courseFromState?.course_code
         }),
       });
-  
-      if (!response.ok) throw new Error("Failed to save outline to Azure");
-  
-      alert("Outline saved to Azure!");
+
+      if (response.ok) {
+        const data = await response.json().catch(() => null);
+        console.log("Azure Save Success:", data);
+        alert("Outline saved to Azure!");
+      } else {
+        const errorText = await response.text();
+        throw new Error(`Azure responded with ${response.status}: ${errorText}`);
+      }
     } catch (error) {
       console.error("Azure Save Error:", error);
       alert(`Failed to save to Azure: ${error.message}`);
     }
   };
-  
+
   return (
     <div>
       <div style={{ textAlign: "center", margin: "30px 0" }}>

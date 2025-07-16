@@ -214,7 +214,7 @@ export default function OutlinePage() {
                   bgcolor: '#bbdefb', 
                 },
               }}
-              onClick={() => navigate(`/view/${course.id}`, { state: { course } })}
+              onClick={() => navigate(`/view/${course.course_code}`, { state: { course } })}
             >
               <Box>
                 <Typography variant="h6">{course.title}</Typography>

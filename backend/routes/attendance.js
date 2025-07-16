@@ -5,7 +5,7 @@ const router = express.Router();
 import config from "../config/azureDb.js"; 
 
 // Save attendance to the DB
-router.post('/', async (req, res) => {
+router.post('/', async (req, res) => { 
     const pool = await sql.connect(config);
     const records = req.body; // array of attendance objects
   

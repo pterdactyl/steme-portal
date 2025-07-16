@@ -1,107 +1,94 @@
 import express from 'express';
-import { createCourseWithInitialVersion } from '../courseCreation/createCourses.js';
-import config from "../config/azureDb.js";
 import sql from 'mssql';
+import config from '../config/azureDb.js';
+import { createCourseWithInitialVersion } from '../courseCreation/createCourses.js';
 
 const router = express.Router();
 
-// Fetch All Courses (Can filter by TeacherID and/or StudentID)
+// ------------------ COURSE MANAGEMENT ------------------ //
+
+// Fetch all courses (optionally filter by teacherId and/or studentId)
 router.get('/', async (req, res) => {
   const { teacherId, studentId } = req.query;
-  const pool = await sql.connect(config);
+  try {
+    const pool = await sql.connect(config);
 
-  // Base query with joins for teachers and students
-  let query = `
-    SELECT 
-      c.id AS course_id,
-      c.title,
-      c.course_code,
-      u.id AS teacher_id,
-      u.name AS teacher_name
-    FROM Courses c
-    LEFT JOIN CourseTeachers ct ON c.id = ct.course_id
-    LEFT JOIN Users u ON ct.teacher_id = u.id
-  `;
-
-  // Join student table if filtering by studentId
-  if (studentId) {
-    query += `
-      INNER JOIN StudentCourses sc ON c.id = sc.course_id
+    let query = `
+      SELECT 
+        c.id AS course_id,
+        c.title,
+        c.course_code,
+        u.id AS teacher_id,
+        u.name AS teacher_name
+      FROM Courses c
+      LEFT JOIN CourseTeachers ct ON c.id = ct.course_id
+      LEFT JOIN Users u ON ct.teacher_id = u.id
     `;
-  }
 
-  // Build WHERE conditions
-  const whereConditions = [];
-  if (teacherId) {
-    whereConditions.push(`ct.teacher_id = @teacherId`);
-  }
-  if (studentId) {
-    whereConditions.push(`sc.student_id = @studentId`);
-  }
-  if (whereConditions.length > 0) {
-    query += ' WHERE ' + whereConditions.join(' AND ');
-  }
-
-  const request = pool.request();
-  if (teacherId) {
-    request.input('teacherId', sql.Int, teacherId);
-  }
-  if (studentId) {
-    request.input('studentId', sql.Int, studentId);
-  }
-
-  const result = await request.query(query);
-
-  // Group by course and collect teachers
-  const coursesMap = {};
-  for (const row of result.recordset) {
-    const { course_id, title, course_code, teacher_id, teacher_name } = row;
-
-    if (!coursesMap[course_id]) {
-      coursesMap[course_id] = {
-        id: course_id,
-        title,
-        course_code,
-        teachers: []
-      };
+    if (studentId) {
+      query += ` INNER JOIN StudentCourses sc ON c.id = sc.course_id `;
     }
 
-    if (teacher_id && teacher_name) {
-      // Avoid duplicate teachers for a course
-      const exists = coursesMap[course_id].teachers.some(t => t.id === teacher_id);
-      if (!exists) {
-        coursesMap[course_id].teachers.push({ id: teacher_id, name: teacher_name });
+    const whereClauses = [];
+    if (teacherId) whereClauses.push(`ct.teacher_id = @teacherId`);
+    if (studentId) whereClauses.push(`sc.student_id = @studentId`);
+    if (whereClauses.length > 0) {
+      query += ' WHERE ' + whereClauses.join(' AND ');
+    }
+
+    const request = pool.request();
+    if (teacherId) request.input('teacherId', sql.Int, teacherId);
+    if (studentId) request.input('studentId', sql.Int, studentId);
+
+    const result = await request.query(query);
+
+    const coursesMap = {};
+    for (const row of result.recordset) {
+      const { course_id, title, course_code, teacher_id, teacher_name } = row;
+      if (!coursesMap[course_id]) {
+        coursesMap[course_id] = {
+          id: course_id,
+          title,
+          course_code,
+          teachers: [],
+        };
+      }
+      if (teacher_id && teacher_name) {
+        if (!coursesMap[course_id].teachers.some(t => t.id === teacher_id)) {
+          coursesMap[course_id].teachers.push({ id: teacher_id, name: teacher_name });
+        }
       }
     }
-  }
 
-  res.json(Object.values(coursesMap));
+    res.json(Object.values(coursesMap));
+  } catch (err) {
+    console.error('Error fetching courses:', err);
+    res.status(500).json({ error: 'Server error fetching courses' });
+  }
 });
 
-
-// Create a course
+// Create a new course
 router.post('/create', async (req, res) => {
   const { title, courseCode, teacherIds } = req.body;
-
+  if (!title || !courseCode || !Array.isArray(teacherIds)) {
+    return res.status(400).json({ error: 'Invalid input' });
+  }
   try {
     const result = await createCourseWithInitialVersion(courseCode, title, teacherIds);
     res.status(201).json(result);
-    console.log("try");
-  } catch (error) {
-    console.log("error");
-    console.error(error);
-    res.status(500).json({ success: false, message: 'Failed to create course' });
+  } catch (err) {
+    console.error('Error creating course:', err);
+    res.status(500).json({ error: 'Failed to create course' });
   }
 });
 
-// Update a Course
-
+// Update a course
 router.put('/:id', async (req, res) => {
   const courseId = parseInt(req.params.id);
   const { title, courseCode, teacherIds } = req.body;
-  console.log('PUT /api/courses/:id body:', req.body);
+
   if (!title || !courseCode || !Array.isArray(teacherIds)) {
-    return res.status(400).json({ error: "Invalid request body" });
+    return res.status(400).json({ error: 'Invalid input' });
   }
 
   try {
@@ -124,16 +111,16 @@ router.put('/:id', async (req, res) => {
         .query('INSERT INTO CourseTeachers (course_id, teacher_id) VALUES (@courseId, @teacherId)');
     }
 
-    res.status(200).json({ success: true, message: 'Course updated' });
+    res.json({ success: true, message: 'Course updated' });
   } catch (err) {
     console.error('Error updating course:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ error: 'Server error updating course' });
   }
 });
 
 // Fetch info from a Course including teachers and students
 router.get('/:courseId', async (req, res) => {
-  const { courseId } = req.params;
+  const courseId = parseInt(req.params.courseId);
 
   try {
     const pool = await sql.connect(config);
@@ -186,9 +173,75 @@ router.get('/:courseId', async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Error fetching course by ID:", err);
-    res.status(500).json({ error: "Server error" });
+    console.error('Error fetching course:', err);
+    res.status(500).json({ error: 'Server error fetching course' });
   }
 });
+
+// ------------------ STUDENT COURSE SELECTION ------------------ //
+
+router.post('/studentselections', async (req, res) => {
+  const { id, grade, courses } = req.body;
+
+  if (!id || !grade || !Array.isArray(courses)) {
+    return res.status(400).json({ error: 'Invalid request body' });
+  }
+
+  try {
+    const pool = await sql.connect(config);
+
+    await pool.request()
+      .input('id', sql.Int, id)
+      .input('grade', sql.NVarChar, grade)
+      .query('DELETE FROM dbo.StudentCourseSelections WHERE student_id = @id AND Grade = @grade');
+
+    for (const course of courses) {
+      await pool.request()
+        .input('id', sql.Int, id)
+        .input('grade', sql.NVarChar, grade)
+        .input('courseId', sql.NVarChar, course.id)
+        .input('courseCode', sql.NVarChar, course.code)
+        .input('courseTitle', sql.NVarChar, course.title)
+        .input('credits', sql.Float, course.credits || 0)
+        .query(`
+          INSERT INTO dbo.StudentCourseSelections 
+            (student_id, Grade, CourseId, CourseCode, CourseTitle, Credits)
+          VALUES 
+            (@id, @grade, @courseId, @courseCode, @courseTitle, @credits)
+        `);
+    }
+
+    res.json({ message: 'Courses saved successfully.' });
+  } catch (err) {
+    console.error('Error saving student selections:', err);
+    res.status(500).json({ error: 'Failed to save course selections.' });
+  }
+});
+
+// Get list of students for a course
+router.get('/:courseId/students', async (req, res) => {
+  const courseId = parseInt(req.params.courseId);
+  console.log(`Fetching students for courseId: ${courseId}`);
+
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool.request()
+  .input('courseId', sql.Int, courseId)
+  .query(`
+    SELECT u.id, u.name AS fullName, u.email
+    FROM dbo.Users u
+    INNER JOIN dbo.StudentCourses sc ON u.id = sc.student_id
+    WHERE sc.course_id = @courseId
+    ORDER BY u.name
+  `);
+
+    console.log('Students fetched:', result.recordset.length);
+    res.json(result.recordset);
+  } catch (err) {
+    console.error('Error fetching students for course:', err);  // <-- log the full error here
+    res.status(500).json({ error: 'Failed to fetch students' });
+  }
+});
+
 
 export default router;

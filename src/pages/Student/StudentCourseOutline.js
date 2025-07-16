@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
-import OutlineContent from "./OutlineContent";
+import OutlineContent from "../Teacher/OutlineContent"; // reuse teacher view-only component
 
-export default function CourseOutlineTab() {
-  const { courseData } = useOutletContext(); // ✅ get course info from parent
+export default function StudentCourseOutline({ courseCode }) {
   const [outline, setOutline] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const courseCode = courseData?.course_code;
 
   useEffect(() => {
     if (!courseCode) {
