@@ -1,42 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Box, Typography, Avatar } from "@mui/material";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../Auth/firebase";
+import { AuthContext } from "../Auth/AuthContext";
 
-export default function ProfilePage({ user }) {
+export default function ProfilePage() {
   const [fullName, setFullName] = useState("");
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchFullName = async () => {
-      if (user?.uid) {
-        try {
-          const docRef = doc(db, "users", user.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setFullName(docSnap.data().fullName || "");
-          }
-        } catch (error) {
-          console.error("Error fetching full name:", error);
-        }
-      }
-      setLoading(false);
-    };
-    fetchFullName();
-  }, [user]);
-
+  const { user, role, userId } = useContext(AuthContext);
+  
   if (!user) {
     return (
       <Box p={4}>
         <Typography variant="h5">No user logged in.</Typography>
-      </Box>
-    );
-  }
-
-  if (loading) {
-    return (
-      <Box p={4}>
-        <Typography>Loading profile...</Typography>
       </Box>
     );
   }
@@ -62,9 +36,9 @@ export default function ProfilePage({ user }) {
 
       <Typography variant="h5">{fullName || user.name || "No Name"}</Typography>
       <Typography variant="body1" mt={1}>
-        Email: {user.email}
+        Email: {user.username}
       </Typography>
-      <Typography variant="body1">Role: {user.role || "No role assigned"}</Typography>
+      <Typography variant="body1">Role: {role || "No role assigned"}</Typography>
     </Box>
   );
 }

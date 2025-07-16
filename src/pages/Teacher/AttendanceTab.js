@@ -14,32 +14,44 @@ export default function AttendanceTab() {
   const { userId } = useContext(AuthContext);
   const [students, setStudents] = useState([]);
   const [attendance, setAttendance] = useState({});
+  const [courseCode, setCourseCode] = useState();
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [year, month, day] = selectedDate.split("-");
+  const localDate = new Date(year, month - 1, day);
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function fetchStudentsAndAttendance() {
-      const studentRes = await fetch(`http://localhost:4000/api/courses/${courseId}`);
-      const studentData = await studentRes.json();
-      setStudents(studentData.students);
-
+    async function fetchCourseInfo() {
+      const res = await fetch(`http://localhost:4000/api/courses/${courseId}`);
+      const data = await res.json();
+      setStudents(data.students);
+      setCourseCode(data.course_code);
+    }
+  
+    if (courseId) {
+      fetchCourseInfo();
+    }
+  }, [courseId]);
+  
+  useEffect(() => {
+    async function fetchAttendance() {
+      if (!courseId || !selectedDate) return;
+  
       const defaultAttendance = {};
-      studentData.students.forEach(s => defaultAttendance[s.id] = "Present");
-
+      students.forEach(s => (defaultAttendance[s.id] = "Present"));
+  
       const attendanceRes = await fetch(`http://localhost:4000/api/attendance/${courseId}/${selectedDate}`);
       const attendanceData = await attendanceRes.json();
-
+  
       attendanceData.forEach(record => {
         defaultAttendance[record.student_id] = record.status;
       });
-
+  
       setAttendance(defaultAttendance);
     }
-
-    if (courseId && selectedDate) {
-      fetchStudentsAndAttendance();
-    }
-  }, [courseId, selectedDate]);
+  
+    fetchAttendance();
+  }, [courseId, selectedDate, students]);
 
   const handleStatusChange = (studentId, status) => {
     setAttendance(prev => ({ ...prev, [studentId]: status }));
@@ -83,13 +95,61 @@ export default function AttendanceTab() {
     link.click();
   };
 
+  const exportCourseAttendanceCSV = async () => {
+    try {
+      const res = await fetch(`http://localhost:4000/api/attendance/${courseId}/all`);
+      const data = await res.json();
+  
+      // Step 1: Get all unique dates across all students
+      const allDatesSet = new Set();
+      data.forEach(student => {
+        Object.keys(student.attendance).forEach(date => allDatesSet.add(date));
+      });
+  
+      const allDates = Array.from(allDatesSet).sort(); // e.g., ["2025-07-14", "2025-07-15", ...]
+  
+      // Step 2: Create CSV header
+      const header = ["Student Name", ...allDates];
+  
+      // Step 3: Create rows for each student
+      const rows = data.map(student => {
+        const row = [student.student_name];
+        allDates.forEach(date => {
+          row.push(student.attendance[date] || "-");
+        });
+        return row;
+      });
+  
+      // Step 4: Combine into CSV string
+      const csv = [header, ...rows].map(e => e.join(",")).join("\n");
+  
+      // Step 5: Trigger CSV download
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+  
+      link.href = url;
+      link.download = `${courseCode}-full-attendance.csv`;
+      link.click();
+    } catch (error) {
+      console.error("Error exporting pivoted attendance:", error);
+      alert("Failed to export attendance. Check console for details.");
+    }
+  };
 
+ 
   return (
     <Box p={4}>
       <Stack spacing={3} mb={3}>
-        <Typography variant="h6">
-          Attendance for {selectedDate}
-        </Typography>
+      <Typography variant="h6">
+        Attendance for {localDate.toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          timeZone: "America/New_York"
+        })}
+      </Typography>
   
         <Stack direction="row" spacing={2} alignItems="center">
           <TextField
@@ -160,9 +220,12 @@ export default function AttendanceTab() {
           Save Attendance
         </Button>
         <Button variant="outlined" onClick={exportCSV}>
-          Export to CSV
+          Export today's attendance
+        </Button>
+        <Button variant="outlined" onClick={exportCourseAttendanceCSV}>
+          Export Full Course Attendance
         </Button>
       </Stack>
     </Box>
   );
-}
+} 

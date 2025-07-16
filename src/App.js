@@ -14,12 +14,12 @@ import Box from "@mui/material/Box";
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
-import ProfilePage from "./components/ProfilePage.js";
+import ProfilePage from "./components/ProfilePage";
 
 import PrivateRoute from "./Auth/privateRoute";
 import EditOutline from "./pages/Teacher/EditOutline";
 import ViewOutline from "./pages/Teacher/ViewOutline";
-import OutlineHistory from "./pages/Teacher/OutlineHistory";
+import OutlineHistory from "./pages/Teacher/OutlineHistory"; 
 
 import AdminCourses from "./pages/Admin/AdminCourses";
 import AdminTeachers from "./pages/Admin/AdminTeachers";
@@ -35,6 +35,7 @@ import StudentsTab from "./pages/Teacher/StudentsTab";
 import CourseOutlineTab from "./pages/Teacher/CourseOutlineTab";
 import AttendanceTab from "./pages/Teacher/AttendanceTab"
 import AttendanceHistory from "./pages/Teacher/AttendanceHistory.js";
+import SubmissionsPage from './pages/Teacher/SubmissionsPage';
 
 import Pathways from "./pages/Student/pathways";
 import Upload from "./pages/Student/upload";
@@ -177,8 +178,9 @@ export default function App() {
             <Route path="outline" element={<CourseOutlineTab />} />
             <Route path="attendance" element={<AttendanceTab/>}/>
             <Route path="attendance/:studentId/history" element={<AttendanceHistory />} />
+            <Route path="assignment/:assignmentId/submissions" element={<SubmissionsPage />} />
           </Route> 
-         
+          
 
           <Route
             path="/outline"

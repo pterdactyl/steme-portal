@@ -10,6 +10,8 @@ import attendanceRoutes from './routes/attendance.js'
 
 import viewOutlineRoutes from './routes/viewOutlineRoutes.js';
 import announcementsRouter from './routes/announcements.js';
+import gradesRoutes from './routes/grades.js'
+import submissionRoutes from './routes/submissions.js'
 
 
 dotenv.config();
@@ -37,6 +39,9 @@ app.use('/api/attendance', attendanceRoutes);
 app.use("/api/view-outline", viewOutlineRoutes);
 app.use('/api/courses', announcementsRouter);
 
+app.use("/api/attendance", attendanceRoutes);
+app.use("/api/grades", gradesRoutes);
+app.use("/api/submissions", submissionRoutes);
 
 
 app.get('/', (req, res) => {
