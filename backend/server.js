@@ -7,7 +7,8 @@ import assignmentsRoutes from './routes/assignmentsRoutes.js';
 import usersRoute from './routes/users.js';
 import outlinesRoute from './routes/outlines.js';
 import attendanceRoutes from './routes/attendance.js'
-
+import gradesRoutes from './routes/grades.js'
+import submissionRoutes from './routes/submissions.js'
 
 
 dotenv.config();
@@ -32,7 +33,8 @@ app.use('/api/assignments', assignmentsRoutes);
 app.use("/api/users", usersRoute);
 app.use("/api/outlines", outlinesRoute);
 app.use("/api/attendance", attendanceRoutes);
-
+app.use("/api/grades", gradesRoutes);
+app.use("/api/submissions", submissionRoutes);
 
 
 app.get('/', (req, res) => {

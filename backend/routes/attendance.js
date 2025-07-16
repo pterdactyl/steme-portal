@@ -41,27 +41,79 @@ router.post('/', async (req, res) => {
     }
   });
 
+ // Get all attendance for a course (pivotTable format)
+ router.get('/:courseId/all', async (req, res) => {
+  const { courseId } = req.params;
+
+  try {
+    const pool = await sql.connect(config);
+
+    const result = await pool.request()
+      .input('courseId', sql.Int, courseId)
+      .query(`
+        SELECT 
+          ar.student_id,
+          u.name AS student_name,
+          CONVERT(VARCHAR, ar.date, 23) AS date,
+          ar.status
+        FROM AttendanceRecords ar
+        JOIN users u ON ar.student_id = u.id
+        WHERE ar.course_id = @courseId
+        ORDER BY u.name, ar.date
+      `);
+
+    const records = result.recordset;
+
+    // Pivoting
+    const pivotMap = new Map();
+
+    records.forEach(({ student_id, student_name, date, status }) => {
+      if (!pivotMap.has(student_id)) {
+        pivotMap.set(student_id, {
+          student_id,
+          student_name,
+          attendance: {}
+        });
+      }
+      pivotMap.get(student_id).attendance[date] = status;
+    });
+
+    const pivotData = Array.from(pivotMap.values());
+
+    res.json(pivotData);
+  } catch (err) {
+    console.error("Error generating pivot attendance:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}); 
+
 // Get attendance for a course on a specific date
 router.get("/:courseId/:date", async (req, res) => {
     const pool = await sql.connect(config);
     const { courseId, date } = req.params;
-  
+    const parsedDate = new Date(date);
+    console.log("Received date param:", date);
+    console.log("Parsed date:", parsedDate);
+    
+    if (isNaN(parsedDate)) {
+      return res.status(400).json({ error: "Invalid date format" });
+    }
     const result = await pool.request()
       .input("courseId", sql.Int, courseId)
-      .input("date", sql.Date, date)
+      .input("date", sql.Date, new Date(date))
       .query(`
         SELECT student_id, status
         FROM AttendanceRecords
         WHERE course_id = @courseId AND date = @date
       `);
   
-    res.json(result.recordset);
+    res.json(result.recordset); 
   });
 
   // GET attendance records for a specific student in a course
 router.get('/student/:studentId/course/:courseId', async (req, res) => {
     const { studentId, courseId } = req.params;
-  
+   
     try {
       const pool = await sql.connect(config);
       const result = await pool.request()
@@ -72,7 +124,7 @@ router.get('/student/:studentId/course/:courseId', async (req, res) => {
           FROM AttendanceRecords
           WHERE student_id = @studentId AND course_id = @courseId
           ORDER BY date ASC
-        `);
+        `); 
   
       res.json(result.recordset);
     } catch (err) {
@@ -80,5 +132,7 @@ router.get('/student/:studentId/course/:courseId', async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
     }
   });
+
+ 
   
   export default router;
