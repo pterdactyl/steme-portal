@@ -7,7 +7,7 @@
 firebase-admin-script/
 
 # dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.js
 
