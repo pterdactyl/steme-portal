@@ -7,8 +7,6 @@ import assignmentsRoutes from './routes/assignmentsRoutes.js';
 import usersRoute from './routes/users.js';
 import outlinesRoute from './routes/outlines.js';
 
-
-
 dotenv.config();
 const app = express();
 const PORT = 4000;
