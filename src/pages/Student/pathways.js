@@ -5,7 +5,7 @@ import "../../styles/pathways.css";
 
 const courses = [
   {
-    id: "SNC1D",
+    courseCode: "SNC1D",
     x: 0.5,
     y: -1.75,
     connects: [],
@@ -36,7 +36,7 @@ const courses = [
   },
 
   {
-    id: "SNC2D",
+    courseCode: "SNC2D",
     x: 1.25,
     y: -0.8,
     connects: ["SNC1D"],
@@ -65,7 +65,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "SPH3U",
+    courseCode: "SPH3U",
     x: 0,
     y: 0.25,
     connects: ["SNC2D"],
@@ -94,7 +94,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "SPH4U",
+    courseCode: "SPH4U",
     x: 0.25,
     y: 1.75,
     connects: ["SPH3U"],
@@ -123,7 +123,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "SCH3U",
+    courseCode: "SCH3U",
     x: 1.25,
     y: 1,
     connects: ["SNC2D"],
@@ -151,7 +151,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "SCH4U",
+    courseCode: "SCH4U",
     x: 1,
     y: 2.35,
     connects: ["SCH3U"],
@@ -179,7 +179,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "SBI3U",
+    courseCode: "SBI3U",
     x: 2.15,
     y: 0.35,
     connects: ["SNC2D"],
@@ -206,7 +206,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "SBI4U",
+    courseCode: "SBI4U",
     x: 2.45,
     y: 1.8,
     connects: ["SBI3U"],
@@ -233,7 +233,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "MPM1D",
+    courseCode: "MPM1D",
     x: 4,
     y: -1,
     connects: [],
@@ -261,7 +261,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "MPM2D",
+    courseCode: "MPM2D",
     x: 4.75,
     y: 0.25,
     connects: ["MPM1D"],
@@ -289,7 +289,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "MCR3U",
+    courseCode: "MCR3U",
     x: 3.75,
     y: 1.25,
     connects: ["MPM2D"],
@@ -317,7 +317,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "MHF4U",
+    courseCode: "MHF4U",
     x: 3.5,
     y: 2.25,
     connects: ["MCR3U"],
@@ -345,7 +345,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "MCV4U",
+    courseCode: "MCV4U",
     x: 4.75,
     y: 2.75,
     connects: ["MCR3U"],
@@ -372,7 +372,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "ENG1D",
+    courseCode: "ENG1D",
     x: 5.75,
     y: -1.5,
     connects: [],
@@ -401,7 +401,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "ENG2D",
+    courseCode: "ENG2D",
     x: 6.5,
     y: 0,
     connects: ["ENG1D"],
@@ -430,7 +430,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "ENG3U",
+    courseCode: "ENG3U",
     x: 6,
     y: 1,
     connects: ["ENG2D"],
@@ -459,7 +459,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "ENG4U",
+    courseCode: "ENG4U",
     x: 6.75,
     y: 2.5,
     connects: ["ENG3U"],
@@ -488,7 +488,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "TAS1O",
+    courseCode: "TAS1O",
     x: 2.25,
     y: -1.5,
     connects: [],
@@ -512,7 +512,7 @@ const courses = [
     totalHours: 110,
   },
   {
-    id: "TAS2O",
+    courseCode: "TAS2O",
     x: 2.65,
     y: -0.25,
     connects: ["TAS1O"],
@@ -537,7 +537,7 @@ const courses = [
   },
 
   {
-    id: 'BEM1O',
+    courseCode: 'BEM1O',
     title: 'Entrepreneurship: Venture Planning (BEM1O)',
     x: 9.5,
     y: -2,
@@ -559,7 +559,7 @@ const courses = [
     totalHours: 110
   },
   {
-    id: 'BEP2O',
+    courseCode: 'BEP2O',
     title: 'Entrepreneurship: The Enterprising Person (BEP2O)',
     x: 7.5,
     y: -1.5,
@@ -582,7 +582,7 @@ const courses = [
     totalHours: 110
   },
   {
-    id: 'TGJ3M',
+    courseCode: 'TGJ3M',
     title: 'Communications Technology (TGJ3M)',
     x: 9.25,
     y: -0.55,
@@ -605,7 +605,7 @@ const courses = [
     totalHours: 110
   },
   {
-    id: 'TGJ4M',
+    courseCode: 'TGJ4M',
     title: 'Communications Technology (TGJ4M)',
     x: 9.4,
     y: 1.05,
@@ -628,7 +628,7 @@ const courses = [
     totalHours: 110
   },
   {
-    id: 'BAF3M',
+    courseCode: 'BAF3M',
     title: 'Introduction to Financial Accounting (BAF3M)',
     x: 8.55,
     y: 0.25,
@@ -651,7 +651,7 @@ const courses = [
     totalHours: 110
   },
   {
-    id: 'BOH4M',
+    courseCode: 'BOH4M',
     title: 'Business Leadership (BOH4M)',
     x: 8.7,
     y: 2.45,
@@ -675,7 +675,7 @@ const courses = [
     totalHours: 110
   },
   {
-    id: 'BBB4M',
+    courseCode: 'BBB4M',
     title: 'International Business (BBB4M)',
     x: 8.25,
     y: 1.75,
@@ -699,7 +699,7 @@ const courses = [
     totalHours: 110
   },
   {
-    id: 'BDV4C',
+    courseCode: 'BDV4C',
     title: 'Entrepreneurship: Venture Creation (BDV4C)',
     x: 9.25,
     y: 1.95,
@@ -724,7 +724,7 @@ const courses = [
   },
 
    {
-    id: 'ICS3U',
+    courseCode: 'ICS3U',
     x: 7.35,
     y: 0.65,
     connects: [],
@@ -747,7 +747,7 @@ const courses = [
   },
 
      {
-    id: 'ICS4U',
+    courseCode: 'ICS4U',
     x: 7.15,
     y: 1.65,
     connects: ['ICS3U'],
@@ -770,7 +770,7 @@ const courses = [
   },
 
   {
-    id: "required",
+    courseCode: "required",
     x: 1,
     y: 4,
     connects: [],
@@ -782,7 +782,7 @@ const courses = [
     },
   },
   {
-    id: "recommend",
+    courseCode: "recommend",
     x: 1,
     y: 4.5,
     connects: [],
@@ -844,7 +844,6 @@ export default function Pathways() {
           fontSize: 13,
           whiteSpace: "normal",
           overflowWrap: "break-word",
-          wordWrap: "break-word",
         }}
       >
         <strong>{course.title}</strong>
@@ -874,7 +873,7 @@ export default function Pathways() {
   const renderCourses = () => {
     const scale = 120;
     return courses.map((course) => {
-      const isDummy = course.id === "required" || course.id === "recommend";
+      const isDummy = course.courseCode === "required" || course.courseCode === "recommend";
 
       const relevance = course.in?.[activeCategory];
       const isRelevant = relevance !== undefined;
@@ -911,9 +910,9 @@ export default function Pathways() {
         <div
           className={`course-node ${!isRelevant ? "dimmed" : ""}`}
           style={nodeStyle}
-          onClick={isDummy ? undefined : () => navigate(`/view/${course.id}`)}
+          onClick={() => navigate(`/view/${course.courseCode}`)}
         >
-          {course.id}
+          {course.courseCode}
         </div>
       );
 
@@ -921,7 +920,7 @@ export default function Pathways() {
         content
       ) : (
         <Tooltip
-          key={course.id}
+          key={course.courseCode}
           title={renderCourseDetails(course)}
           arrow
           placement="top"
@@ -943,8 +942,8 @@ export default function Pathways() {
     courses.forEach((course) => {
       if (!course.connects || course.connects.length === 0) return;
 
-      course.connects.forEach((fromId) => {
-        const from = courses.find((c) => c.id === fromId);
+      course.connects.forEach((fromCode) => {
+        const from = courses.find((c) => c.courseCode === fromCode);
         if (!from) return;
 
         const isRelevant =
@@ -964,7 +963,7 @@ export default function Pathways() {
 
         lines.push(
           <div
-            key={`${fromId}->${course.id}`}
+            key={`${fromCode}->${course.courseCode}`}
             className="connection-line"
             style={{
               width: `${length}px`,

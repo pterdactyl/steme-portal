@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useMsal } from "@azure/msal-react";
 
@@ -19,26 +19,21 @@ import ProfilePage from "./pages/ProfilePage";
 
 import PrivateRoute from "./Auth/privateRoute";
 import EditOutline from "./pages/Teacher/EditOutline";
-import ViewOutline from "./pages//Teacher/ViewOutline";
-import OutlineHistory from './pages/Teacher/OutlineHistory'
+import ViewOutline from "./pages/Teacher/ViewOutline";
+import OutlineHistory from "./pages/Teacher/OutlineHistory";
 
 import AdminCourses from "./pages/Admin/AdminCourses";
 import AdminTeachers from "./pages/Admin/AdminTeachers";
 import AdminStudents from "./pages/Admin/AdminStudents";
-import CourseOutline from "./pages/Student/CourseOutline";
 import CourseDashboard from "./pages/Teacher/CourseDashboard";
 import OutlinePage from "./pages/Teacher/OutlinePage";
 import StudentCourse from "./pages/Student/StudentCourse";
 
-import StudentMarks from "./pages/Student/StudentMarks";
-import StudentClasslist from "./pages/Student/StudentClasslist";
-import StudentStream from "./pages/Student/StudentStream";
 import AssignmentsTab from "./pages/Teacher/AssignmentsTab.js";
 import AnnouncementsTab from "./pages/Teacher/AnnouncementsTab.js";
 import GradesTab from "./pages/Teacher/GradesTab";
 import StudentsTab from "./pages/Teacher/StudentsTab";
 import CourseOutlineTab from "./pages/Teacher/CourseOutlineTab";
-
 
 import Pathways from "./pages/Student/pathways";
 import Upload from "./pages/Student/upload";
@@ -49,14 +44,13 @@ import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 
 export default function App() {
-  useMsal(); // Hook for side effects
+  useMsal();
   const { user, role, loading } = useContext(AuthContext);
   const location = useLocation();
   const hideNavbar = ["/"].includes(location.pathname);
 
   if (loading) return null;
 
-  // Redirect on base route based on role
   if (user && location.pathname === "/") {
     if (role === "admin") return <Navigate to="/dashboard/admin" replace />;
     if (role === "teacher") return <Navigate to="/courses" replace />;
@@ -87,6 +81,8 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
+          {/* Student Course Page with tabs */}
           <Route
             path="/course/:courseId"
             element={
@@ -94,11 +90,7 @@ export default function App() {
                 <StudentCourse user={user} />
               </PrivateRoute>
             }
-          >
-            <Route path="stream" element={<StudentStream user={user} />} />
-            <Route path="people" element={<StudentClasslist user={user} />} />
-            <Route path="marks" element={<StudentMarks user={user} />} />
-          </Route>
+          />
 
           <Route
             path="/dashboard/student"
@@ -159,7 +151,7 @@ export default function App() {
             }
           />
           <Route
-            path="/view/:courseId"
+            path="/view/:courseCode"
             element={
               <PrivateRoute>
                 <ViewOutline user={user} />
@@ -176,17 +168,7 @@ export default function App() {
             }
           />
 
-          {/* Distinct routes */}
-          <Route
-            path="/student/course/:courseId"
-            element={
-              <PrivateRoute>
-                <CourseOutline />
-              </PrivateRoute>
-            }
-          />
-
-          {/* Nested routing for CourseDashboard with tabs */}
+          {/* Nested routing for Teacher's CourseDashboard with tabs */}
           <Route
             path="/dashboard/course/:courseId/*"
             element={
@@ -195,12 +177,12 @@ export default function App() {
               </PrivateRoute>
             }
           >
-            <Route path="assignments" element={<AssignmentsTab user={user} />} />
+            <Route path="assignments" element={<AssignmentsTab />} />
             <Route index element={<AnnouncementsTab />} />
             <Route path="grades" element={<GradesTab />} />
             <Route path="students" element={<StudentsTab />} />
             <Route path="outline" element={<CourseOutlineTab />} />
-          </Route> 
+          </Route>
 
           <Route
             path="/outline"
@@ -237,7 +219,7 @@ export default function App() {
             }
           />
 
-          {/* Added CourseSelection Route */}
+          {/* Course selection */}
           <Route
             path="/course-selection"
             element={
