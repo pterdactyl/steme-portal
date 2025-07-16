@@ -21,14 +21,13 @@ export default function ViewOutline() {
 
     const fetchOutline = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/outlines/${courseId}`);
+        const res = await fetch(`http://localhost:4000/api/outlines/${courseCode}`);
         if (!res.ok) throw new Error("Failed to fetch outline");
 
         const data = await res.json();
 
         setOutline({
-          courseId,
-          courseCode: courseFromState?.course_code || "",
+          courseCode: courseCode,
           courseName: data.course_name || "",
           grade: data.grade || "",
           courseType: data.course_type || "",

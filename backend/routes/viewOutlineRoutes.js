@@ -36,8 +36,11 @@ router.get("/:courseCode", async (req, res) => {
     const pool = await sql.connect(dbConfig);
     const result = await pool
       .request()
-      .input("courseCode", sql.VarChar, courseCode)
+      // Specify length 20 for courseCode to avoid truncation
+      .input("courseCode", sql.VarChar(20), courseCode.trim())
       .query("SELECT * FROM dbo.CourseOutlines WHERE course_code = @courseCode");
+
+    console.log("DB query result:", result.recordset);
 
     if (result.recordset.length === 0) {
       return res.status(404).json({ message: "Course outline not found" });

@@ -63,7 +63,7 @@ export default function StudentDashboard() {
                   bgcolor: "#82b1ff",
                 },
               }}
-              onClick={() => navigate(`/student/stream/${course.id}`)}  // <-- Corrected navigation path here
+              onClick={() => navigate(`/course/${course.id}`)}
             >
               <Typography variant="h6">{course.title}</Typography>
             </Paper>

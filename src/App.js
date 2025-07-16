@@ -28,14 +28,12 @@ import AdminStudents from "./pages/Admin/AdminStudents";
 import CourseDashboard from "./pages/Teacher/CourseDashboard";
 import OutlinePage from "./pages/Teacher/OutlinePage";
 import StudentCourse from "./pages/Student/StudentCourse";
-import StudentStreamWithTabs from "./pages/Student/StudentStreamWithTabs";
 
 import AssignmentsTab from "./pages/Teacher/AssignmentsTab.js";
 import AnnouncementsTab from "./pages/Teacher/AnnouncementsTab.js";
 import GradesTab from "./pages/Teacher/GradesTab";
 import StudentsTab from "./pages/Teacher/StudentsTab";
 import CourseOutlineTab from "./pages/Teacher/CourseOutlineTab";
-
 
 import Pathways from "./pages/Student/pathways";
 import Upload from "./pages/Student/upload";
@@ -83,6 +81,8 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
+          {/* Student Course Page with tabs */}
           <Route
             path="/course/:courseId"
             element={
@@ -168,17 +168,7 @@ export default function App() {
             }
           />
 
-          {/* Render tabs version of stream */}
-          <Route
-            path="/student/stream/:courseId"
-            element={
-              <PrivateRoute>
-                <StudentStreamWithTabs user={user} />
-              </PrivateRoute>
-            }
-          />
-
-          {/* Nested routing for CourseDashboard with tabs */}
+          {/* Nested routing for Teacher's CourseDashboard with tabs */}
           <Route
             path="/dashboard/course/:courseId/*"
             element={
@@ -187,12 +177,12 @@ export default function App() {
               </PrivateRoute>
             }
           >
-            <Route path="assignments" element={<AssignmentsTab user={user} />} />
+            <Route path="assignments" element={<AssignmentsTab />} />
             <Route index element={<AnnouncementsTab />} />
             <Route path="grades" element={<GradesTab />} />
             <Route path="students" element={<StudentsTab />} />
             <Route path="outline" element={<CourseOutlineTab />} />
-          </Route> 
+          </Route>
 
           <Route
             path="/outline"
