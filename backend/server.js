@@ -6,10 +6,12 @@ import courseRoutes from './routes/courseRoutes.js';
 import assignmentsRoutes from './routes/assignmentsRoutes.js';
 import usersRoute from './routes/users.js';
 import outlinesRoute from './routes/outlines.js';
+import attendanceRoutes from './routes/attendance.js'
 
-import attendanceRoutes from './routes/attendanceRoutes.js';
 import viewOutlineRoutes from './routes/viewOutlineRoutes.js';
 import announcementsRouter from './routes/announcements.js';
+import gradesRoutes from './routes/grades.js'
+import submissionRoutes from './routes/submissions.js'
 
 
 dotenv.config();
@@ -29,7 +31,7 @@ app.options('*', cors(corsOptions));
 app.use(express.json());
 
 // Routes
-app.use('/api/courses', courseRoutes);
+app.use('/api/courses', courseRoutes); 
 app.use('/api/assignments', assignmentsRoutes);
 app.use("/api/users", usersRoute);
 app.use("/api/outlines", outlinesRoute);
@@ -37,6 +39,9 @@ app.use('/api/attendance', attendanceRoutes);
 app.use("/api/view-outline", viewOutlineRoutes);
 app.use('/api/courses', announcementsRouter);
 
+app.use("/api/attendance", attendanceRoutes);
+app.use("/api/grades", gradesRoutes);
+app.use("/api/submissions", submissionRoutes);
 
 
 app.get('/', (req, res) => {

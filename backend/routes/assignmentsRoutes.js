@@ -136,7 +136,7 @@ if (!Array.isArray(filesToDelete)) {
     for (const fileId of filesToDelete) {
       // Get file URL from DB
       const fileResult = await pool.request()
-        .input('fileId', sql.Int, fileId)
+        .input('fileId', sql.Int, fileId) 
         .query('SELECT file_url FROM assignment_files WHERE id = @fileId');
 
       if (fileResult.recordset.length > 0) {

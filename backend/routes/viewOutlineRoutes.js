@@ -41,7 +41,7 @@ router.get("/:courseCode", async (req, res) => {
       .query("SELECT * FROM dbo.CourseOutlines WHERE course_code = @courseCode");
 
     console.log("DB query result:", result.recordset);
-
+ 
     if (result.recordset.length === 0) {
       return res.status(404).json({ message: "Course outline not found" });
     }
