@@ -281,5 +281,25 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+router.get('/:assignmentId', async (req, res) => {
+  const { assignmentId } = req.params;
+
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool.request()
+      .input('assignmentId', sql.Int, parseInt(assignmentId, 10))
+      .query('SELECT * FROM Assignments WHERE id = @assignmentId');
+
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ error: 'Assignment not found' });
+    }
+
+    res.json(result.recordset[0]);
+  } catch (err) {
+    console.error('Error fetching assignment by ID:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 export default router;

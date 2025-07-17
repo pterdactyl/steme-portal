@@ -191,7 +191,7 @@ const handleSubmitCourses = async (grade) => {
 
     if (!response.ok) throw new Error("Failed to save courses");
 
-    alert('✅ Courses submitted for ${grade}!');
+    alert(`✅ Courses submitted for ${grade}!`);
     setHasSubmitted(true);
   } catch (error) {
     console.error("Error saving courses:", error);

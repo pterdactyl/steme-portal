@@ -14,7 +14,7 @@ import gradesRoutes from './routes/grades.js'
 import submissionRoutes from './routes/submissions.js'
 import studentAssignments from './routes/studentAssignments.js';
 import assignmentFilesRoutes from './routes/assignmentFiles.js';
-
+import commentRoutes from "./routes/comments.js";
 
 
 dotenv.config();
@@ -49,7 +49,7 @@ app.use("/api/submissions", submissionRoutes);
 app.use('/api/student-assignments', studentAssignments);
 app.use('/api/assignment-files', assignmentFilesRoutes);
 app.use("/uploads", express.static("uploads"));
-
+app.use("/api/comments", commentRoutes);
 
 
 app.get('/', (req, res) => {

@@ -40,6 +40,7 @@ import SubmissionsPage from './pages/Teacher/SubmissionsPage';
 import Pathways from "./pages/Student/pathways";
 import Upload from "./pages/Student/upload";
 import CourseSelection from "./pages/Student/CourseSelection";
+import StudentAssignmentDetail from "./pages/Student/StudentAssignmentDetail";
 
 import "primereact/resources/themes/lara-light-indigo/theme.css";
 import "primereact/resources/primereact.min.css";
@@ -216,6 +217,8 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
+          <Route path="/student/assignments/:assignmentId" element={<StudentAssignmentDetail />} />
 
           {/* Course selection */}
           <Route
