@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 
+
 export default function AssignmentsTab({ user }) {
+
+   const formRef = useRef(null);
   const { courseId } = useParams(); // e.g. "ENG1D"
   const [assignments, setAssignments] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -56,6 +59,15 @@ export default function AssignmentsTab({ user }) {
     fetchFiles();
   }, [assignments]);
 
+  useEffect(() => {
+  if (showForm && formRef.current) {
+    const yOffset = -250; 
+    const y = formRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    window.scrollTo({ top: y, behavior: "smooth" });
+  }
+}, [showForm]);
+
+
   const handleEditAssignment = (assignment) => {
     setTitle(assignment.title);
     setDescription(assignment.description);
@@ -63,6 +75,7 @@ export default function AssignmentsTab({ user }) {
     setEditAssignmentId(assignment.id);
     setEditingFiles(assignmentFiles[assignment.id] || []);
     setShowForm(true);
+
   };
 
   const handleDeleteAssignment = async (id) => {
@@ -198,6 +211,7 @@ export default function AssignmentsTab({ user }) {
 
       {showForm && (
         <form
+          ref={formRef}
           onSubmit={editAssignmentId ? handleEditSubmit : handleSubmit}
           style={{ marginTop: "1rem", marginBottom: "2rem" }}
         >
@@ -210,10 +224,18 @@ export default function AssignmentsTab({ user }) {
             style={{ width: "100%", marginBottom: "0.5rem" }}
           />
           <textarea
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            style={{ width: "100%", marginBottom: "0.5rem" }}
+           value={description}
+          onChange={(e) => {
+            setDescription(e.target.value);
+            e.target.style.height = "auto"; 
+            e.target.style.height = `${e.target.scrollHeight}px`; 
+          }}
+          style={{
+            width: "100%",
+            resize: "none",       
+            overflow: "hidden",  
+            minHeight: "3rem",   
+          }}
           />
           <input
             type="datetime-local"
@@ -263,7 +285,7 @@ export default function AssignmentsTab({ user }) {
             .map((a) => (
               <div key={a.id} style={{ border: "1px solid #ddd", padding: "1rem", marginBottom: "1rem" }}>
                 <h3>{a.title}</h3>
-                <p>{a.description}</p>
+                <p style={{ whiteSpace: "pre-wrap" }}>{a.description}</p>
                 {a.due_date && (
                   <p>
                     Due:{" "}
