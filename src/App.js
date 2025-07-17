@@ -171,7 +171,7 @@ export default function App() {
               </PrivateRoute>
             }
           >
-            <Route path="assignments" element={<AssignmentsTab />} />
+            <Route path="assignments" element={<AssignmentsTab user={user}/>} />
             <Route index element={<AnnouncementsTab />} />
             <Route path="grades" element={<GradesTab />} />
             <Route path="students" element={<StudentsTab />} />
