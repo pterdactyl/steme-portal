@@ -65,4 +65,43 @@ router.get("/:courseId/announcements", async (req, res) => {
   }
 });
 
+// Update announcement
+router.put("/:courseId/announcements/:id", async (req, res) => {
+  const { id } = req.params;
+  const { message } = req.body;
+
+  try {
+    const pool = await sql.connect(config);
+
+    await pool.request()
+      .input("id", sql.Int, id)
+      .input("message", sql.NVarChar(sql.MAX), message)
+      .query("UPDATE Announcements SET message = @message WHERE announcement_id = @id");
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Error updating announcement:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Delete announcement
+router.delete("/:courseId/announcements/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const pool = await sql.connect(config);
+
+    await pool.request()
+      .input("id", sql.Int, id)
+      .query("DELETE FROM Announcements WHERE announcement_id = @id");
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Error deleting announcement:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
 export default router;
