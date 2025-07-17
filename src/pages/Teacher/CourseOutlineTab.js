@@ -19,7 +19,7 @@ export default function CourseOutlineTab() {
 
     const fetchOutline = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/outlines/${courseCode}`);
+        const res = await fetch(`http://localhost:4000/api/outlines/by-course-code/${courseCode}`);
         if (!res.ok) throw new Error("Failed to fetch outline");
 
         const data = await res.json();
