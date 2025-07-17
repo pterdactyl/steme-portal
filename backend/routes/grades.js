@@ -63,5 +63,49 @@ router.post('/', async (req, res) => {
       res.status(500).json({ error: 'Failed to save grade' });
     }
   });
+
+  // GET all grades for a course
+router.get('/course/:courseId', async (req, res) => {
+  const { courseId } = req.params;
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool.request()
+      .input('courseId', sql.Int, courseId)
+      .query(`
+        SELECT 
+          g.student_id,
+          g.assignment_id,
+          g.grade
+        FROM Grades g
+        JOIN Assignments a ON g.assignment_id = a.id
+        WHERE a.course_id = @courseId
+      `);
+    res.json(result.recordset);
+  } catch (err) {
+    console.error('Error fetching grades:', err);
+    res.status(500).json({ error: 'Failed to fetch grades' });
+  }
+});
+
+// ✅ GET grades for a specific student
+router.get('/student/:studentId', async (req, res) => {
+  const { studentId } = req.params;
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool.request()
+      .input("studentId", sql.Int, studentId)
+      .query(`
+        SELECT g.assignment_id, g.grade, g.recorded_at, a.title AS assignment_title
+        FROM Grades g
+        JOIN Assignments a ON g.assignment_id = a.id
+        WHERE g.student_id = @studentId
+      `);
+    res.json(result.recordset);
+  } catch (err) {
+    console.error("Error fetching student grades:", err);
+    res.status(500).json({ error: "Failed to fetch grades." });
+  }
+});
+
   
   export default router;

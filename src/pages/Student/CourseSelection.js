@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import "./CourseSelection.css";
 import CourseModal from "../../components/CourseModal";
 import { AuthContext } from "../../Auth/AuthContext";
+import { courseDescriptions } from "./CourseDescriptions";
+import CourseDetailModal from "./CourseDetailModal"
 
 const gradeLevels = ["Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const currentGrade = "Grade 9";
@@ -70,6 +72,9 @@ const initialCourses = {
 
 export default function CourseSelection() {
   const { userId } = useContext(AuthContext);
+
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedCourseDetail, setSelectedCourseDetail] = useState(null);
   
   const [courses, setCourses] = useState(initialCourses);
   const [modalOpen, setModalOpen] = useState(false);
@@ -251,9 +256,20 @@ return (
 
             {nonArtsCourses.map((course) => (
               <div
-                key={course.id}
-                className={`course-box ${course.required ? "required" : ""}`}
-              >
+  key={course.id}
+  className={`course-box ${course.required ? "required" : ""} clickable`}
+  onClick={() => {
+    const descriptionMatch = courseDescriptions.find(cd => cd.courseCode === course.code);
+    setSelectedCourseDetail({
+      ...course,
+      description: descriptionMatch?.description || "No description available.",
+      units: descriptionMatch?.units || [],
+      hours: descriptionMatch?.hours || "Not specified",
+      prerequisites: course.prerequisite ? [course.prerequisite] : [],
+    });
+    setDetailModalOpen(true);
+  }}
+>
                 <div className="course-title">{course.title}</div>
                 <div className="course-code">
                   <span>{course.code}</span>
@@ -322,6 +338,13 @@ return (
       })}
     </div>
 
+    <CourseDetailModal
+  open={detailModalOpen}
+  onClose={() => setDetailModalOpen(false)}
+  course={selectedCourseDetail}
+/>
+
+
     <CourseModal
       open={modalOpen}
       onClose={() => {
@@ -330,10 +353,20 @@ return (
       }}
       onSelect={handleSelectCourse}
       courseOptions={
-        filterGroup === "arts"
-          ? artsCourses.filter(c => !takenCourseIds.has(c.id))
-          : availableCourses.filter(c => !takenCourseIds.has(c.id))
-      }
+  (filterGroup === "arts" ? artsCourses : availableCourses)
+    .filter(c => !takenCourseIds.has(c.id))
+    .map(course => {
+      const descriptionMatch = courseDescriptions.find(cd => cd.courseCode === course.code);
+      return {
+        ...course,
+        description: descriptionMatch?.description || "No description available.",
+        units: descriptionMatch?.units || [],
+      };
+    })
+}
+
+
+
     />
   </div>
 );
