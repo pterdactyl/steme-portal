@@ -1,3 +1,4 @@
+
 import express from "express";
 import multer from "multer";
 import sql from "mssql";
@@ -127,5 +128,59 @@ router.get("/submitted-status", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+router.delete("/unsubmit", async (req, res) => {
+  const { course_id, assignment_id, user_id } = req.body;
+
+  if (!course_id || !assignment_id || !user_id) {
+    return res.status(400).json({ error: "Missing course_id, assignment_id, or user_id" });
+  }
+
+  try {
+    const pool = await sql.connect(config);
+
+    // First, get the file URLs and blob names for deletion
+    const result = await pool.request()
+      .input("course_id", sql.Int, course_id)
+      .input("assignment_id", sql.Int, assignment_id)
+      .input("student_id", sql.Int, user_id)
+      .query(`
+        SELECT file_url FROM dbo.assignment_submissions
+        WHERE course_id = @course_id AND assignment_id = @assignment_id AND student_id = @student_id
+      `);
+
+    const files = result.recordset;
+
+    // Delete files from Azure Blob Storage
+    for (const file of files) {
+      const blobUrl = file.file_url;
+      const blobName = decodeURIComponent(blobUrl.split("/").pop());
+      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+      try {
+        await blockBlobClient.deleteIfExists();
+      } catch (err) {
+        console.warn(`Failed to delete blob '${blobName}':`, err.message);
+        // Continue deleting DB entry even if blob delete fails
+      }
+    }
+
+    // Delete the DB record(s)
+    await pool.request()
+      .input("course_id", sql.Int, course_id)
+      .input("assignment_id", sql.Int, assignment_id)
+      .input("student_id", sql.Int, user_id)
+      .query(`
+        DELETE FROM dbo.assignment_submissions
+        WHERE course_id = @course_id AND assignment_id = @assignment_id AND student_id = @student_id
+      `);
+
+    res.json({ message: "Submission withdrawn successfully" });
+  } catch (err) {
+    console.error("Error withdrawing submission:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 export default router;
