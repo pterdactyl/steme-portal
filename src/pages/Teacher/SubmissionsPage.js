@@ -1,85 +1,78 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box, Typography, IconButton, Button, TextField, Stack,
   CircularProgress, Select, MenuItem, FormControl, InputLabel
 } from "@mui/material";
 import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 import { useParams, useNavigate } from "react-router-dom";
-import { AuthContext } from "../../Auth/AuthContext";
-
 
 export default function StudentSubmissionPage() {
-  const { courseId, assignmentId, studentId } = useParams();
+  const { assignmentId, studentId } = useParams();
   const navigate = useNavigate();
-  const { userId } = useContext(AuthContext);
 
-
-  const [students, setStudents] = useState([]); // list of all students
-  const [student, setStudent] = useState(null); // current student details
+  const [students, setStudents] = useState([]);
+  const [student, setStudent] = useState(null);
   const [submission, setSubmission] = useState(null);
   const [comment, setComment] = useState("");
   const [grade, setGrade] = useState("");
   const [neighbors, setNeighbors] = useState({ prev: null, next: null });
   const [loading, setLoading] = useState(true);
-  
 
   useEffect(() => {
-    let ignore = false;
-  
-    async function fetchData() {
-      setLoading(true);
-  
+    // Fetch students and their submissions
+    const fetchData = async () => {
       try {
-        const studentListRes = await fetch(`http://localhost:4000/api/courses/${courseId}`);
-        const studentsList = await studentListRes.json();
-  
-        if (ignore) return;
-  
-        setStudents(studentsList);
-  
-        let selectedId = studentId;
-  
-        if (!studentId && studentsList.length > 0) {
-          selectedId = studentsList[0].id;
-          // Redirect to URL with the selectedId
-          navigate(`/dashboard/course/${courseId}/assignment/${assignmentId}/submissions/${selectedId}`, { replace: true });
-          return;
-        }
-  
+        // Fetch students and their submissions for the assignment
+        const studentRes = await fetch(`/api/assignments/${assignmentId}/students`);
+        const studentData = await studentRes.json();
+        setStudents(studentData.students);
+
+        const selectedId = studentId || studentData.students[0]?.id;
+        const currentStudent = studentData.students.find(s => s.id === selectedId);
+        setStudent(currentStudent);
+
+        // Fetch the submission of the selected student for the given assignment
         const submissionRes = await fetch(`/api/submissions/${assignmentId}/${selectedId}`);
-        if (!submissionRes.ok) throw new Error("Submission not found");
-        const data = await submissionRes.json();
-  
-        setStudent(data.student);
-        setSubmission(data.submission);
-        setComment(data.submission.teacher_comment || "");
-        setGrade(data.submission.grade ?? "");
-  
-        const index = studentsList.findIndex((s) => s.id === selectedId);
-        const prev = studentsList[index - 1]?.id || null;
-        const next = studentsList[index + 1]?.id || null;
+        const submissionData = await submissionRes.json();
+        setSubmission(submissionData);
+
+        // Set the comment and grade for the submission
+        setComment(submissionData.teacher_comment || "");
+        setGrade(submissionData.grade?.toString() || "");
+
+        // Set neighbors (previous and next students)
+        const index = studentData.students.findIndex(s => s.id === selectedId);
+        const prev = studentData.students[index - 1]?.id || null;
+        const next = studentData.students[index + 1]?.id || null;
         setNeighbors({ prev, next });
+
+        setLoading(false);
       } catch (err) {
-        console.error("Error fetching submission/student data", err);
+        console.error("Error fetching data:", err);
+        setLoading(false);
       }
-  
-      setLoading(false);
-    }
-  
+    };
+
     fetchData();
-    return () => (ignore = true);
   }, [assignmentId, studentId]);
 
   const save = async () => {
-    await fetch(`/api/submissions/${submission.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      const payload = {
         teacher_comment: comment,
         grade: grade === "" ? null : Number(grade),
-        recorded_by: userId
-      })
-    });
+      };
+      await fetch(`/api/submissions/${assignmentId}/${student.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      alert("Submission saved!");
+    } catch (err) {
+      console.error("Error saving submission:", err);
+    }
   };
 
   const go = (targetId) => {
@@ -98,7 +91,7 @@ export default function StudentSubmissionPage() {
         <FormControl fullWidth>
           <InputLabel>Student</InputLabel>
           <Select
-            value={student.id}
+            value={student?.id || ""}
             label="Student"
             onChange={(e) => go(e.target.value)}
           >
@@ -116,7 +109,7 @@ export default function StudentSubmissionPage() {
       </Stack>
 
       {/* 📁 File Links */}
-      {submission.files?.length ? (
+      {submission?.files?.length ? (
         <Stack spacing={1} mb={3}>
           {submission.files.map((f) => (
             <Button key={f.id} variant="outlined" onClick={() => window.open(f.url, "_blank")}>
