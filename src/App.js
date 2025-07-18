@@ -21,6 +21,7 @@ import EditOutline from "./pages/Teacher/EditOutline";
 import ViewOutline from "./pages/Teacher/ViewOutline";
 import OutlineHistory from "./pages/Teacher/OutlineHistory"; 
 
+import AdminCourses from "./pages/Admin/AdminCourses";
 import AdminTeachers from "./pages/Admin/AdminTeachers";
 import AdminStudents from "./pages/Admin/AdminStudents";
 import CourseDashboard from "./pages/Teacher/CourseDashboard";
@@ -32,7 +33,7 @@ import AnnouncementsTab from "./pages/Teacher/AnnouncementsTab.js";
 import GradesTab from "./pages/Teacher/GradesTab";
 import StudentsTab from "./pages/Teacher/StudentsTab";
 import CourseOutlineTab from "./pages/Teacher/CourseOutlineTab";
-import AttendanceTab from "./pages/Teacher/AttendanceTab"
+import AttendanceTab from "./pages/Teacher/AttendanceTab.js"
 import AttendanceHistory from "./pages/Teacher/AttendanceHistory.js";
 import SubmissionsPage from './pages/Teacher/SubmissionsPage';
 import StudentDetail from "./pages/Teacher/StudentDetail";
@@ -180,8 +181,8 @@ export default function App() {
             <Route path="outline" element={<CourseOutlineTab />} />
             <Route path="attendance" element={<AttendanceTab/>}/>
             <Route path="attendance/:studentId/history" element={<AttendanceHistory />} />
-            <Route path="assignment/:assignmentId/submissions" element={<SubmissionsPage />} />
-            <Route path="assignment/:assignmentId/students" element={<AssignmentStudents />}/>
+            <Route path="assignment/:assignmentId/submissions/:studentId" element={<SubmissionsPage />} />
+            <Route path="assignment/:assignmentId/students" element={<AssignmentStudents />} />
           </Route> 
           
 
@@ -195,7 +196,14 @@ export default function App() {
           />
 
           {/* Admin pages */}
-      
+          <Route
+            path="/admin/courses"
+            element={
+              <PrivateRoute>
+                <AdminCourses user={user} />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/admin/teachers"
             element={
