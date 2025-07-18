@@ -39,7 +39,7 @@
     "jspdf": "^3.0.1",
     "lexical": "^0.32.1",
     "mssql": "^11.0.1",
-    "multer": "^2.0.1",
+    "multer": "^2.0.2",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.6",
