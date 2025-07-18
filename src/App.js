@@ -21,7 +21,6 @@ import EditOutline from "./pages/Teacher/EditOutline";
 import ViewOutline from "./pages/Teacher/ViewOutline";
 import OutlineHistory from "./pages/Teacher/OutlineHistory"; 
 
-import AdminCourses from "./pages/Admin/AdminCourses";
 import AdminTeachers from "./pages/Admin/AdminTeachers";
 import AdminStudents from "./pages/Admin/AdminStudents";
 import CourseDashboard from "./pages/Teacher/CourseDashboard";
@@ -194,14 +193,7 @@ export default function App() {
           />
 
           {/* Admin pages */}
-          <Route
-            path="/admin/courses"
-            element={
-              <PrivateRoute>
-                <AdminCourses user={user} />
-              </PrivateRoute>
-            }
-          />
+      
           <Route
             path="/admin/teachers"
             element={
