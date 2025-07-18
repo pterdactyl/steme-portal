@@ -1,47 +1,162 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import {
+  Box,
+  Typography,
+  Stack,
+  Button,
+  Divider,
+  TextField,
+  CircularProgress,
+} from "@mui/material";
 import { useParams } from "react-router-dom";
+import { AuthContext } from "../../Auth/AuthContext";
 
-export default function AssignmentStudents() {
+export default function AssignmentReviewPage() {
   const { courseId, assignmentId } = useParams();
-  const [courseData, setCourseData] = useState(null); // whole response object
+  const { userId } = useContext(AuthContext);
+
+  const [students, setStudents] = useState([]);
+  const [selectedStudentId, setSelectedStudentId] = useState(null);
+  const [submission, setSubmission] = useState(null);
+  const [comment, setComment] = useState("");
+  const [grade, setGrade] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchStudents() {
+    const fetchStudents = async () => {
       try {
         const res = await fetch(`http://localhost:4000/api/courses/${courseId}`);
         const data = await res.json();
-        console.log("Fetched course data:", data);
-        setCourseData(data);
+        setStudents(data.students);
+        if (data.students.length > 0) {
+          setSelectedStudentId(data.students[0].id);
+        }
+        setLoading(false);
       } catch (err) {
-        console.error("Error fetching students", err);
+        console.error("Error fetching students:", err);
+        setLoading(false);
       }
-    }
+    };
 
     fetchStudents();
   }, [courseId]);
 
-  const openSubmissionPage = (studentId) => {
-    const url = `/dashboard/course/${courseId}/assignment/${assignmentId}/submissions?studentId=${studentId}`;
-    window.open(url, "_blank");
+  useEffect(() => {
+    const fetchSubmission = async () => {
+      if (!selectedStudentId) return;
+
+      try {
+        const res = await fetch(
+          `http://localhost:4000/api/submissions/${assignmentId}/${selectedStudentId}`
+        );
+        
+        const data = await res.json();
+        console.log(data);
+        setSubmission(data);
+        setComment(data.teacher_comment || "");
+        setGrade(data.grade?.toString() || "");
+      } catch (err) {
+        console.error("Error fetching submission:", err);
+      }
+    };
+
+    fetchSubmission();
+  }, [assignmentId, selectedStudentId]);
+
+  const save = async () => {
+    try {
+      const payload = {
+        teacher_comment: comment,
+        grade: grade === "" ? null : Number(grade),
+      };
+      await fetch(
+        `http://localhost:4000/api/submissions/teacher/${assignmentId}/${selectedStudentId}/${userId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+      alert("Submission saved!");
+    } catch (err) {
+      console.error("Error saving submission:", err);
+    }
   };
 
-  if (!courseData) return <div>Loading students...</div>;
+  if (loading) return <CircularProgress sx={{ m: 4 }} />;
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h2>Students in Course {courseId}</h2>
-      <ul>
-        {courseData.students.map((student) => (
-          <li key={student.id}>
-            <button
-              onClick={() => openSubmissionPage(student.id)}
-              style={{ cursor: "pointer", color: "#007bff", background: "none", border: "none" }}
-            >
-              {student.name}
-            </button>
-          </li>
+    <Box display="flex" height="100%">
+      {/* Left panel - Student list */}
+      <Box width="25%" p={2} borderRight="1px solid #ccc">
+        <Typography variant="h6">Students</Typography>
+        <Divider sx={{ my: 1 }} />
+        {students.map((s) => (
+          <Button
+            key={s.id}
+            fullWidth
+            variant={selectedStudentId === s.id ? "contained" : "text"}
+            onClick={() => setSelectedStudentId(s.id)}
+            sx={{ justifyContent: "flex-start", mb: 1 }}
+          >
+            {s.name}
+          </Button>
         ))}
-      </ul>
-    </div>
+      </Box>
+
+      {/* Right panel - Submission details */}
+      <Box width="75%" p={4}>
+        {submission ? (
+          <>
+            <Typography variant="h6" gutterBottom>
+              Submitted Work
+            </Typography>
+            <Stack spacing={2} mb={3}>
+              {submission.files?.length ? (
+                submission.files.map((f) => (
+                  <Button
+                    key={f.id}
+                    variant="outlined"
+                    onClick={() => window.open(f.url, "_blank")}
+                  >
+                    {f.filename}
+                  </Button>
+                ))
+              ) : (
+                <Typography>No files submitted.</Typography>
+              )}
+            </Stack>
+
+            <TextField
+              label="Private comment"
+              multiline
+              rows={3}
+              fullWidth
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              sx={{ mb: 3 }}
+            />
+
+            <TextField
+              label="Grade (0–100)"
+              type="number"
+              inputProps={{ min: 0, max: 100 }}
+              value={grade}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "" || (Number(v) >= 0 && Number(v) <= 100)) setGrade(v);
+              }}
+              sx={{ width: 140, mb: 3 }}
+            />
+
+            <Button variant="contained" onClick={save}>
+              Save
+            </Button>
+          </>
+        ) : (
+          <Typography>No submission found.</Typography>
+        )}
+      </Box>
+    </Box>
   );
 }

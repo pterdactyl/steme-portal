@@ -7,7 +7,7 @@ import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Auth/AuthContext";
 
-export default function StudentSubmissionPage() {
+export default function SubmissionsPage() {
   const { courseId, assignmentId } = useParams();
   const { userId } = useContext(AuthContext);
   const navigate = useNavigate();
