@@ -1,5 +1,6 @@
+import { useEventCallback } from "@mui/material";
 import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 
 export default function AssignmentsTab({ user }) {
@@ -18,6 +19,7 @@ export default function AssignmentsTab({ user }) {
   const [assignmentFiles, setAssignmentFiles] = useState({});
   const [editingFiles, setEditingFiles] = useState([]);
   const [filesToDelete, setFilesToDelete] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!courseId) return;
@@ -283,7 +285,9 @@ export default function AssignmentsTab({ user }) {
           [...assignments]
             .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
             .map((a) => (
-              <div key={a.id} style={{ border: "1px solid #ddd", padding: "1rem", marginBottom: "1rem" }}>
+              <div key={a.id} 
+              style={{ border: "1px solid #ddd", padding: "1rem", marginBottom: "1rem" }}
+              onClick={() => navigate(`/dashboard/course/${courseId}/assignment/${a.id}/students`)}>
                 <h3>{a.title}</h3>
                 <p style={{ whiteSpace: "pre-wrap" }}>{a.description}</p>
                 {a.due_date && (

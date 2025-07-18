@@ -301,5 +301,6 @@ router.get('/:assignmentId', async (req, res) => {
   }
 });
 
+// Get all students assigned 
 
 export default router;
