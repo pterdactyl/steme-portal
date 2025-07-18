@@ -249,18 +249,30 @@ router.delete('/:id', async (req, res) => {
   try {
     const pool = await sql.connect(config);
 
-    // 1. Get all files for this assignment
+    // 1. Delete related grades
+    await pool.request()
+      .input('assignmentId', sql.Int, id)
+      .query('DELETE FROM Grades WHERE assignment_id = @assignmentId');
+
+    // 2. Delete related submissions
+    await pool.request()
+      .input('assignmentId', sql.Int, id)
+      .query('DELETE FROM assignment_submissions WHERE assignment_id = @assignmentId');
+
+    // 3. Delete related comments
+    await pool.request()
+      .input('assignmentId', sql.Int, id)
+      .query('DELETE FROM AssignmentComments WHERE assignment_id = @assignmentId');
+
+    // 4. Delete related assignment files (from Azure Blob + DB)
     const filesResult = await pool.request()
       .input('assignmentId', sql.Int, id)
       .query('SELECT id, file_url FROM assignment_files WHERE assignment_id = @assignmentId');
 
     const files = filesResult.recordset;
 
-    // 2. Delete each blob from Azure and DB record
     for (const file of files) {
-      const fileUrl = file.file_url;
-      const blobName = decodeURIComponent(fileUrl.split('/').pop().split('?')[0]);
-
+      const blobName = decodeURIComponent(file.file_url.split('/').pop().split('?')[0]);
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
       await blockBlobClient.deleteIfExists();
 
@@ -269,14 +281,15 @@ router.delete('/:id', async (req, res) => {
         .query('DELETE FROM assignment_files WHERE id = @fileId');
     }
 
-    // 3. Delete the assignment row itself
+    // 5. Finally, delete the assignment itself
     await pool.request()
       .input('id', sql.Int, id)
       .query('DELETE FROM Assignments WHERE id = @id');
 
-    res.json({ message: 'Assignment and associated files deleted successfully' });
+    res.json({ message: 'Assignment and all related data deleted successfully' });
+
   } catch (err) {
-    console.error('Error deleting assignment and files:', err);
+    console.error('Error deleting assignment and related data:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

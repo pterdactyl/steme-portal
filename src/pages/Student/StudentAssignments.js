@@ -150,14 +150,30 @@ export default function StudentAssignments({ courseId }) {
                   <Stack spacing={1}>
                     {filesByAssignment[assignment.id].map((file) => (
                       <Link
-                        key={file.id}
-                        href={file.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        underline="hover"
-                      >
-                        {file.file_name}
-                      </Link>
+  key={file.id}
+  onClick={async () => {
+    const url = new URL(file.file_url);
+    const blobName = decodeURIComponent(url.pathname.split("/").pop());
+
+    try {
+      const res = await fetch(
+        `http://localhost:4000/api/assignments/download-url?blobName=${blobName}`
+      );
+      if (!res.ok) throw new Error("Failed to get download URL");
+      const data = await res.json();
+      window.open(data.sasUrl, "_blank");
+    } catch (err) {
+      console.error("Error fetching secure download link:", err);
+      alert("Could not get download link");
+    }
+  }}
+  component="button"
+  underline="hover"
+  sx={{ cursor: "pointer", color: "primary.main", background: "none", border: "none", p: 0 }}
+>
+  {file.file_name}
+</Link>
+
                     ))}
                   </Stack>
                 ) : (

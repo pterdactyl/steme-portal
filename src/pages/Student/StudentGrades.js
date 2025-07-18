@@ -13,18 +13,18 @@ import {
   Box,
 } from "@mui/material";
 
-export default function StudentGrades() {
-  const { userId } = useAuth(); // assumes userId = student_id
+export default function StudentGrades({ courseId }) {
+  const { userId } = useAuth();
   const [grades, setGrades] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !courseId) return;
 
     const fetchGrades = async () => {
       try {
-        const res = await fetch(`/api/grades/student/${userId}`);
+        const res = await fetch(`/api/grades/student/${userId}?courseId=${courseId}`);
         if (!res.ok) throw new Error("Failed to fetch grades.");
         const data = await res.json();
         setGrades(data);
@@ -37,7 +37,7 @@ export default function StudentGrades() {
     };
 
     fetchGrades();
-  }, [userId]);
+  }, [userId, courseId]);
 
   if (loading) return <CircularProgress />;
   if (error) return <Typography color="error">{error}</Typography>;

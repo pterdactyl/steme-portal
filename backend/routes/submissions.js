@@ -2,22 +2,32 @@ import express from "express";
 import multer from "multer";
 import sql from "mssql";
 import config from "../config/azureDb.js";
-import fs from "fs";
+import { BlobServiceClient } from "@azure/storage-blob";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const router = express.Router();
 
-const uploadDir = "uploads";
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
+const containerName = "submissions";
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${file.originalname}`;
-    cb(null, uniqueName);
-  },
-});
+const blobServiceClient = BlobServiceClient.fromConnectionString(
+  AZURE_STORAGE_CONNECTION_STRING
+);
+const containerClient = blobServiceClient.getContainerClient(containerName);
 
-const upload = multer({ storage });
+// Create container if it does not exist (private container, no public access)
+(async () => {
+  try {
+    await containerClient.createIfNotExists();
+    console.log(`Container '${containerName}' is ready.`);
+  } catch (err) {
+    console.error("Error creating container:", err);
+  }
+})();
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.post("/upload", upload.array("files"), async (req, res) => {
   const { course_id, assignment_id, user_id } = req.body;
@@ -39,15 +49,21 @@ router.post("/upload", upload.array("files"), async (req, res) => {
     const pool = await sql.connect(config);
 
     for (const file of files) {
-      const file_url = `/uploads/${file.filename}`;
-      const file_name = file.originalname;
+      const blobName = `${Date.now()}-${file.originalname}`;
+      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+      await blockBlobClient.uploadData(file.buffer, {
+        blobHTTPHeaders: { blobContentType: file.mimetype },
+      });
+
+      const fileUrl = blockBlobClient.url;
 
       await pool.request()
         .input("course_id", sql.Int, courseId)
         .input("assignment_id", sql.Int, assignmentId)
         .input("student_id", sql.Int, userId)
-        .input("file_url", sql.VarChar, file_url)
-        .input("file_name", sql.VarChar, file_name)
+        .input("file_url", sql.NVarChar, fileUrl)
+        .input("file_name", sql.NVarChar, file.originalname)
         .query(`
           INSERT INTO dbo.assignment_submissions
           (course_id, assignment_id, student_id, file_url, file_name, submitted_at)
@@ -62,7 +78,6 @@ router.post("/upload", upload.array("files"), async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 router.get("/student/:studentId", async (req, res) => {
   const studentId = parseInt(req.params.studentId, 10);

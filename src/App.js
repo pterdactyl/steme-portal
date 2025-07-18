@@ -36,6 +36,7 @@ import CourseOutlineTab from "./pages/Teacher/CourseOutlineTab";
 import AttendanceTab from "./pages/Teacher/AttendanceTab"
 import AttendanceHistory from "./pages/Teacher/AttendanceHistory.js";
 import SubmissionsPage from './pages/Teacher/SubmissionsPage';
+import StudentDetail from "./pages/Teacher/StudentDetail";
 
 import Pathways from "./pages/Student/pathways";
 import Upload from "./pages/Student/upload";
@@ -219,6 +220,9 @@ export default function App() {
           />
 
           <Route path="/student/assignments/:assignmentId" element={<StudentAssignmentDetail />} />
+
+          <Route path="/students/:studentId" element={<StudentDetail />} />
+
 
           {/* Course selection */}
           <Route

@@ -87,19 +87,30 @@ router.get('/course/:courseId', async (req, res) => {
   }
 });
 
-// ✅ GET grades for a specific student
+// ✅ GET grades for a specific student (optionally filtered by course)
 router.get('/student/:studentId', async (req, res) => {
   const { studentId } = req.params;
+  const { courseId } = req.query;
+
   try {
     const pool = await sql.connect(config);
-    const result = await pool.request()
-      .input("studentId", sql.Int, studentId)
-      .query(`
-        SELECT g.assignment_id, g.grade, g.recorded_at, a.title AS assignment_title
-        FROM Grades g
-        JOIN Assignments a ON g.assignment_id = a.id
-        WHERE g.student_id = @studentId
-      `);
+
+    let query = `
+      SELECT g.assignment_id, g.grade, g.recorded_at, a.title AS assignment_title
+      FROM Grades g
+      JOIN Assignments a ON g.assignment_id = a.id
+      WHERE g.student_id = @studentId
+    `;
+
+    const request = pool.request().input("studentId", sql.Int, studentId);
+
+    if (courseId) {
+      query += ` AND a.course_id = @courseId`;
+      request.input("courseId", sql.Int, courseId);
+    }
+
+    const result = await request.query(query);
+
     res.json(result.recordset);
   } catch (err) {
     console.error("Error fetching student grades:", err);

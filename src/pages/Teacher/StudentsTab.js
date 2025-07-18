@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import {
   Box,
@@ -14,6 +15,8 @@ export default function StudentsTab() {
   const [students, setStudents] = useState([]);
   const [courseTitle, setCourseTitle] = useState("");
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchCourseDetails() {
@@ -48,18 +51,21 @@ export default function StudentsTab() {
         <Stack spacing={2}>
           {students.map((student) => (
             <Paper
-              key={student.id}
-              sx={{
-                p: 2,
-                borderRadius: 2,
-                boxShadow: 1,
-              }}
-            >
-              <Typography variant="subtitle1">{student.name}</Typography>
-              <Typography variant="body2" color="text.secondary">
-                {student.email}
-              </Typography>
-            </Paper>
+  key={student.id}
+  onClick={() => navigate(`/students/${student.id}`)}
+  sx={{
+    p: 2,
+    borderRadius: 2,
+    boxShadow: 1,
+    cursor: "pointer",
+    '&:hover': { boxShadow: 3 },
+  }}
+>
+  <Typography variant="subtitle1">{student.name}</Typography>
+  <Typography variant="body2" color="text.secondary">
+    {student.email}
+  </Typography>
+</Paper>
           ))}
         </Stack>
       )}

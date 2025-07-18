@@ -699,7 +699,7 @@ export const courseDescriptions = [
     x: 9.25,
     y: 1.95,
     connects: [],
-    in: {'business': 'recommended'},
+    in: { business: 'recommended' },
     description:
       "This course helps students develop entrepreneurial skills by creating a venture plan focused on e-commerce. Students will research a business opportunity and build a comprehensive plan, including a website.",
     units: [
@@ -717,15 +717,61 @@ export const courseDescriptions = [
     prerequisite: 'None',
     totalHours: 110
   },
-
-   {
-    courseCode: 'ICS3U',
-    x: 7.35,
-    y: 0.65,
+  {
+    courseCode: 'FSF1D',
+    title: 'Core French (FSF1D)',
+    x: 9.25,
+    y: 1.95,
     connects: [],
-    in: {'engineering': 'recommended', 'computer-science':'recommended'},
+    in: { business: 'recommended' },
     description:
-      "This course introduces programming fundamentals and problem-solving techniques. Students will design, write, and test programs using the software development life cycle. They will also explore computer systems, environmental concerns, safe computing, emerging technologies, and postsecondary opportunities in computing.",
+      "This course provides opportunities for students to communicate and interact in French with increasing independence, with a focus on familiar topics related to their daily lives. Students will develop their skills in listening, speaking, reading, and writing by using language learning strategies introduced in the elementary Core French program, and will apply creative and critical thinking skills in various ways.",
+    units: [
+      { title: 'Listening', hours: 27 },
+      { title: 'Speaking', hours: 27 },
+      { title: 'Reading', hours: 27 },
+      { title: 'Writing', hours: 27 },
+      { title: 'Independent Study Unit', hours: 8 },
+      { title: 'Final Exam', hours: 2 }
+    ],
+    grade: 12,
+    type: 'College',
+    creditValue: 1.0,
+    prerequisite: 'None',
+    totalHours: 110
+  },
+  {
+    courseCode: 'CGC1D',
+    title: 'Core French (FSF1D)',
+    x: 9.25,
+    y: 1.95,
+    connects: [],
+    in: { business: 'recommended' },
+    description:
+      "This course explores the interconnections between Canada’s natural and human systems and their global links. Students will examine environmental, economic, and social issues, such as transportation, energy choices, and urban development. Using geographic concepts and inquiry, including spatial technologies, they will investigate issues and propose ways to make Canada more sustainable.",
+    units: [
+      { title: 'Interactions in the Physical Environment', hours: 27 },
+      { title: 'Managing Canada’s Resources and Industries', hours: 27 },
+      { title: 'Changing Populations', hours: 27 },
+      { title: 'Livable Communities', hours: 27 },
+      { title: 'Independent Study Unit', hours: 8 },
+      { title: 'Final Exam', hours: 2 }
+    ],
+    grade: 12,
+    type: 'College',
+    creditValue: 1.0,
+    prerequisite: 'None',
+    totalHours: 110
+  },
+  {
+    courseCode: 'ISC3U',
+    title: 'Core French (FSF1D)',
+    x: 9.25,
+    y: 1.95,
+    connects: [],
+    in: { business: 'recommended' },
+    description:
+      "This course introduces computer programming concepts and practices. Students will write and test programs, learn program design fundamentals, and apply the software development life cycle to a project. They will also explore computer systems, environmental issues, safe computing, emerging technologies, and post-secondary opportunities in computing fields.",
     units: [
       { title: 'Programming Concepts and Skills', hours: 25 },
       { title: 'Software Development', hours: 25 },
@@ -735,20 +781,20 @@ export const courseDescriptions = [
       { title: 'Final Exam', hours: 2 }
     ],
     grade: 12,
-    type: 'University',
+    type: 'College',
     creditValue: 1.0,
     prerequisite: 'None',
     totalHours: 110
   },
-
-     {
-    courseCode: 'ICS4U',
-    x: 7.15,
-    y: 1.65,
-    connects: ['ICS3U'],
-    in: {'engineering': 'recommended', 'computer-science':'recommended'},
+  {
+    courseCode: 'ISC4U',
+    title: 'Core French (FSF1D)',
+    x: 9.25,
+    y: 1.95,
+    connects: [],
+    in: { business: 'recommended' },
     description:
-      "This course introduces programming concepts and problem-solving strategies. Students will design, write, and test programs while applying the software development life cycle. They’ll also explore computer systems, environmental issues, safe computing, emerging technologies, and related postsecondary opportunities.",
+      "This course introduces students to computer programming concepts and practices. Students will write and test computer programs, using various problem-solving strategies. They will learn the fundamentals of program design and apply a software development life-cycle model to a software development project. Students will also learn about computer environments and systems, and explore environmental issues related to computers, safe computing practices, emerging technologies, and post-secondary opportunities in computer-related fields.",
     units: [
       { title: 'Programming Concepts and Skills', hours: 25 },
       { title: 'Software Development', hours: 25 },
@@ -758,9 +804,213 @@ export const courseDescriptions = [
       { title: 'Final Exam', hours: 2 }
     ],
     grade: 12,
-    type: 'University',
+    type: 'College',
     creditValue: 1.0,
     prerequisite: 'None',
     totalHours: 110
   },
+  {
+    courseCode: 'CHC2D',
+    title: 'Core French (FSF1D)',
+    x: 9.25,
+    y: 1.95,
+    connects: [],
+    in: { business: 'recommended' },
+    description:
+      "This course examines social, economic, and political developments in Canada since 1914 and their impact on individuals, groups, and communities, including First Nations, Métis, and Inuit peoples. Students will explore conflict and cooperation in Canadian society, Canada’s global role, and the influence of key individuals, organizations, and events on identity, citizenship, and heritage. They will also study political developments and policies affecting Indigenous communities and apply historical thinking and inquiry skills to investigate significant issues and events.",
+    units: [
+      { title: 'Canada, 1914-1929', hours: 27 },
+      { title: 'Canada, 1914-1945', hours: 27 },
+      { title: 'Canada, 1945-1982', hours: 27 },
+      { title: 'Canada, 1982 to the Present', hours: 27 },
+      { title: 'Independent Study Unit', hours: 8 },
+      { title: 'Final Exam', hours: 2 }
+    ],
+    grade: 12,
+    type: 'College',
+    creditValue: 1.0,
+    prerequisite: 'None',
+    totalHours: 110
+  },
+  {
+    courseCode: 'CHV2O',
+    title: 'Core French (FSF1D)',
+    x: 9.25,
+    y: 1.95,
+    connects: [],
+    in: { business: 'recommended' },
+    description:
+      "This course examines the rights and responsibilities of active citizenship in a democratic society. Students will explore civic issues, the role of social media, and political processes at local, national, and global levels. They will apply political thinking and inquiry to analyze key political topics, while building digital literacy and critical thinking skills. The course also covers government systems, Indigenous governance, the history of rights and freedoms in Canada, the impact of policies on people and the economy, and ways to contribute to communities.",
+    units: [
+      { title: 'Civic Awareness', hours: 23 },
+      { title: 'Civic Engagement, Service, and Action', hours: 23 },
+      { title: 'Independent Study Unit', hours: 7 },
+      { title: 'Final Exam', hours: 2 }
+    ],
+    grade: 12,
+    type: 'College',
+    creditValue: 1.0,
+    prerequisite: 'None',
+    totalHours: 110
+  },
+  {
+    courseCode: 'GLC2O',
+    title: 'Core French (FSF1D)',
+    x: 9.25,
+    y: 1.95,
+    connects: [],
+    in: { business: 'recommended' },
+    description:
+      "This course examines the rights and responsibilities of active citizenship in a democratic society. Students will explore civic issues, the impact of social media, and political processes locally, nationally, and globally. They will use political thinking and inquiry to analyze current issues, while developing digital literacy, critical thinking, and an understanding of government systems, including Indigenous governance. The course also explores the history of rights and freedoms in Canada, the effects of government policy, and ways to engage in community service.",
+    units: [
+      { title: 'Civic Awareness', hours: 23 },
+      { title: 'Civic Engagement, Service, and Action', hours: 23 },
+      { title: 'Independent Study Unit', hours: 7 },
+      { title: 'Final Exam', hours: 2 }
+    ],
+    grade: 12,
+    type: 'College',
+    creditValue: 1.0,
+    prerequisite: 'None',
+    totalHours: 110
+  },
+  {
+    courseCode: 'LKBBD',
+    title: 'Core French (FSF1D)',
+    x: 9.25,
+    y: 1.95,
+    connects: [],
+    in: { business: 'recommended' },
+    description:
+      "This course introduces students to listening, speaking, reading, and writing in Simplified Chinese. Students will communicate in structured activities on familiar topics and read and write simple texts. They will also learn about diverse Chinese-speaking communities and develop skills for lifelong language learning.",
+    units: [
+      { title: 'Listening', hours: 27 },
+      { title: 'Speaking', hours: 27 },
+      { title: 'Reading', hours: 27 },
+      { title: 'Writing', hours: 27 },
+      { title: 'Independent Study Unit', hours: 8 },
+      { title: 'Final Exam', hours: 2 }
+    ],
+    grade: 12,
+    type: 'College',
+    creditValue: 1.0,
+    prerequisite: 'None',
+    totalHours: 110
+  },
+  {
+    courseCode: 'LKBCU',
+    title: 'Core French (FSF1D)',
+    x: 9.25,
+    y: 1.95,
+    connects: [],
+    in: { business: 'recommended' },
+    description:
+      "This course helps students strengthen their listening, speaking, reading, and writing skills in Simplified Chinese. They will engage in more spontaneous conversations on academic and personal topics and develop creative and critical thinking through various texts. Students will deepen their understanding of Chinese-speaking communities, explore contexts where the language is used, and build lifelong language learning skills.",
+    units: [
+      { title: 'Listening', hours: 27 },
+      { title: 'Speaking', hours: 27 },
+      { title: 'Reading', hours: 27 },
+      { title: 'Writing', hours: 27 },
+      { title: 'Independent Study Unit', hours: 8 },
+      { title: 'Final Exam', hours: 2 }
+    ],
+    grade: 12,
+    type: 'College',
+    creditValue: 1.0,
+    prerequisite: 'None',
+    totalHours: 110
+  },
+  {
+    courseCode: 'LKBDU',
+    title: 'Core French (FSF1D)',
+    x: 9.25,
+    y: 1.95,
+    connects: [],
+    in: { business: 'recommended' },
+    description:
+      "This course provides extended opportunities for students to communicate and interact in the language of study in a variety of social and academic contexts. Students will refine and enhance their listening, speaking, reading, and writing skills, as well as their creative and critical thinking skills, as they explore and respond to a variety of oral and written texts, including complex authentic and adapted texts.",
+    units: [
+      { title: 'Listening', hours: 27 },
+      { title: 'Speaking', hours: 27 },
+      { title: 'Reading', hours: 27 },
+      { title: 'Writing', hours: 27 },
+      { title: 'Independent Study Unit', hours: 8 },
+      { title: 'Final Exam', hours: 2 }
+    ],
+    grade: 12,
+    type: 'College',
+    creditValue: 1.0,
+    prerequisite: 'None',
+    totalHours: 110
+  },
+  {
+    courseCode: 'IDC3O',
+    title: 'Core French (FSF1D)',
+    x: 9.25,
+    y: 1.95,
+    connects: [],
+    in: { business: 'recommended' },
+    description:
+      "This course helps students integrate knowledge and skills from multiple subjects to solve problems, make decisions, and present findings beyond a single discipline. Through individual and group research, students will explore connections among subjects, develop information literacy, and consider diverse perspectives on contemporary issues. They will also examine their learning styles, connect inquiries to real-life situations, and explore emerging career opportunities.",
+    units: [
+      { title: 'Theory and Foundation', hours: 24 },
+      { title: 'Process and Methods of Research', hours: 16 },
+      { title: 'Implementation, Evaluation, Impacts, and Consequences', hours: 48 },
+      { title: 'Independent Study Unit', hours: 20 },
+      { title: 'Final Exam', hours: 2 }
+    ],
+    grade: 12,
+    type: 'College',
+    creditValue: 1.0,
+    prerequisite: 'None',
+    totalHours: 110
+  },
+  {
+    courseCode: 'IDC4O',
+    title: 'Core French (FSF1D)',
+    x: 9.25,
+    y: 1.95,
+    connects: [],
+    in: { business: 'recommended' },
+    description:
+      "This course focuses on developing practical skills and knowledge to solve problems, make decisions, and present findings across multiple disciplines. Through inquiry into real-life issues and careers, students will apply concepts from various subjects, evaluate information sources, and explore safe and effective use of technology. They will also learn to define problems, explore solutions, reflect on their thinking, and adapt to new knowledge and change.",
+    units: [
+      { title: 'Theory and Foundation', hours: 24 },
+      { title: 'Process and Methods of Research', hours: 16 },
+      { title: 'Implementation, Evaluation, Impacts, and Consequences', hours: 48 },
+      { title: 'Independent Study Unit', hours: 20 },
+      { title: 'Final Exam', hours: 2 }
+    ],
+    grade: 12,
+    type: 'College',
+    creditValue: 1.0,
+    prerequisite: 'None',
+    totalHours: 110
+  },
+  {
+    courseCode: 'IDC4U',
+    title: 'Core French (FSF1D)',
+    x: 9.25,
+    y: 1.95,
+    connects: [],
+    in: { business: 'recommended' },
+    description:
+      "This course helps students strengthen skills and knowledge across multiple disciplines to solve problems, make decisions, and present findings beyond a single subject area. Students will use inquiry and research to work with various media, analyze historical innovations, and explore real-life situations and interdisciplinary careers. They will assess their learning strategies, apply skills in new contexts, create innovative products, and communicate new knowledge.",
+    units: [
+      { title: 'Theory and Foundation', hours: 24 },
+      { title: 'Process and Methods of Research', hours: 16 },
+      { title: 'Implementation, Evaluation, Impacts, and Consequences', hours: 48 },
+      { title: 'Independent Study Unit', hours: 20 },
+      { title: 'Final Exam', hours: 2 }
+    ],
+    grade: 12,
+    type: 'College',
+    creditValue: 1.0,
+    prerequisite: 'None',
+    totalHours: 110
+  },
+  
+  
+  
+
 ]

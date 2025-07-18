@@ -1,10 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-
+import { Button, IconButton } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { TextField } from '@mui/material';
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 export default function AssignmentsTab({ user }) {
-
-   const formRef = useRef(null);
+  const formRef = useRef(null);
   const { courseId } = useParams(); // e.g. "ENG1D"
   const [assignments, setAssignments] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -18,6 +22,17 @@ export default function AssignmentsTab({ user }) {
   const [assignmentFiles, setAssignmentFiles] = useState({});
   const [editingFiles, setEditingFiles] = useState([]);
   const [filesToDelete, setFilesToDelete] = useState([]);
+
+
+  function formatDateForInput(datetime) {
+  const date = new Date(datetime);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
 
   useEffect(() => {
     if (!courseId) return;
@@ -60,22 +75,20 @@ export default function AssignmentsTab({ user }) {
   }, [assignments]);
 
   useEffect(() => {
-  if (showForm && formRef.current) {
-    const yOffset = -250; 
-    const y = formRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
-    window.scrollTo({ top: y, behavior: "smooth" });
-  }
-}, [showForm]);
-
+    if (showForm && formRef.current) {
+      const yOffset = -250;
+      const y = formRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+  }, [showForm]);
 
   const handleEditAssignment = (assignment) => {
     setTitle(assignment.title);
     setDescription(assignment.description);
-    setDeadline(assignment.due_date);
+    setDeadline(formatDateForInput(assignment.due_date));
     setEditAssignmentId(assignment.id);
     setEditingFiles(assignmentFiles[assignment.id] || []);
     setShowForm(true);
-
   };
 
   const handleDeleteAssignment = async (id) => {
@@ -193,7 +206,9 @@ export default function AssignmentsTab({ user }) {
     <div style={{ padding: "2rem" }}>
       <h1>Assignments for Course</h1>
 
-      <button
+      <Button
+        variant={showForm ? "outlined" : "contained"}
+        color="primary"
         onClick={() => {
           if (showForm) {
             setShowForm(false);
@@ -201,13 +216,19 @@ export default function AssignmentsTab({ user }) {
             setDescription("");
             setDeadline("");
             setEditAssignmentId(null);
+            setEditingFiles([]);
+             setSelectedFiles([]);
+            setFilesToDelete([]);
           } else {
             setShowForm(true);
+            setEditingFiles([]);  
+            setSelectedFiles([]);
+            setFilesToDelete([]);
           }
         }}
       >
         {showForm ? "Cancel" : "+ New Assignment"}
-      </button>
+      </Button>
 
       {showForm && (
         <form
@@ -215,33 +236,36 @@ export default function AssignmentsTab({ user }) {
           onSubmit={editAssignmentId ? handleEditSubmit : handleSubmit}
           style={{ marginTop: "1rem", marginBottom: "2rem" }}
         >
-          <input
-            type="text"
-            placeholder="Assignment title"
+         <TextField
+            label="Assignment Title"
+            variant="outlined"
+            fullWidth
+            required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            required
-            style={{ width: "100%", marginBottom: "0.5rem" }}
+            sx={{ mb: 2 }}
           />
-          <textarea
-           value={description}
-          onChange={(e) => {
-            setDescription(e.target.value);
-            e.target.style.height = "auto"; 
-            e.target.style.height = `${e.target.scrollHeight}px`; 
-          }}
-          style={{
-            width: "100%",
-            resize: "none",       
-            overflow: "hidden",  
-            minHeight: "3rem",   
-          }}
+        <div style={{ marginBottom: 16 }}>
+          <ReactQuill
+            label="Description"
+            variant="outlined"
+            fullWidth
+            multiline
+            minRows={3}
+            value={description}
+            onChange={(content) => setDescription(content)}
+            sx={{ mb: 2 }}
           />
-          <input
+          </div>
+          <TextField
+            label="Deadline"
             type="datetime-local"
+            variant="outlined"
+            fullWidth
+            InputLabelProps={{ shrink: true }}
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
-            style={{ width: "100%", marginBottom: "0.5rem" }}
+            sx={{ mb: 2 }}
           />
 
           {editAssignmentId && editingFiles.length > 0 && (
@@ -249,8 +273,8 @@ export default function AssignmentsTab({ user }) {
               {editingFiles.map((file, index) => (
                 <li key={file.id}>
                   {file.file_name}
-                  <button
-                    type="button"
+                  <IconButton
+                    aria-label="delete"
                     style={{ marginLeft: "10px" }}
                     onClick={() => {
                       const fileToDelete = editingFiles[index];
@@ -258,22 +282,58 @@ export default function AssignmentsTab({ user }) {
                       setEditingFiles((prev) => prev.filter((_, i) => i !== index));
                     }}
                   >
-                    x Remove
-                  </button>
+                    <DeleteIcon />
+                  </IconButton>
+                </li>
+              ))}
+            </ul>
+          )}
+      <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginBottom: '1rem' }}>
+          <Button
+            component="label"
+            size="small"
+            variant="contained"
+            startIcon={<CloudUploadIcon />}
+            
+          >
+            Upload
+            <input
+              type="file"
+              hidden
+              onChange={(e) => setSelectedFiles([...e.target.files])}
+              multiple
+            />
+          </Button>
+
+          {selectedFiles.length > 0 && (
+            <ul style={{ marginTop: "0.5rem", marginBottom: "1rem" }}>
+              {selectedFiles.map((file, i) => (
+                <li key={i} style={{ display: "flex", alignItems: "center" }}>
+                  {file.name}
+                  <IconButton
+                    aria-label="delete"
+                    onClick={() => {
+                      setSelectedFiles((prev) => prev.filter((_, idx) => idx !== i));
+                    }}
+                    style={{ marginLeft: "10px" }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
                 </li>
               ))}
             </ul>
           )}
 
-          <input
-            type="file"
-            multiple
-            onChange={(e) => setSelectedFiles([...e.target.files])}
-            style={{ marginBottom: "0.5rem" }}
-          />
-
-          <button type="submit">Save Assignment</button>
-        </form>
+          <Button
+            type="submit"
+            variant="contained"
+            size="small"
+            
+          >
+            Save 
+          </Button>
+        </div>
+      </form>
       )}
 
       <div style={{ marginTop: "20px" }}>
@@ -283,11 +343,24 @@ export default function AssignmentsTab({ user }) {
           [...assignments]
             .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
             .map((a) => (
-              <div key={a.id} style={{ border: "1px solid #ddd", padding: "1rem", marginBottom: "1rem" }}>
+              <div
+                key={a.id}
+                style={{ border: "1px solid #ddd", padding: "1rem", marginBottom: "1rem" ,  position: 'relative' }}
+              >
                 <h3>{a.title}</h3>
-                <p style={{ whiteSpace: "pre-wrap" }}>{a.description}</p>
+                <div
+              // style={{ whiteSpace: "normal" }}
+               dangerouslySetInnerHTML={{ __html: a.description }}
+                />
                 {a.due_date && (
-                  <p>
+                  <p 
+                  style={{
+                  position: 'absolute', 
+                  top: '10px', 
+                  right: '40px', 
+                  fontWeight: 'bold', 
+               
+                }}>
                     Due:{" "}
                     {new Date(a.due_date).toLocaleString(undefined, {
                       year: "numeric",
@@ -314,8 +387,8 @@ export default function AssignmentsTab({ user }) {
                             fontSize: "1rem",
                           }}
                           onClick={async () => {
-                          const url = new URL(file.file_url);
-                          const blobName = decodeURIComponent(url.pathname.split("/").pop());
+                            const url = new URL(file.file_url);
+                            const blobName = decodeURIComponent(url.pathname.split("/").pop());
                             try {
                               const res = await fetch(
                                 `http://localhost:4000/api/assignments/download-url?blobName=${blobName}`
@@ -337,10 +410,23 @@ export default function AssignmentsTab({ user }) {
                 )}
 
                 <div style={{ marginTop: "10px" }}>
-                  <button style={{ marginRight: "10px" }} onClick={() => handleEditAssignment(a)}>
+                  <Button
+                    style={{ marginRight: "10px" }}
+                    onClick={() => handleEditAssignment(a)}
+                    variant="text"
+                    size="small"
+                  >
                     Edit
-                  </button>
-                  <button onClick={() => handleDeleteAssignment(a.id)}>Delete</button>
+                  </Button>
+
+                  <Button
+                    onClick={() => handleDeleteAssignment(a.id)}
+                    variant="text"
+                    size="small"
+                    startIcon={<DeleteIcon />}
+                  >
+                    Delete
+                  </Button>
                 </div>
               </div>
             ))
