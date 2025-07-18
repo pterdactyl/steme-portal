@@ -27,8 +27,8 @@ export default function StudentAssignmentDetail() {
     async function fetchData() {
       try {
         const [assignmentRes, filesRes] = await Promise.all([
-          axios.get(`/api/assignments/${assignmentId}`),
-          axios.get(`/api/assignment-files?assignment_id=${assignmentId}`)
+          axios.get(`http://localhost:4000/api/assignments/${assignmentId}`),
+          axios.get(`http://localhost:4000/api/assignment-files?assignment_id=${assignmentId}`)
         ]);
         setAssignment(assignmentRes.data);
         setFiles(filesRes.data);

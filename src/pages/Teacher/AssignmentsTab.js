@@ -1,5 +1,6 @@
+import { useEventCallback } from "@mui/material";
 import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -33,6 +34,7 @@ export default function AssignmentsTab({ user }) {
     const minutes = String(date.getMinutes()).padStart(2, '0');
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!courseId) return;
@@ -356,6 +358,7 @@ export default function AssignmentsTab({ user }) {
                   transition: "box-shadow 0.3s ease, background-color 0.3s ease",
                   cursor: "pointer",
                 }}
+                onClick={() => navigate(`/dashboard/course/${courseId}/assignment/${a.id}/students`)}
               >
                 <h3>{a.title}</h3>
                 <div

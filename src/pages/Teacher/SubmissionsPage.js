@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   Box, Typography, IconButton, Button, TextField, Stack,
   CircularProgress, Select, MenuItem, FormControl, InputLabel
 } from "@mui/material";
 import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 import { useParams, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../Auth/AuthContext";
 
 export default function StudentSubmissionPage() {
-  const { assignmentId, studentId } = useParams();
+  const { courseId, assignmentId } = useParams();
+  const { userId } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [students, setStudents] = useState([]);
@@ -23,18 +25,20 @@ export default function StudentSubmissionPage() {
     const fetchData = async () => {
       try {
         // Fetch students and their submissions for the assignment
-        const studentRes = await fetch(`/api/assignments/${assignmentId}/students`);
+        const studentRes = await fetch(`http://localhost:4000/api/courses/${courseId}`); 
         const studentData = await studentRes.json();
-        setStudents(studentData.students);
-
-        const selectedId = studentId || studentData.students[0]?.id;
+        setStudents(studentData);
+        console.log(studentData);
+        const selectedId = studentData.students[0]?.id;
         const currentStudent = studentData.students.find(s => s.id === selectedId);
         setStudent(currentStudent);
+        console.log(selectedId);
 
         // Fetch the submission of the selected student for the given assignment
-        const submissionRes = await fetch(`/api/submissions/${assignmentId}/${selectedId}`);
+        const submissionRes = await fetch(`http://localhost:4000/api/submissions/${assignmentId}/${selectedId}`);
         const submissionData = await submissionRes.json();
         setSubmission(submissionData);
+        console.log(submissionData);
 
         // Set the comment and grade for the submission
         setComment(submissionData.teacher_comment || "");
@@ -54,7 +58,7 @@ export default function StudentSubmissionPage() {
     };
 
     fetchData();
-  }, [assignmentId, studentId]);
+  }, [assignmentId]);
 
   const save = async () => {
     try {
@@ -62,7 +66,7 @@ export default function StudentSubmissionPage() {
         teacher_comment: comment,
         grade: grade === "" ? null : Number(grade),
       };
-      await fetch(`/api/submissions/${assignmentId}/${student.id}`, {
+      await fetch(`http://localhost:4000/api/submissions/teacher/${assignmentId}/${student.id}/${userId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -95,7 +99,7 @@ export default function StudentSubmissionPage() {
             label="Student"
             onChange={(e) => go(e.target.value)}
           >
-            {students.map((s) => (
+            {students.students.map((s) => (
               <MenuItem key={s.id} value={s.id}>
                 {s.name}
               </MenuItem>

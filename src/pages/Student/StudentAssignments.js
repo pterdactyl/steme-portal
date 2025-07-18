@@ -24,7 +24,7 @@ export default function StudentAssignments({ courseId }) {
   useEffect(() => {
     async function fetchAssignments() {
       try {
-        const res = await axios.get(`/api/assignments?course_id=${courseId}`);
+        const res = await axios.get(`http://localhost:4000/api/assignments?course_id=${courseId}`);
         setAssignments(res.data);
       } catch (err) {
         console.error("Failed to fetch assignments", err);
@@ -33,7 +33,7 @@ export default function StudentAssignments({ courseId }) {
 
     async function fetchSubmissions() {
       try {
-        const res = await axios.get(`/api/submissions/student/${userId}`);
+        const res = await axios.get(`http://localhost:4000/api/submissions/student/${userId}`);
         // Map assignment_id => submitted_at
         const map = {};
         res.data.forEach((sub) => {
@@ -57,7 +57,7 @@ export default function StudentAssignments({ courseId }) {
     setLoadingFiles((prev) => ({ ...prev, [assignmentId]: true }));
     try {
       const res = await axios.get(
-        `/api/assignment-files?assignment_id=${assignmentId}`
+        `http://localhost:4000/api/assignment-files?assignment_id=${assignmentId}`
       );
       setFilesByAssignment((prev) => ({
         ...prev,

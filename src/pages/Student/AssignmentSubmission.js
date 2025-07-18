@@ -13,7 +13,7 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
 
       try {
         const res = await fetch(
-          `/api/submissions/submitted-status?course_id=${courseId}&assignment_id=${assignmentId}&user_id=${userId}`
+          `http://localhost:4000/api/submissions/submitted-status?course_id=${courseId}&assignment_id=${assignmentId}&user_id=${userId}`
         );
         const data = await res.json();
         setSubmitted(data.submitted);
@@ -55,7 +55,7 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
       formData.append("assignment_id", assignmentId.toString());
       formData.append("user_id", userId.toString());
 
-      const response = await fetch("/api/submissions/upload", {
+      const response = await fetch("http://localhost:4000/api/submissions/upload", {
         method: "POST",
         body: formData,
       });
