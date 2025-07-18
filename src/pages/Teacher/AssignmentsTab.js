@@ -22,17 +22,17 @@ export default function AssignmentsTab({ user }) {
   const [assignmentFiles, setAssignmentFiles] = useState({});
   const [editingFiles, setEditingFiles] = useState([]);
   const [filesToDelete, setFilesToDelete] = useState([]);
-
+  const [hoveredId, setHoveredId] = useState(null);
 
   function formatDateForInput(datetime) {
-  const date = new Date(datetime);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
-}
+    const date = new Date(datetime);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
 
   useEffect(() => {
     if (!courseId) return;
@@ -217,11 +217,11 @@ export default function AssignmentsTab({ user }) {
             setDeadline("");
             setEditAssignmentId(null);
             setEditingFiles([]);
-             setSelectedFiles([]);
+            setSelectedFiles([]);
             setFilesToDelete([]);
           } else {
             setShowForm(true);
-            setEditingFiles([]);  
+            setEditingFiles([]);
             setSelectedFiles([]);
             setFilesToDelete([]);
           }
@@ -236,7 +236,7 @@ export default function AssignmentsTab({ user }) {
           onSubmit={editAssignmentId ? handleEditSubmit : handleSubmit}
           style={{ marginTop: "1rem", marginBottom: "2rem" }}
         >
-         <TextField
+          <TextField
             label="Assignment Title"
             variant="outlined"
             fullWidth
@@ -245,17 +245,17 @@ export default function AssignmentsTab({ user }) {
             onChange={(e) => setTitle(e.target.value)}
             sx={{ mb: 2 }}
           />
-        <div style={{ marginBottom: 16 }}>
-          <ReactQuill
-            label="Description"
-            variant="outlined"
-            fullWidth
-            multiline
-            minRows={3}
-            value={description}
-            onChange={(content) => setDescription(content)}
-            sx={{ mb: 2 }}
-          />
+          <div style={{ marginBottom: 16 }}>
+            <ReactQuill
+              label="Description"
+              variant="outlined"
+              fullWidth
+              multiline
+              minRows={3}
+              value={description}
+              onChange={(content) => setDescription(content)}
+              sx={{ mb: 2 }}
+            />
           </div>
           <TextField
             label="Deadline"
@@ -288,52 +288,50 @@ export default function AssignmentsTab({ user }) {
               ))}
             </ul>
           )}
-      <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginBottom: '1rem' }}>
-          <Button
-            component="label"
-            size="small"
-            variant="contained"
-            startIcon={<CloudUploadIcon />}
-            
-          >
-            Upload
-            <input
-              type="file"
-              hidden
-              onChange={(e) => setSelectedFiles([...e.target.files])}
-              multiple
-            />
-          </Button>
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginBottom: '1rem' }}>
+            <Button
+              component="label"
+              size="small"
+              variant="contained"
+              startIcon={<CloudUploadIcon />}
+            >
+              Upload
+              <input
+                type="file"
+                hidden
+                onChange={(e) => setSelectedFiles([...e.target.files])}
+                multiple
+              />
+            </Button>
 
-          {selectedFiles.length > 0 && (
-            <ul style={{ marginTop: "0.5rem", marginBottom: "1rem" }}>
-              {selectedFiles.map((file, i) => (
-                <li key={i} style={{ display: "flex", alignItems: "center" }}>
-                  {file.name}
-                  <IconButton
-                    aria-label="delete"
-                    onClick={() => {
-                      setSelectedFiles((prev) => prev.filter((_, idx) => idx !== i));
-                    }}
-                    style={{ marginLeft: "10px" }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </li>
-              ))}
-            </ul>
-          )}
+            {selectedFiles.length > 0 && (
+              <ul style={{ marginTop: "0.5rem", marginBottom: "1rem" }}>
+                {selectedFiles.map((file, i) => (
+                  <li key={i} style={{ display: "flex", alignItems: "center" }}>
+                    {file.name}
+                    <IconButton
+                      aria-label="delete"
+                      onClick={() => {
+                        setSelectedFiles((prev) => prev.filter((_, idx) => idx !== i));
+                      }}
+                      style={{ marginLeft: "10px" }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </li>
+                ))}
+              </ul>
+            )}
 
-          <Button
-            type="submit"
-            variant="contained"
-            size="small"
-            
-          >
-            Save 
-          </Button>
-        </div>
-      </form>
+            <Button
+              type="submit"
+              variant="contained"
+              size="small"
+            >
+              Save
+            </Button>
+          </div>
+        </form>
       )}
 
       <div style={{ marginTop: "20px" }}>
@@ -345,22 +343,33 @@ export default function AssignmentsTab({ user }) {
             .map((a) => (
               <div
                 key={a.id}
-                style={{ border: "1px solid #ddd", padding: "1rem", marginBottom: "1rem" ,  position: 'relative' }}
+                onMouseEnter={() => setHoveredId(a.id)}
+                onMouseLeave={() => setHoveredId(null)}
+                style={{
+                  border: "1px solid #ddd",
+                  padding: "1rem",
+                  borderRadius: "5px",
+                  marginBottom: "1rem",
+                  position: "relative",
+                  boxShadow: hoveredId === a.id ? "0 4px 8px rgba(0,0,0,0.2)" : "none",
+                  backgroundColor: hoveredId === a.id ? "#f9f9f9" : "white",
+                  transition: "box-shadow 0.3s ease, background-color 0.3s ease",
+                  cursor: "pointer",
+                }}
               >
                 <h3>{a.title}</h3>
                 <div
-              // style={{ whiteSpace: "normal" }}
-               dangerouslySetInnerHTML={{ __html: a.description }}
+                  dangerouslySetInnerHTML={{ __html: a.description }}
                 />
                 {a.due_date && (
-                  <p 
-                  style={{
-                  position: 'absolute', 
-                  top: '10px', 
-                  right: '40px', 
-                  fontWeight: 'bold', 
-               
-                }}>
+                  <p
+                    style={{
+                      position: 'absolute',
+                      top: '10px',
+                      right: '40px',
+                      fontWeight: 'bold',
+                    }}
+                  >
                     Due:{" "}
                     {new Date(a.due_date).toLocaleString(undefined, {
                       year: "numeric",

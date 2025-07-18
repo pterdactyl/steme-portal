@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AuthContext } from "../../Auth/AuthContext";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import { Avatar } from "@mui/material";
 import {
   Typography,
   TextField,
@@ -58,7 +61,7 @@ export default function AnnouncementsTab() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: newAnnouncement,
-          author: user?.fullName || "Teacher",
+          author: user?.name || "Teacher",
         }),
       });
 
@@ -136,13 +139,10 @@ export default function AnnouncementsTab() {
             Post a New Announcement
           </Typography>
           <Stack spacing={2}>
-            <TextField
-              fullWidth
-              multiline
-              rows={3}
+           <ReactQuill
               placeholder="Write your announcement..."
               value={newAnnouncement}
-              onChange={(e) => setNewAnnouncement(e.target.value)}
+              onChange={(content) => setNewAnnouncement(content)} 
             />
             <Button
               variant="contained"
@@ -169,24 +169,41 @@ export default function AnnouncementsTab() {
       ) : (
         <Stack spacing={2}>
           {announcements.map((a) => (
-            <Paper key={a.announcement_id} sx={{ p: 2 }}>
+            <Paper
+                key={a.announcement_id}
+                sx={{
+                  p: 2,
+                  borderRadius: "20px",
+                  transition: "box-shadow 0.3s ease, background-color 0.3s ease",
+                  "&:hover": {
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                    backgroundColor: "#f9f9f9",
+                  },
+                }}
+              >
               <Box display="flex" justifyContent="space-between" alignItems="center">
-                <Typography variant="subtitle2" color="text.secondary">
-                  {a.author} • {new Date(a.created_at).toLocaleString()}
-                </Typography>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Avatar sx={{ width: 28, height: 28, bgcolor: "primary.main", fontSize: 14 }}>
+                    {a.author ? a.author.charAt(0).toUpperCase() : "U"}
+                  </Avatar>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    {a.author} • {new Date(a.created_at).toLocaleString()}
+                  </Typography>
+                </Box>
+
                 {isTeacher && (
-  <Stack direction="row" spacing={1}>
-    {editingId === a.announcement_id ? (
-      <>
-        <IconButton onClick={() => saveEditing(a.announcement_id)}>
-          <Save />
-        </IconButton>
-        <IconButton onClick={cancelEditing}>
-          <Cancel />
-        </IconButton>
-      </>
-    ) : (
-      <>
+            <Stack direction="row" spacing={1}>
+             {editingId === a.announcement_id ? (
+              <>
+                <IconButton onClick={() => saveEditing(a.announcement_id)}>
+                  <Save />
+                </IconButton>
+                <IconButton onClick={cancelEditing}>
+                  <Cancel />
+                </IconButton>
+              </>
+            ) : (
+        <>
         <IconButton onClick={() => startEditing(a.announcement_id, a.message)}>
           <Edit />
         </IconButton>
@@ -201,15 +218,12 @@ export default function AnnouncementsTab() {
               </Box>
 
               {editingId === a.announcement_id ? (
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={3}
+                <ReactQuill
                   value={editingMessage}
-                  onChange={(e) => setEditingMessage(e.target.value)}
+                  onChange={(content) => setEditingMessage(content)} 
                 />
               ) : (
-                <Typography>{a.message}</Typography>
+                <div dangerouslySetInnerHTML={{ __html: a.message }} />
               )}
             </Paper>
           ))}
