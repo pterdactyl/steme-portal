@@ -34,9 +34,30 @@ export default function Login() {
       alignItems="center"
       justifyContent="center"
       px={2}
-      sx={{
-        backgroundColor: "#dbeafe", // Soft solid blue background
-      }}
+      
+       sx={{
+      position: "relative",
+      backgroundImage: 'url("/image.jpg")',
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+  
+
+      "&::before": {
+      content: '""',
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      backgroundColor: "rgba(0, 0, 0, 0.62)", // dark overlay
+      zIndex: 0,
+    },
+    "& > *": {
+      position: "relative",
+      zIndex: 1,
+    },
+  }}
     >
       <Paper
         elevation={3}
@@ -50,15 +71,16 @@ export default function Login() {
         }}
       >
         <Stack spacing={4} alignItems="center">
-          <Typography
-            variant="h4"
-            fontWeight="bold"
-            align="center"
-            color="primary"
-            sx={{ fontFamily: "Segoe UI, sans-serif" }}
-          >
-            STEME Portal Login
-          </Typography>
+         <Box
+            component="img"
+            src="/steme.png"
+            alt="STEME Portal Logo"
+            sx={{
+              width: 200, 
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
 
           {error && (
             <Alert severity="error" sx={{ width: "100%" }}>
@@ -77,9 +99,9 @@ export default function Login() {
               fontSize: "1rem",
               paddingY: 1.5,
               borderRadius: 2,
-              backgroundColor: "#3b82f6",
+              backgroundColor: "#149c4cff",
               "&:hover": {
-                backgroundColor: "#2563eb",
+                backgroundColor: "#22b55f8f",
               },
             }}
           >
