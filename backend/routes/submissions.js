@@ -9,6 +9,7 @@ import {
   BlobSASPermissions,
   generateBlobSASQueryParameters,
   StorageSharedKeyCredential,
+  SASProtocol,
 } from "@azure/storage-blob";
 
 dotenv.config();
@@ -24,6 +25,21 @@ const containerName = "submissions";
 const blobServiceClient = BlobServiceClient.fromConnectionString(
   AZURE_STORAGE_CONNECTION_STRING
 );
+
+function generateSasUrl(blobName) {
+  const expiresOn = new Date(Date.now() + 60 * 60 * 1000); // 1 hour expiry
+
+  const sasToken = generateBlobSASQueryParameters({
+    containerName,
+    blobName,
+    permissions: BlobSASPermissions.parse("r"), // read-only
+    expiresOn,
+    protocol: SASProtocol.Https
+  }, sharedKeyCredential).toString();
+
+  const blobClient = containerClient.getBlobClient(blobName);
+  return `${blobClient.url}?${sasToken}`;
+}
 const containerClient = blobServiceClient.getContainerClient(containerName);
 
 // Create container if it does not exist (private container, no public access)

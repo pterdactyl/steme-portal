@@ -41,12 +41,7 @@ export default function StudentAssignmentDetail() {
         setAssignment(assignmentRes.data);
         setFiles(filesRes.data);
 
-        if (userId) {
-          const submissionRes = await axios.get(
-            `http://localhost:4000/api/submissions/files?assignment_id=${assignmentId}&student_id=${userId}`
-          );
-          setSubmissionFiles(submissionRes.data);
-        }
+      
       } catch (err) {
         console.error("Error loading assignment detail:", err);
       } finally {
@@ -59,12 +54,10 @@ export default function StudentAssignmentDetail() {
 
   const refreshFiles = async () => {
     try {
-      const [filesRes, submissionRes] = await Promise.all([
+      const [filesRes] = await Promise.all([
         axios.get(`/api/assignment-files?assignment_id=${assignmentId}`),
-        axios.get(`/api/submissions/files?assignment_id=${assignmentId}&student_id=${userId}`),
       ]);
       setFiles(filesRes.data);
-      setSubmissionFiles(submissionRes.data);
     } catch (err) {
       console.error("Failed to refresh files:", err);
     }

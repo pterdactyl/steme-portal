@@ -193,7 +193,7 @@ if (!Array.isArray(filesToDelete)) {
 
 // GET secure SAS download URL for a file blob
 router.get("/download-url", async (req, res) => {
-  const { blobName } = req.query;
+  const { blobName, containerName } = req.query;
 
   if (!blobName) {
     return res.status(400).json({ error: "Missing blobName" });
@@ -202,9 +202,13 @@ router.get("/download-url", async (req, res) => {
   try {
     const expiresOn = new Date(Date.now() + 10 * 60 * 1000); // 10 min expiry
 
+    const container = containerName 
+      ? containerName
+      : 'assignment-files';
+
     const sasToken = generateBlobSASQueryParameters(
       {
-        containerName: containerClient.containerName,
+        containerName: container,
         blobName,
         permissions: BlobSASPermissions.parse("r"),
         expiresOn,
@@ -212,7 +216,8 @@ router.get("/download-url", async (req, res) => {
       sharedKeyCredential
     ).toString();
 
-    const sasUrl = `https://${accountName}.blob.core.windows.net/${containerClient.containerName}/${blobName}?${sasToken}`;
+    console.log(container);
+    const sasUrl = `https://${accountName}.blob.core.windows.net/${container}/${blobName}?${sasToken}`;
 
     res.json({ sasUrl });
   } catch (err) {

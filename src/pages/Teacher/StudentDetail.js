@@ -106,12 +106,13 @@ export default function StudentDetail() {
                         onClick={async () => {
                           try {
                             const url = new URL(assignment.fileUrl);
-                            const pathParts = url.pathname.split("/");
-                            const blobName = decodeURIComponent(pathParts.slice(2).join("/"));
-
+                            console.log("Extracted blobName:", assignment.blobName);
+                            
+                            const blobName = decodeURIComponent(url.pathname.split("/").pop());
+                            console.log(blobName);
                             const res = await fetch(
-                              `http://localhost:4000/api/assignments/download-url?blobName=${blobName}`
-                            );
+                              `http://localhost:4000/api/assignments/download-url?blobName=${blobName}&containerName=submissions`
+                            );  
                             if (!res.ok) throw new Error("Failed to get download URL");
                             const data = await res.json();
                             window.open(data.sasUrl, "_blank");

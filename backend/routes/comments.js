@@ -17,9 +17,10 @@ router.post("/", async (req, res) => {
       .input("assignment_id", sql.Int, assignment_id)
       .input("sender_id", sql.Int, sender_id)
       .input("message", sql.NVarChar, message)
+      .input("student_id", sql.Int, sender_id)
       .query(`
-        INSERT INTO AssignmentComments (assignment_id, sender_id, message)
-        VALUES (@assignment_id, @sender_id, @message)
+        INSERT INTO AssignmentComments (assignment_id, sender_id, message, student_id)
+        VALUES (@assignment_id, @sender_id, @message, @student_id)
       `);
 
     res.status(201).json({ message: "Comment added successfully" });

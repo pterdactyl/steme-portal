@@ -180,53 +180,6 @@ export default function StudentAssignments({ courseId }) {
                 >
                   {assignment.title}
                 </Typography>
-                <Box mt={1}>
-                  <div
-                    dangerouslySetInnerHTML={{ __html: assignment.description }}
-                  />
-                </Box>
-              </Box>
-
-              {/* Attached Files */}
-              <Box mt={2}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Files:
-                </Typography>
-                {loadingFiles[assignment.id] ? (
-                  <Typography fontSize="0.9rem">Loading files...</Typography>
-                ) : filesByAssignment[assignment.id]?.length > 0 ? (
-                  <Stack spacing={0.5}>
-                    {filesByAssignment[assignment.id].map((file) => (
-                      <Link
-                        key={file.id}
-                        component="button"
-                        underline="hover"
-                        sx={{ fontSize: "0.95rem", textAlign: "left", color: "primary.dark" }}
-                        onClick={async () => {
-                          const url = new URL(file.file_url);
-                          const blobName = decodeURIComponent(
-                            url.pathname.split("/").pop()
-                          );
-                          try {
-                            const res = await fetch(
-                              `http://localhost:4000/api/assignments/download-url?blobName=${blobName}`
-                            );
-                            if (!res.ok) throw new Error("Failed to get download URL");
-                            const data = await res.json();
-                            window.open(data.sasUrl, "_blank");
-                          } catch (err) {
-                            console.error("Error fetching secure download link:", err);
-                            alert("Could not get download link");
-                          }
-                        }}
-                      >
-                        {file.file_name}
-                      </Link>
-                    ))}
-                  </Stack>
-                ) : (
-                  <Typography fontSize="0.9rem">No files uploaded.</Typography>
-                )}
               </Box>
             </Paper>
           );

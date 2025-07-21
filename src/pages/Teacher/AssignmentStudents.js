@@ -157,7 +157,7 @@ export default function AssignmentStudents() {
                         console.log(f.file_url);
                         console.log(url);
                         const blobName = decodeURIComponent(url.pathname.split("/").pop());
-                        console.log(blobName);
+                        console.log("blob", blobName);
                         const res = await fetch(
                           `http://localhost:4000/api/submissions/download-url?blobName=${blobName}`
                         );

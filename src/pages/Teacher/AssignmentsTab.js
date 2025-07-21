@@ -401,6 +401,8 @@ export default function AssignmentsTab({ user }) {
                           onClick={async () => {
                             const url = new URL(file.file_url);
                             const blobName = decodeURIComponent(url.pathname.split("/").pop());
+                            console.log("url: ", url);
+                            console.log(blobName);
                             try {
                               const res = await fetch(
                                 `http://localhost:4000/api/assignments/download-url?blobName=${blobName}`
