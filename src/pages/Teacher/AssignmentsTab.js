@@ -361,9 +361,7 @@ export default function AssignmentsTab({ user }) {
                 onClick={() => navigate(`/dashboard/course/${courseId}/assignment/${a.id}/students`)}
               >
                 <h3>{a.title}</h3>
-                <div
-                  dangerouslySetInnerHTML={{ __html: a.description }}
-                />
+              
                 {a.due_date && (
                   <p
                     style={{
@@ -384,44 +382,7 @@ export default function AssignmentsTab({ user }) {
                   </p>
                 )}
 
-                {assignmentFiles[a.id] && assignmentFiles[a.id].length > 0 && (
-                  <div style={{ marginTop: "0.5rem" }}>
-                    {assignmentFiles[a.id].map((file) => (
-                      <div key={file.id} style={{ marginBottom: "0.25rem" }}>
-                        <button
-                          style={{
-                            background: "none",
-                            border: "none",
-                            color: "#007bff",
-                            textDecoration: "underline",
-                            cursor: "pointer",
-                            padding: 0,
-                            fontSize: "1rem",
-                          }}
-                          onClick={async () => {
-                            const url = new URL(file.file_url);
-                            const blobName = decodeURIComponent(url.pathname.split("/").pop());
-                            console.log("url: ", url);
-                            console.log(blobName);
-                            try {
-                              const res = await fetch(
-                                `http://localhost:4000/api/assignments/download-url?blobName=${blobName}`
-                              );
-                              if (!res.ok) throw new Error("Failed to get download URL");
-                              const data = await res.json();
-                              window.open(data.sasUrl, "_blank");
-                            } catch (err) {
-                              console.error("Error fetching secure download link:", err);
-                              alert("Could not get download link");
-                            }
-                          }}
-                        >
-                          {file.file_name}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+              
 
                 <div style={{ marginTop: "10px" }}>
                 <Button
