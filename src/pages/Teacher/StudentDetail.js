@@ -12,9 +12,8 @@ import {
   FormControl,
   InputLabel,
   Button,
-  Chip,
 } from "@mui/material";
-import { Assignment, CloudDownload } from "@mui/icons-material";
+import { Assignment } from "@mui/icons-material";
 
 export default function StudentDetail() {
   const { studentId } = useParams();
@@ -89,53 +88,39 @@ export default function StudentDetail() {
                     "&:hover": { boxShadow: 6 },
                   }}
                 >
-                  <Stack spacing={1}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <Assignment fontSize="small" color="primary" />
-                      <Typography variant="h6" fontWeight="bold">
-                        {assignment.title}
-                      </Typography>
-                    </Stack>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Assignment fontSize="small" color="primary" />
+                    <Typography variant="h6" fontWeight="bold">
+                      {assignment.title}
+                    </Typography>
 
-                    <Typography variant="body2">
-  Due: {new Date(assignment.dueDate).toLocaleDateString()}
-</Typography>
-<Typography variant="body2">
-  Status: {assignment.status}
-</Typography>
-{assignment.submittedAt && (
-  <Typography variant="body2">
-    Submitted: {new Date(assignment.submittedAt).toLocaleString()}
-  </Typography>
-)}
-{assignment.fileUrl && (
-  <Box mt={2}>
-    <Button
-      variant="outlined"
-      size="small"
-      sx={{ alignSelf: "start" }}
-      onClick={async () => {
-        try {
-          const url = new URL(assignment.fileUrl);
-          const pathParts = url.pathname.split("/");
-          const blobName = decodeURIComponent(pathParts.slice(2).join("/"));
-          const res = await fetch(
-            `http://localhost:4000/api/assignments/download-url?blobName=${blobName}`
-          );
-          if (!res.ok) throw new Error("Failed to get download URL");
-          const data = await res.json();
-          window.open(data.sasUrl, "_blank");
-        } catch (err) {
-          console.error("Error fetching secure download link:", err);
-          alert("Could not get download link");
-        }
-      }}
-    >
-      View Submission
-    </Button>
-  </Box>
-)}
-
+                    {assignment.fileUrl && (
+                      <Button
+                        variant="text"
+                        size="small"
+                        sx={{ alignSelf: "start", mt: 1 }}
+                        onClick={async () => {
+                          try {
+                            const url = new URL(assignment.fileUrl);
+                            console.log("Extracted blobName:", assignment.blobName);
+                            
+                            const blobName = decodeURIComponent(url.pathname.split("/").pop());
+                            console.log(blobName);
+                            const res = await fetch(
+                              `http://localhost:4000/api/assignments/download-url?blobName=${blobName}&containerName=submissions`
+                            );  
+                            if (!res.ok) throw new Error("Failed to get download URL");
+                            const data = await res.json();
+                            window.open(data.sasUrl, "_blank");
+                          } catch (err) {
+                            console.error("Error fetching secure download link:", err);
+                            alert("Could not get download link");
+                          }
+                        }}
+                      >
+                        View Submission
+                      </Button>
+                    )}
                   </Stack>
                 </Paper>
               ))}

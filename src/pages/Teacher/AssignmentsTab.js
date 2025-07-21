@@ -7,6 +7,8 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { TextField } from '@mui/material';
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 export default function AssignmentsTab({ user }) {
   const formRef = useRef(null);
@@ -24,6 +26,10 @@ export default function AssignmentsTab({ user }) {
   const [editingFiles, setEditingFiles] = useState([]);
   const [filesToDelete, setFilesToDelete] = useState([]);
   const [hoveredId, setHoveredId] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
 
   function formatDateForInput(datetime) {
     const date = new Date(datetime);
@@ -112,6 +118,9 @@ export default function AssignmentsTab({ user }) {
       setError("Error deleting assignment");
     }
   };
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -178,7 +187,8 @@ export default function AssignmentsTab({ user }) {
 
       if (!res.ok) throw new Error(await res.text() || "Failed to update assignment");
       const result = await res.json();
-      alert(result.message);
+      setSnackbarMessage(result.message);
+      setSnackbarOpen(true);
 
       setAssignments((prev) =>
         prev.map((assignment) =>
@@ -361,9 +371,7 @@ export default function AssignmentsTab({ user }) {
                 onClick={() => navigate(`/dashboard/course/${courseId}/assignment/${a.id}/students`)}
               >
                 <h3>{a.title}</h3>
-                <div
-                  dangerouslySetInnerHTML={{ __html: a.description }}
-                />
+              
                 {a.due_date && (
                   <p
                     style={{
@@ -384,42 +392,7 @@ export default function AssignmentsTab({ user }) {
                   </p>
                 )}
 
-                {assignmentFiles[a.id] && assignmentFiles[a.id].length > 0 && (
-                  <div style={{ marginTop: "0.5rem" }}>
-                    {assignmentFiles[a.id].map((file) => (
-                      <div key={file.id} style={{ marginBottom: "0.25rem" }}>
-                        <button
-                          style={{
-                            background: "none",
-                            border: "none",
-                            color: "#007bff",
-                            textDecoration: "underline",
-                            cursor: "pointer",
-                            padding: 0,
-                            fontSize: "1rem",
-                          }}
-                          onClick={async () => {
-                            const url = new URL(file.file_url);
-                            const blobName = decodeURIComponent(url.pathname.split("/").pop());
-                            try {
-                              const res = await fetch(
-                                `http://localhost:4000/api/assignments/download-url?blobName=${blobName}`
-                              );
-                              if (!res.ok) throw new Error("Failed to get download URL");
-                              const data = await res.json();
-                              window.open(data.sasUrl, "_blank");
-                            } catch (err) {
-                              console.error("Error fetching secure download link:", err);
-                              alert("Could not get download link");
-                            }
-                          }}
-                        >
-                          {file.file_name}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+              
 
                 <div style={{ marginTop: "10px" }}>
                 <Button
@@ -450,6 +423,16 @@ export default function AssignmentsTab({ user }) {
             ))
         )}
       </div>
+        <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
     </div>

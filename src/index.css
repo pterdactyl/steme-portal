@@ -64,3 +64,16 @@ code {
 #pdf-container > *:last-child {
   margin-bottom: 0 !important;
 }
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+
+  background: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}

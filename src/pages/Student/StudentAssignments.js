@@ -164,74 +164,22 @@ export default function StudentAssignments({ courseId }) {
 
               {/* Title & Description */}
               <Box
-  component={RouterLink}
-  to={`/student/assignments/${assignment.id}`}
-  sx={{
-    textDecoration: "none",
-    color: "inherit",
-  }}
->
-  <Typography
-    className="title"
-    variant="h6"
-    fontWeight={600}
-    sx={{ transition: "color 0.3s", cursor: "pointer" }}
-  >
-    {assignment.title}
-  </Typography>
-  <Box mt={1}>
-    <div
-      dangerouslySetInnerHTML={{ __html: assignment.description }}
-      style={{ color: "black" }}
-    />
-  </Box>
-</Box>
-
-
-              {/* Attached Files */}
-              <Box mt={2}>
-                <Typography variant="subtitle2" fontWeight={600} color="success.dark">
-                  Files:
+                component={RouterLink}
+                to={`/student/assignments/${assignment.id}`}
+                sx={{
+                  textDecoration: "none",
+                  color: "inherit",
+                  "&:hover .title": { color: "primary.main" },
+                }}
+              >
+                <Typography
+                  className="title"
+                  variant="h6"
+                  fontWeight={600}
+                  sx={{ transition: "color 0.3s", cursor: "pointer" }}
+                >
+                  {assignment.title}
                 </Typography>
-                {loadingFiles[assignment.id] ? (
-                  <Typography fontSize="0.9rem" color="success.dark">
-                    Loading files...
-                  </Typography>
-                ) : filesByAssignment[assignment.id]?.length > 0 ? (
-                  <Stack spacing={0.5}>
-                    {filesByAssignment[assignment.id].map((file) => (
-                      <Link
-                        key={file.id}
-                        component="button"
-                        underline="hover"
-                        sx={{ fontSize: "0.95rem", textAlign: "left", color: "success.dark" }}
-                        onClick={async () => {
-                          const url = new URL(file.file_url);
-                          const blobName = decodeURIComponent(
-                            url.pathname.split("/").pop()
-                          );
-                          try {
-                            const res = await fetch(
-                              `http://localhost:4000/api/assignments/download-url?blobName=${blobName}`
-                            );
-                            if (!res.ok) throw new Error("Failed to get download URL");
-                            const data = await res.json();
-                            window.open(data.sasUrl, "_blank");
-                          } catch (err) {
-                            console.error("Error fetching secure download link:", err);
-                            alert("Could not get download link");
-                          }
-                        }}
-                      >
-                        {file.file_name}
-                      </Link>
-                    ))}
-                  </Stack>
-                ) : (
-                  <Typography fontSize="0.9rem" color="success.dark">
-                    No files uploaded.
-                  </Typography>
-                )}
               </Box>
             </Paper>
           );

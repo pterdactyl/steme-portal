@@ -1,6 +1,25 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Box, TextField, Button, Typography, Stack, Paper } from "@mui/material";
+import { Box, TextField, Button, Typography, Stack, Paper, Avatar } from "@mui/material";
+
+// Helper function to format time
+function formatCommentTime(timestamp) {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffMs = now - date;
+
+  if (diffMs < 24 * 60 * 60 * 1000) {
+    return date.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } else {
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+    });
+  }
+}
 
 const AssignmentCommentThread = ({ assignmentId, userId }) => {
   const [comments, setComments] = useState([]);
@@ -15,7 +34,7 @@ const AssignmentCommentThread = ({ assignmentId, userId }) => {
         console.error("Failed to load comments:", err);
       }
     };
-
+    
     fetchComments();
   }, [assignmentId]);
 
@@ -41,19 +60,55 @@ const AssignmentCommentThread = ({ assignmentId, userId }) => {
       <Typography variant="h6" gutterBottom>
         Private Comments
       </Typography>
+
       <Paper variant="outlined" sx={{ p: 2, maxHeight: 300, overflowY: "auto", mb: 2 }}>
         {comments.length === 0 ? (
           <Typography>No comments yet.</Typography>
         ) : (
           <Stack spacing={2}>
             {comments.map((c) => (
-              <Box key={c.id}>
-                <Typography fontWeight="bold">{c.sender_name}</Typography>
-                <Typography>{c.message}</Typography>
-                <Typography variant="caption" color="gray">
-                  {new Date(c.timestamp).toLocaleString()}
-                </Typography>
-              </Box>
+              <Stack direction="row" spacing={2} alignItems="flex-start" key={c.id}>
+                <Avatar
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    bgcolor: "primary.main",
+                    fontSize: 14,
+                    mt: 0.5,
+                  }}
+                >
+                  {(c.sender_name || "U")[0].toUpperCase()}
+                </Avatar>
+
+                <Box>
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <Typography variant="body2" fontWeight="bold">
+                      {c.sender_name || "Unknown"}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="textSecondary"
+                      sx={{ whiteSpace: "nowrap" }}
+                    >
+                      {formatCommentTime(c.timestamp)}
+                    </Typography>
+                  </Stack>
+
+                  <Box
+                    sx={{
+                      mt: 1.2,
+                      px: 1.5,
+                      py: 1,
+                      bgcolor: "#f5f5f5",
+                      maxWidth: 400,
+                      borderRadius: "20px",
+                      display: "inline-block",
+                    }}
+                  >
+                    <Typography variant="body2">{c.message}</Typography>
+                  </Box>
+                </Box>
+              </Stack>
             ))}
           </Stack>
         )}
