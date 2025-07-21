@@ -5,6 +5,7 @@ import {
   Paper,
   Stack,
   CircularProgress,
+  Avatar,
 } from "@mui/material";
 
 export default function StudentAnnouncements({ courseId }) {
@@ -40,7 +41,7 @@ export default function StudentAnnouncements({ courseId }) {
         const data = await res.json();
 
         const sorted = data.sort(
-          (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+          (a, b) => new Date(b.created_at || b.timestamp) - new Date(a.created_at || a.timestamp)
         );
         setAnnouncements(sorted);
       } catch (err) {
@@ -62,9 +63,9 @@ export default function StudentAnnouncements({ courseId }) {
   }
 
   return (
-    <Box>
-      <Typography variant="h5" mb={2}>
-        {course ? `${course.course_code} Announcements` : "Announcements"}
+    <Box sx={{ padding: 2 }}>
+      <Typography variant="h5" mb={2} fontWeight={600} color="black">
+        Announcements
       </Typography>
 
       {error && (
@@ -78,15 +79,44 @@ export default function StudentAnnouncements({ courseId }) {
           <Typography color="text.secondary">No announcements yet.</Typography>
         ) : (
           announcements.map((a) => (
-            <Paper key={a.id || a._id} sx={{ p: 2 }}>
-              <Typography
-              variant="subtitle2"
-              color="text.secondary"
-              gutterBottom
-              >{a.author} • {new Date(a.created_at || a.timestamp).toLocaleString()}
-              </Typography>
+            <Paper
+              key={a.announcement_id || a.id || a._id}
+              sx={{
+                p: 2.5,
+                borderRadius: "18px",
+                backgroundColor: "#f5f7fa",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  boxShadow: "0 4px 16px rgba(0, 0, 0, 0.1)",
+                  backgroundColor: "#f0f4f8",
+                },
+              }}
+            >
+              <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Box display="flex" alignItems="center" gap={1.2}>
+                  <Avatar
+                    sx={{
+                      width: 30,
+                      height: 30,
+                      bgcolor: "primary.main",
+                      fontSize: 14,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {a.author ? a.author.charAt(0).toUpperCase() : "U"}
+                  </Avatar>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    {a.author || "Unknown"} •{" "}
+                    {new Date(a.created_at || a.timestamp).toLocaleString()}
+                  </Typography>
+                </Box>
+              </Box>
 
-              <Typography>{a.message}</Typography>
+              <Box mt={1.5}>
+                <Typography variant="body1" color="text.primary">
+                  <div dangerouslySetInnerHTML={{ __html: a.message }} />
+                </Typography>
+              </Box>
             </Paper>
           ))
         )}

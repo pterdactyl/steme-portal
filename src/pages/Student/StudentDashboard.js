@@ -1,6 +1,14 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Paper, Stack } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Paper,
+  Stack,
+  CircularProgress,
+  Grid,
+} from "@mui/material";
+import SchoolIcon from "@mui/icons-material/School";
 import { AuthContext } from "../../Auth/AuthContext";
 
 export default function StudentDashboard() {
@@ -33,42 +41,76 @@ export default function StudentDashboard() {
   }, [userId]);
 
   if (loading) {
-    return <Typography>Loading...</Typography>;
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
-    <Box p={4}>
-      <Typography variant="h4" gutterBottom>
-        My Courses
-      </Typography>
+    <Box sx={{ maxWidth: 1200, mx: "auto", mt: 4, px: 2 }}>
+      {/* Gradient Header */}
+      <Paper
+        elevation={3}
+        sx={{
+          background: "linear-gradient(135deg, #42a5f5, #478ed1)",
+          color: "white",
+          p: 3,
+          borderRadius: 3,
+          mb: 4,
+        }}
+      >
+        <Typography variant="h4" fontWeight="bold">
+          Welcome Back!
+        </Typography>
+        <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
+          Here are your enrolled courses
+        </Typography>
+      </Paper>
 
+      {/* Course List */}
       {courses.length === 0 ? (
         <Typography color="text.secondary">
           You are not enrolled in any courses yet. Please contact your teacher or administrator.
         </Typography>
       ) : (
-        <Stack spacing={2}>
+        <Grid container spacing={3}>
           {courses.map((course) => (
-            <Paper
-              key={course.id}
-              sx={{
-                p: 2,
-                bgcolor: "#b3e5fc",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                borderRadius: 2,
-                "&:hover": {
-                  bgcolor: "#82b1ff",
-                },
-              }}
-              onClick={() => navigate(`/course/${course.id}`)}
-            >
-              <Typography variant="h6">{course.title}</Typography>
-            </Paper>
+            <Grid item xs={12} sm={6} md={3} key={course.id}>
+  <Paper
+    elevation={3}
+    onClick={() => navigate(`/course/${course.id}`)}
+    sx={{
+      p: 3,
+      borderRadius: 3,
+      cursor: "pointer",
+      transition: "0.3s",
+      bgcolor: "#f5faff",
+      height: 180,  // fixed height
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
+      "&:hover": {
+        boxShadow: 6,
+        bgcolor: "#e3f2fd",
+      },
+    }}
+  >
+    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+      <SchoolIcon sx={{ fontSize: 40, color: "#42a5f5", mr: 1 }} />
+      <Typography variant="h6" fontWeight="bold" noWrap>
+        {course.title}
+      </Typography>
+    </Box>
+    <Typography variant="body2" color="text.secondary" sx={{ mt: "auto" }}>
+      {course.course_code || "Course Code N/A"}
+    </Typography>
+  </Paper>
+</Grid>
+            
           ))}
-        </Stack>
+        </Grid>
       )}
     </Box>
   );

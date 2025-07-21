@@ -1,28 +1,49 @@
 import React, { useState, useEffect } from "react";
-import { Button, Input, Box, Typography } from "@mui/material";
+import { Button, Input, Box, Typography, Link } from "@mui/material";
 
 export default function AssignmentSubmission({ courseId, assignmentId, userId, onSubmitted }) {
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submittedFiles, setSubmittedFiles] = useState([]);
 
   useEffect(() => {
-    async function fetchSubmissionStatus() {
-      if (!courseId || !assignmentId || !userId) return;
-
-      try {
-        const res = await fetch(
-          `http://localhost:4000/api/submissions/submitted-status?course_id=${courseId}&assignment_id=${assignmentId}&user_id=${userId}`
-        );
-        const data = await res.json();
-        setSubmitted(data.submitted);
-      } catch (err) {
-        console.error("Failed to fetch submission status", err);
-      }
+    if (courseId && assignmentId && userId) {
+      fetchSubmissionStatus();
     }
-    fetchSubmissionStatus();
   }, [courseId, assignmentId, userId]);
+
+  const fetchSubmissionStatus = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:4000/api/submissions/submitted-status?course_id=${courseId}&assignment_id=${assignmentId}&user_id=${userId}`
+      );
+      const data = await res.json();
+      setSubmitted(data.submitted);
+
+      if (data.submitted) {
+        fetchSubmittedFiles();
+      }
+    } catch (err) {
+      console.error("Failed to fetch submission status", err);
+    }
+  };
+
+  const fetchSubmittedFiles = async () => {
+  try {
+    const res = await fetch(`http://localhost:4000/api/submissions/file-url/${assignmentId}/${userId}`);
+    const data = await res.json();
+
+    if (Array.isArray(data) && data.length > 0) {
+      setSubmittedFiles(data); // data is array of { url, name }
+    } else {
+      setSubmittedFiles([]);
+    }
+  } catch (err) {
+    console.error("Failed to fetch submitted files", err);
+  }
+};
 
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files);
@@ -43,14 +64,13 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
       setError("Missing course ID, assignment ID, or user ID.");
       return;
     }
+
     setUploading(true);
     setError("");
 
     try {
       const formData = new FormData();
-      files.forEach((file) => {
-        formData.append("files", file);
-      });
+      files.forEach((file) => formData.append("files", file));
       formData.append("course_id", courseId.toString());
       formData.append("assignment_id", assignmentId.toString());
       formData.append("user_id", userId.toString());
@@ -67,6 +87,7 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
 
       setFiles([]);
       setSubmitted(true);
+      fetchSubmittedFiles(); // Get file info
       if (onSubmitted) onSubmitted();
       alert("Files uploaded successfully!");
     } catch (err) {
@@ -81,16 +102,18 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
     if (!window.confirm("Are you sure you want to withdraw your submission to edit?")) return;
 
     try {
-      const res = await fetch("/api/submissions/unsubmit", {
+      const res = await fetch("http://localhost:4000/api/submissions/unsubmit", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ course_id: courseId, assignment_id: assignmentId, user_id: userId }),
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to withdraw submission");
 
       setSubmitted(false);
       setFiles([]);
+      setSubmittedFiles([]);
       if (onSubmitted) onSubmitted();
       alert("Submission withdrawn. You can now upload new files.");
     } catch (err) {
@@ -101,14 +124,29 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
 
   return (
     <Box mt={2}>
-      <Typography variant="subtitle2">Submit your file(s):</Typography>
-
       {submitted ? (
         <>
-          <Typography color="primary" mb={1}>
-            You have already submitted files for this assignment.
-          </Typography>
-          <Button variant="outlined" color="error" onClick={handleUnsubmit} disabled={uploading}>
+          {submittedFiles.length > 0 ? (
+            <ul style={{ paddingLeft: "1.25rem" }}>
+              {submittedFiles.map((file, index) => (
+                <li key={index}>
+                  <Link href={file.url} target="_blank" rel="noopener">
+                    {file.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <Typography>No submission uploaded yet.</Typography>
+          )}
+
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={handleUnsubmit}
+            disabled={uploading}
+            sx={{ mt: 2 }}
+          >
             Withdraw Submission / Edit
           </Button>
         </>
@@ -132,10 +170,7 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
               </Typography>
               <ul style={{ paddingLeft: "1.25rem", marginTop: "0.5rem" }}>
                 {files.map((file, index) => (
-                  <li
-                    key={index}
-                    style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
-                  >
+                  <li key={index} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                     <span>
                       {file.name} ({Math.round(file.size / 1024)} KB)
                     </span>

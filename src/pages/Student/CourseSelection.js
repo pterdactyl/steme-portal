@@ -283,11 +283,15 @@ return (
 
                 {(isCurrent || isFuture) && !course.required && (!hasSubmitted || !isCurrent) && (
                   <button
-                    className="remove-course-btn"
-                    onClick={() => handleRemoveCourse(grade, course.id)}
-                  >
-                    ✕
-                  </button>
+  className="remove-course-btn"
+  onClick={(e) => {
+    e.stopPropagation(); // ⛔️ Prevent triggering the parent div's onClick
+    handleRemoveCourse(grade, course.id);
+  }}
+>
+  ✕
+</button>
+
                 )}
 
                 {!isCurrent && !isFuture && <span className="planned-tag">Completed</span>}

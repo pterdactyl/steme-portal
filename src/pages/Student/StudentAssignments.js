@@ -24,8 +24,13 @@ export default function StudentAssignments({ courseId }) {
   useEffect(() => {
     async function fetchAssignments() {
       try {
-        const res = await axios.get(`http://localhost:4000/api/assignments?course_id=${courseId}`);
-        setAssignments(res.data);
+        const res = await axios.get(
+          `http://localhost:4000/api/assignments?course_id=${courseId}`
+        );
+        const sortedAssignments = res.data.sort(
+          (a, b) => new Date(b.due_date) - new Date(a.due_date)
+        );
+        setAssignments(sortedAssignments);
       } catch (err) {
         console.error("Failed to fetch assignments", err);
       }
@@ -33,8 +38,9 @@ export default function StudentAssignments({ courseId }) {
 
     async function fetchSubmissions() {
       try {
-        const res = await axios.get(`http://localhost:4000/api/submissions/student/${userId}`);
-        // Map assignment_id => submitted_at
+        const res = await axios.get(
+          `http://localhost:4000/api/submissions/student/${userId}`
+        );
         const map = {};
         res.data.forEach((sub) => {
           map[sub.assignment_id] = new Date(sub.submitted_at);
@@ -91,7 +97,7 @@ export default function StudentAssignments({ courseId }) {
     }
   }
 
-  function getStatusColor(status) {
+  function getStatusChipColor(status) {
     switch (status) {
       case "Submitted on time":
         return "success";
@@ -99,85 +105,127 @@ export default function StudentAssignments({ courseId }) {
         return "warning";
       case "Missing":
         return "error";
-      case "No submission yet":
       default:
         return "default";
     }
   }
 
-  if (loading) return <CircularProgress />;
+  if (loading)
+    return (
+      <Box mt={4} display="flex" justifyContent="center">
+        <CircularProgress />
+      </Box>
+    );
 
   return (
     <Box p={2}>
-      <Typography variant="h5" gutterBottom>
+      <Typography variant="h5" gutterBottom fontWeight={600}>
         Assignments
       </Typography>
-      <Stack spacing={2}>
+      <Stack spacing={3}>
         {assignments.length === 0 && (
           <Typography>No assignments found for this course.</Typography>
         )}
         {assignments.map((assignment) => {
           const status = getStatus(assignment);
           return (
-            <Paper key={assignment.id} sx={{ p: 2 }}>
+            <Paper
+              key={assignment.id}
+              elevation={2}
+              sx={{
+                p: 3,
+                borderRadius: "16px",
+                transition: "0.3s",
+                "&:hover": {
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+                  backgroundColor: "#f8f9fa",
+                },
+              }}
+            >
+              {/* Top Row: Due + Status */}
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                mb={1}
+              >
+                <Typography variant="body2" fontWeight={600}>
+                  {assignment.due_date
+                    ? `Due: ${new Date(assignment.due_date).toLocaleString()}`
+                    : "No due date"}
+                </Typography>
+                <Chip
+                  label={status}
+                  color={getStatusChipColor(status)}
+                  variant="outlined"
+                  size="small"
+                />
+              </Box>
+
+              {/* Title & Description */}
               <Box
                 component={RouterLink}
                 to={`/student/assignments/${assignment.id}`}
-                sx={{ textDecoration: "none", color: "inherit" }}
+                sx={{
+                  textDecoration: "none",
+                  color: "inherit",
+                  "&:hover .title": { color: "primary.main" },
+                }}
               >
-                <Typography variant="h6" sx={{ cursor: "pointer" }}>
+                <Typography
+                  className="title"
+                  variant="h6"
+                  fontWeight={600}
+                  sx={{ transition: "color 0.3s", cursor: "pointer" }}
+                >
                   {assignment.title}
                 </Typography>
-                <Typography>{assignment.description}</Typography>
-                <Typography variant="body2" sx={{ mt: 1 }}>
-                  Due: {new Date(assignment.due_date).toLocaleDateString()}
-                </Typography>
-                <Typography variant="caption" sx={{ color: "gray" }}>
-                  Created: {new Date(assignment.created_at).toLocaleDateString()}
-                </Typography>
+                <Box mt={1}>
+                  <div
+                    dangerouslySetInnerHTML={{ __html: assignment.description }}
+                  />
+                </Box>
               </Box>
 
-              <Box mt={1}>
-                <Chip label={status} color={getStatusColor(status)} size="small" />
-              </Box>
-
+              {/* Attached Files */}
               <Box mt={2}>
-                <Typography variant="subtitle1">Files:</Typography>
+                <Typography variant="subtitle2" fontWeight={600}>
+                  Files:
+                </Typography>
                 {loadingFiles[assignment.id] ? (
-                  <Typography>Loading files...</Typography>
-                ) : filesByAssignment[assignment.id] &&
-                  filesByAssignment[assignment.id].length > 0 ? (
-                  <Stack spacing={1}>
+                  <Typography fontSize="0.9rem">Loading files...</Typography>
+                ) : filesByAssignment[assignment.id]?.length > 0 ? (
+                  <Stack spacing={0.5}>
                     {filesByAssignment[assignment.id].map((file) => (
                       <Link
-  key={file.id}
-  onClick={async () => {
-    const url = new URL(file.file_url);
-    const blobName = decodeURIComponent(url.pathname.split("/").pop());
-
-    try {
-      const res = await fetch(
-        `http://localhost:4000/api/assignments/download-url?blobName=${blobName}`
-      );
-      if (!res.ok) throw new Error("Failed to get download URL");
-      const data = await res.json();
-      window.open(data.sasUrl, "_blank");
-    } catch (err) {
-      console.error("Error fetching secure download link:", err);
-      alert("Could not get download link");
-    }
-  }}
-  component="button"
-  underline="hover"
-  sx={{ cursor: "pointer", color: "primary.main", background: "none", border: "none", p: 0 }}
->
-  {file.file_name}
-</Link>
-
+                        key={file.id}
+                        component="button"
+                        underline="hover"
+                        sx={{ fontSize: "0.95rem", textAlign: "left", color: "primary.dark" }}
+                        onClick={async () => {
+                          const url = new URL(file.file_url);
+                          const blobName = decodeURIComponent(
+                            url.pathname.split("/").pop()
+                          );
+                          try {
+                            const res = await fetch(
+                              `http://localhost:4000/api/assignments/download-url?blobName=${blobName}`
+                            );
+                            if (!res.ok) throw new Error("Failed to get download URL");
+                            const data = await res.json();
+                            window.open(data.sasUrl, "_blank");
+                          } catch (err) {
+                            console.error("Error fetching secure download link:", err);
+                            alert("Could not get download link");
+                          }
+                        }}
+                      >
+                        {file.file_name}
+                      </Link>
                     ))}
                   </Stack>
                 ) : (
-                  <Typography>No files uploaded.</Typography>
+                  <Typography fontSize="0.9rem">No files uploaded.</Typography>
                 )}
               </Box>
             </Paper>

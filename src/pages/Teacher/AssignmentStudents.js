@@ -42,26 +42,43 @@ export default function AssignmentReviewPage() {
   }, [courseId]);
 
   useEffect(() => {
-    const fetchSubmission = async () => {
-      if (!selectedStudentId) return;
+  const fetchSubmission = async () => {
+    if (!selectedStudentId) return;
 
-      try {
-        const res = await fetch(
-          `http://localhost:4000/api/submissions/${assignmentId}/${selectedStudentId}`
-        );
-        
-        const data = await res.json();
-        console.log(data);
-        setSubmission(data);
-        setComment(data.teacher_comment || "");
-        setGrade(data.grade?.toString() || "");
-      } catch (err) {
-        console.error("Error fetching submission:", err);
-      }
-    };
+    try {
+     // Fetch main submission info (grade + comments)
+const res = await fetch(
+  `http://localhost:4000/api/submissions/${assignmentId}/${selectedStudentId}`
+);
+const submissionData = await res.json();
 
-    fetchSubmission();
-  }, [assignmentId, selectedStudentId]);
+// Fetch files with SAS URLs
+const filesRes = await fetch(
+  `http://localhost:4000/api/submissions/file-url/${assignmentId}/${selectedStudentId}`
+);
+const filesData = await filesRes.json();
+
+const fullSubmission = {
+  ...submissionData,
+  files: filesData.map((f, i) => ({
+    id: i,
+    file_url: f.url,
+    file_name: f.name,
+  })),
+};
+
+setSubmission(fullSubmission);
+
+      setComment(submissionData.teacher_comment || "");
+      setGrade(submissionData.grade?.toString() || "");
+    } catch (err) {
+      console.error("Error fetching submission:", err);
+    }
+  };
+
+  fetchSubmission();
+}, [assignmentId, selectedStudentId]);
+
 
   const save = async () => {
     try {
@@ -112,20 +129,20 @@ export default function AssignmentReviewPage() {
               Submitted Work
             </Typography>
             <Stack spacing={2} mb={3}>
-              {submission.files?.length ? (
-                submission.files.map((f) => (
-                  <Button
-                    key={f.id}
-                    variant="outlined"
-                    onClick={() => window.open(f.url, "_blank")}
-                  >
-                    {f.filename}
-                  </Button>
-                ))
-              ) : (
-                <Typography>No files submitted.</Typography>
-              )}
-            </Stack>
+  {submission.files?.length ? (
+    submission.files.map((f) => (
+      <Button
+        key={f.id}
+        variant="outlined"
+        onClick={() => window.open(f.file_url, "_blank")}
+      >
+        {f.file_name}
+      </Button>
+    ))
+  ) : (
+    <Typography>No files submitted.</Typography>
+  )}
+</Stack>
 
             <TextField
               label="Private comment"

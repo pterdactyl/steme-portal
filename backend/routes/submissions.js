@@ -5,6 +5,28 @@ import sql from "mssql";
 import config from "../config/azureDb.js";
 import { BlobServiceClient } from "@azure/storage-blob";
 import dotenv from "dotenv";
+import { generateBlobSASQueryParameters, BlobSASPermissions, SASProtocol } from "@azure/storage-blob";
+import { StorageSharedKeyCredential } from "@azure/storage-blob";
+
+const sharedKeyCredential = new StorageSharedKeyCredential(
+  process.env.AZURE_STORAGE_ACCOUNT_NAME,
+  process.env.AZURE_STORAGE_ACCOUNT_KEY
+);
+
+function generateSasUrl(blobName) {
+  const expiresOn = new Date(Date.now() + 60 * 60 * 1000); // 1 hour expiry
+
+  const sasToken = generateBlobSASQueryParameters({
+    containerName,
+    blobName,
+    permissions: BlobSASPermissions.parse("r"), // read-only
+    expiresOn,
+    protocol: SASProtocol.Https
+  }, sharedKeyCredential).toString();
+
+  const blobClient = containerClient.getBlobClient(blobName);
+  return `${blobClient.url}?${sasToken}`;
+}
 
 dotenv.config();
 
@@ -301,4 +323,40 @@ router.get('/:assignmentId/:studentId', async (req, res) => {
       res.status(500).json({ error: 'Failed to update grade and comment' });
     }   
   });
+
+ router.get("/file-url/:assignmentId/:userId", async (req, res) => {
+  const { assignmentId, userId } = req.params;
+
+  try {
+    const pool = await sql.connect(config);
+
+    const result = await pool.request()
+      .input("assignment_id", sql.Int, assignmentId)
+      .input("user_id", sql.Int, userId)
+      .query(`
+        SELECT file_url, file_name FROM dbo.assignment_submissions
+        WHERE assignment_id = @assignment_id AND student_id = @user_id
+      `);
+
+    if (!result.recordset.length) {
+      return res.status(404).json({ error: "No file found." });
+    }
+
+    const filesWithSas = result.recordset.map(row => {
+      const blobName = decodeURIComponent(row.file_url.split("/").pop());
+      return {
+        url: generateSasUrl(blobName),
+        name: row.file_name
+      };
+    });
+
+    res.json(filesWithSas);
+  } catch (err) {
+    console.error("Error generating file URLs:", err);
+    res.status(500).json({ error: "Failed to generate download link" });
+  }
+});
+
+
+
 export default router;
