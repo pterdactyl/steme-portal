@@ -422,17 +422,23 @@ export default function AssignmentsTab({ user }) {
                 )}
 
                 <div style={{ marginTop: "10px" }}>
-                  <Button
-                    style={{ marginRight: "10px" }}
-                    onClick={() => handleEditAssignment(a)}
-                    variant="text"
-                    size="small"
-                  >
-                    Edit
-                  </Button>
+                <Button
+                  style={{ marginRight: "10px" }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditAssignment(a);
+                  }}
+                  variant="text"
+                  size="small"
+                >
+                  Edit
+                </Button>
 
                   <Button
-                    onClick={() => handleDeleteAssignment(a.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteAssignment(a.id);
+                    }}
                     variant="text"
                     size="small"
                     startIcon={<DeleteIcon />}

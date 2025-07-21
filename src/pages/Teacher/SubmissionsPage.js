@@ -22,7 +22,7 @@ export default function SubmissionsPage() {
 
   useEffect(() => {
     // Fetch students and their submissions
-    const fetchData = async () => {
+    const fetchData = async () => { 
       try {
         // Fetch students and their submissions for the assignment
         const studentRes = await fetch(`http://localhost:4000/api/courses/${courseId}`); 
@@ -122,7 +122,7 @@ export default function SubmissionsPage() {
           ))}
         </Stack>
       ) : (
-        <Typography mb={3}>No files submitted.</Typography>
+        <Typography mb={3}>Missing Submission.</Typography>
       )}
 
       {/* 📝 Private Comment */}
