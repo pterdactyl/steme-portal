@@ -1,9 +1,9 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import { AppBar, Toolbar, Button, Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useMsal } from "@azure/msal-react";
 
-export default function StudentNavbar({ user, onLogout }) {
+export default function StudentNavbar({ user }) {
   const navigate = useNavigate();
   const { instance } = useMsal();
 
@@ -13,120 +13,69 @@ export default function StudentNavbar({ user, onLogout }) {
 
   const handleDashboardClick = () => {
     if (!user) return;
-
-    if (user.role === "teacher") {
-      navigate("/dashboard/teacher");
-    } else if (user.role === "student") {
-      navigate("/dashboard/student");
-    }
+    if (user.role === "teacher") navigate("/dashboard/teacher");
+    else if (user.role === "student") navigate("/dashboard/student");
   };
 
   return (
     <AppBar
       position="static"
       sx={{
-        background: "linear-gradient(90deg, #1976d2, #0d47a1)", // blue gradient
+        background: "linear-gradient(90deg, #66bb6a, #2e7d32)", // green gradient
         boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
         paddingX: { xs: 2, sm: 4 },
         paddingY: 1,
       }}
     >
-      <Toolbar sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}>
-        <Typography
-          variant="h5"
-          onClick={handleDashboardClick}
+      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+        {/* Logo Section */}
+        <Box
           sx={{
-            flexGrow: 1,
+            display: "flex",
+            alignItems: "center",
             cursor: "pointer",
-            fontWeight: 700,
-            letterSpacing: 1.2,
-            userSelect: "none",
-            color: "#e3f2fd", // light blue text
-            transition: "color 0.3s ease",
-            "&:hover": {
-              color: "#bbdefb",
-            },
+            gap: 1,
           }}
+          onClick={handleDashboardClick}
         >
-          STEM-e Portal
-        </Typography>
+          <img
+            src="/stem-e.png" // use absolute path from public folder
+            alt="STEM-E Logo"
+            style={{
+              height: "100px", // bigger logo
+              width: "auto",
+              borderRadius: "8px",
+              padding: "4px",
+            }}
+          />
+        </Box>
 
+        {/* Buttons */}
         <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
           {user ? (
             <>
-              <Button
-                color="inherit"
-                onClick={() => navigate("/dashboard/student")}
-                sx={{
-                  fontWeight: 600,
-                  textTransform: "none",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.15)",
-                    color: "#bbdefb",
-                  },
-                }}
-              >
+              <Button color="inherit" onClick={() => navigate("/dashboard/student")}>
                 Courses
               </Button>
-
-              <Button
-                color="inherit"
-                onClick={() => navigate("/pathways")}
-                sx={{
-                  fontWeight: 600,
-                  textTransform: "none",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.15)",
-                    color: "#bbdefb",
-                  },
-                }}
-              >
+              <Button color="inherit" onClick={() => navigate("/pathways")}>
                 Pathways
               </Button>
-
-              <Button
-                color="inherit"
-                onClick={() => navigate("/course-selection")}
-                sx={{
-                  fontWeight: 600,
-                  textTransform: "none",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.15)",
-                    color: "#bbdefb",
-                  },
-                }}
-              >
+              <Button color="inherit" onClick={() => navigate("/course-selection")}>
                 Course Selection
               </Button>
-
-              <Button
-                color="inherit"
-                onClick={() => navigate("/profile")}
-                sx={{
-                  fontWeight: 600,
-                  textTransform: "none",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.15)",
-                    color: "#bbdefb",
-                  },
-                }}
-              >
+              <Button color="inherit" onClick={() => navigate("/profile")}>
                 Profile
               </Button>
-
               <Button
                 color="inherit"
                 onClick={handleLogout}
                 sx={{
-                  fontWeight: 600,
-                  textTransform: "none",
-                  border: "1.5px solid #bbdefb",
+                  border: "1.5px solid #c8e6c9",
                   borderRadius: "20px",
                   paddingX: 2,
                   "&:hover": {
-                    backgroundColor: "#bbdefb",
-                    color: "#0d47a1",
-                    borderColor: "#bbdefb",
+                    backgroundColor: "#c8e6c9",
+                    color: "#1b5e20",
                   },
                 }}
               >
@@ -134,12 +83,7 @@ export default function StudentNavbar({ user, onLogout }) {
               </Button>
             </>
           ) : (
-            <Typography
-              variant="body2"
-              sx={{ color: "#e3f2fd", fontStyle: "italic", userSelect: "none" }}
-            >
-              Not logged in
-            </Typography>
+            <Typography sx={{ color: "#e3f2fd" }}>Not logged in</Typography>
           )}
         </Box>
       </Toolbar>

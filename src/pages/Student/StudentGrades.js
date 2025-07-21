@@ -41,8 +41,19 @@ export default function StudentGrades({ courseId }) {
     fetchGrades();
   }, [userId, courseId]);
 
-  if (loading) return <Box display="flex" justifyContent="center" mt={4}><CircularProgress /></Box>;
-  if (error) return <Typography color="error" mt={2}>{error}</Typography>;
+  if (loading)
+    return (
+      <Box display="flex" justifyContent="center" mt={4}>
+        <CircularProgress color="success" />
+      </Box>
+    );
+
+  if (error)
+    return (
+      <Typography color="error" mt={2}>
+        {error}
+      </Typography>
+    );
 
   return (
     <Box mt={4}>
@@ -50,36 +61,47 @@ export default function StudentGrades({ courseId }) {
         Your Grades
       </Typography>
 
-      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>
+      <TableContainer
+        component={Paper}
+        sx={{
+          borderRadius: 2,
+          boxShadow: 3,
+          border: "1px solid #a5d6a7", // green border
+        }}
+      >
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: "#e3f2fd" }}>
-              <TableCell sx={{ fontWeight: "bold" }}>Assignment</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Grade</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Recorded At</TableCell>
+            <TableRow sx={{ backgroundColor: "#a5d6a7" }}> {/* Green header */}
+              <TableCell sx={{ fontWeight: "bold", color: "black" }}>Assignment</TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "black" }}>Grade</TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "black" }}>Recorded At</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {grades.map((g, index) => (
-              <TableRow key={g.assignment_id} sx={{ backgroundColor: index % 2 === 0 ? "#fafafa" : "white" }}>
+              <TableRow
+                key={g.assignment_id}
+                sx={{
+                  backgroundColor: index % 2 === 0 ? "#f1f8e9" : "white", // greenish rows
+                }}
+              >
                 <TableCell>
                   <Link
                     component={RouterLink}
                     to={`/student/assignments/${g.assignment_id}`}
                     underline="hover"
-                    color="primary"
-                    sx={{ fontWeight: 500 }}
+                    sx={{ fontWeight: 500, color: "black" }} // black link
                   >
                     {g.assignment_title}
                   </Link>
                 </TableCell>
                 <TableCell sx={{ fontWeight: 500, color: "black" }}>{g.grade}</TableCell>
-                <TableCell>{new Date(g.recorded_at).toLocaleString()}</TableCell>
+                <TableCell sx={{ color: "black" }}>{new Date(g.recorded_at).toLocaleString()}</TableCell>
               </TableRow>
             ))}
             {grades.length === 0 && (
               <TableRow>
-                <TableCell colSpan={3} align="center">
+                <TableCell colSpan={3} align="center" sx={{ color: "black" }}>
                   No grades recorded yet.
                 </TableCell>
               </TableRow>

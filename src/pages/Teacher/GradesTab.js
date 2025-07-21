@@ -12,7 +12,7 @@ import {
   TableContainer,
   Link,
 } from "@mui/material";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Auth/AuthContext";
 
 export default function GradesTab() {
@@ -21,7 +21,7 @@ export default function GradesTab() {
   const [students, setStudents] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [grades, setGrades] = useState({}); // { "studentId-assignmentId": grade }
-  const [activeField, setActiveField] = useState(null); // track input focus
+  const [activeField, setActiveField] = useState(null); // track which input is focused or hovered
 
   useEffect(() => {
     async function fetchData() {
@@ -103,34 +103,51 @@ export default function GradesTab() {
               <TableCell sx={{ minWidth: 180, fontWeight: "bold" }}>Student</TableCell>
               {assignments.map((assignment) => (
                 <TableCell
-  key={assignment.id}
-  sx={{
-    width: 140,
-    maxWidth: 140,
-    fontWeight: "bold",
-    textAlign: "center",
-    whiteSpace: "normal",
-    wordWrap: "break-word",
-    padding: "8px",
-  }}
->
-  <Link
-    href={`/dashboard/course/${courseId}/assignment/${assignment.id}/submissions`}
-    target="_blank"
-    underline="hover"
-    sx={{
-      display: "block",
-      fontWeight: "bold",
-      fontSize: "0.85rem",
-      marginTop: 0.5,
-      color: "#275ec4",
-      cursor: "pointer",
-    }}
-  >
-    {assignment.title}
-  </Link>
-</TableCell>
-
+                  key={assignment.id}
+                  sx={{
+                    width: 120,
+                    maxWidth: 120,
+                    whiteSpace: "normal",
+                    wordWrap: "break-word",
+                    padding: "8px",
+                    textAlign: "center",
+                    backgroundColor: "#f9f9f9",
+                    verticalAlign: "top",
+                  }}
+                >
+                  <Typography variant="caption" color="text.secondary" noWrap>
+                    {assignment.due_date
+                      ? (() => {
+                          const date = new Date(assignment.due_date);
+                          const now = new Date();
+                          const formatOptions = { day: "numeric", month: "short" };
+                          if (date.getFullYear() !== now.getFullYear()) {
+                            formatOptions.year = "numeric";
+                          }
+                          return date.toLocaleDateString("en-GB", formatOptions);
+                        })()
+                      : "No due date"}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    fontWeight="bold"
+                    sx={{
+                      wordBreak: "break-word",
+                      whiteSpace: "normal",
+                      marginTop: "4px",
+                      fontSize: "0.85rem",
+                      cursor: "pointer", 
+                      color: "#275ec4",      
+                      textDecoration: "underline"  
+                      
+                    }}
+                    onClick={() =>
+                        window.open(`/dashboard/course/${courseId}/assignment/${assignment.id}/submissions`, "_blank")
+                      }
+                  >
+                    {assignment.title}
+                  </Typography>
+                </TableCell>
               ))}
             </TableRow>
           </TableHead>

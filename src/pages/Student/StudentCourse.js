@@ -86,10 +86,10 @@ export default function StudentCourse({ user }) {
         mt: 4,
       }}
     >
-      {/* Fancy Gradient Header */}
+      {/* Green Gradient Header */}
       <Box
         sx={{
-          background: "linear-gradient(135deg, #2196f3, #21cbf3)",
+          background: "linear-gradient(135deg, #66bb6a, #2e7d32)", // light to dark green
           color: "white",
           p: 3,
         }}
@@ -107,13 +107,22 @@ export default function StudentCourse({ user }) {
         <Tabs
           value={tab}
           onChange={handleChange}
-          indicatorColor="primary"
-          textColor="primary"
+          indicatorColor="secondary"
+          textColor="success"
           variant="scrollable"
           scrollButtons="auto"
           sx={{
             borderBottom: 1,
             borderColor: "divider",
+            "& .MuiTabs-indicator": {
+              backgroundColor: "#2e7d32", // dark green indicator
+            },
+            "& .MuiTab-root": {
+              color: "#388e3c", // medium green text color
+              "&.Mui-selected": {
+                color: "#1b5e20", // dark green selected tab text
+              },
+            },
           }}
         >
           <Tab icon={<Campaign />} iconPosition="start" label="Announcements" />

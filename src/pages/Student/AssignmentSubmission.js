@@ -35,7 +35,7 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
     try {
       const res = await fetch(`http://localhost:4000/api/submissions/file-url/${assignmentId}/${userId}`);
       const data = await res.json();
-
+      console.log(data);
       setSubmittedFiles(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch submitted files", err);

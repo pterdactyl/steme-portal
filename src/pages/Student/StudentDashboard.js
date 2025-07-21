@@ -4,7 +4,6 @@ import {
   Box,
   Typography,
   Paper,
-  Stack,
   CircularProgress,
   Grid,
 } from "@mui/material";
@@ -50,11 +49,11 @@ export default function StudentDashboard() {
 
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", mt: 4, px: 2 }}>
-      {/* Gradient Header */}
+      {/* Green Gradient Header */}
       <Paper
         elevation={3}
         sx={{
-          background: "linear-gradient(135deg, #42a5f5, #478ed1)",
+          background: "linear-gradient(135deg, #00923F, #007A34)", // Green gradient
           color: "white",
           p: 3,
           borderRadius: 3,
@@ -78,51 +77,49 @@ export default function StudentDashboard() {
         <Grid container spacing={3}>
           {courses.map((course) => (
             <Grid item xs={12} sm={6} md={3} key={course.id}>
-  <Paper
-  elevation={2}
-  onClick={() => navigate(`/course/${course.id}`)}
-  sx={{
-    width: 250,
-    height: 150,
-    borderRadius: 2,
-    p: 2,
-    cursor: "pointer",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    bgcolor: "#e3f2fd", // light blue
-    transition: "0.3s",
-    "&:hover": {
-      boxShadow: 4,
-      transform: "translateY(-2px)",
-    },
-  }}
->
-  {/* Top Section */}
-  <Box sx={{ display: "flex", alignItems: "center" }}>
-    <SchoolIcon sx={{ fontSize: 30, color: "#2196f3", mr: 1 }} />
-    <Typography variant="subtitle1" fontWeight="bold" color="black" noWrap>
-      {course.course_code || "N/A"}
-    </Typography>
-  </Box>
+              <Paper
+                elevation={2}
+                onClick={() => navigate(`/course/${course.id}`)}
+                sx={{
+                  width: 250,
+                  height: 150,
+                  borderRadius: 2,
+                  p: 2,
+                  cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  bgcolor: "#E8F5E9", // light green background
+                  transition: "0.3s",
+                  "&:hover": {
+                    boxShadow: 4,
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                {/* Top Section */}
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <SchoolIcon sx={{ fontSize: 30, color: "#00923F", mr: 1 }} /> {/* Green icon */}
+                  <Typography variant="subtitle1" fontWeight="bold" color="black" noWrap>
+                    {course.course_code || "N/A"}
+                  </Typography>
+                </Box>
 
-  {/* Bottom Section (Title) */}
-  <Typography
-    variant="body2"
-    color="text.primary"
-    sx={{
-      fontWeight: 500,
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      whiteSpace: "nowrap",
-    }}
-  >
-    {course.title}
-  </Typography>
-</Paper>
-
-</Grid>
-            
+                {/* Bottom Section (Title) */}
+                <Typography
+                  variant="body2"
+                  color="text.primary"
+                  sx={{
+                    fontWeight: 500,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {course.title}
+                </Typography>
+              </Paper>
+            </Grid>
           ))}
         </Grid>
       )}

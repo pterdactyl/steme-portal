@@ -3,35 +3,21 @@ import express from "express";
 import multer from "multer";
 import sql from "mssql";
 import config from "../config/azureDb.js";
-import { BlobServiceClient } from "@azure/storage-blob";
 import dotenv from "dotenv";
-import { generateBlobSASQueryParameters, BlobSASPermissions, SASProtocol } from "@azure/storage-blob";
-import { StorageSharedKeyCredential } from "@azure/storage-blob";
-
-const sharedKeyCredential = new StorageSharedKeyCredential(
-  process.env.AZURE_STORAGE_ACCOUNT_NAME,
-  process.env.AZURE_STORAGE_ACCOUNT_KEY
-);
-
-function generateSasUrl(blobName) {
-  const expiresOn = new Date(Date.now() + 60 * 60 * 1000); // 1 hour expiry
-
-  const sasToken = generateBlobSASQueryParameters({
-    containerName,
-    blobName,
-    permissions: BlobSASPermissions.parse("r"), // read-only
-    expiresOn,
-    protocol: SASProtocol.Https
-  }, sharedKeyCredential).toString();
-
-  const blobClient = containerClient.getBlobClient(blobName);
-  return `${blobClient.url}?${sasToken}`;
-}
+import {
+  BlobServiceClient,
+  BlobSASPermissions,
+  generateBlobSASQueryParameters,
+  StorageSharedKeyCredential,
+} from "@azure/storage-blob";
 
 dotenv.config();
 
 const router = express.Router();
 
+const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
+const accountKey = process.env.AZURE_STORAGE_ACCOUNT_KEY;
+const sharedKeyCredential = new StorageSharedKeyCredential(accountName, accountKey);
 const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
 const containerName = "submissions";
 
@@ -51,6 +37,37 @@ const containerClient = blobServiceClient.getContainerClient(containerName);
 })();
 
 const upload = multer({ storage: multer.memoryStorage() });
+
+
+// GET secure SAS download URL for a file blob
+router.get("/download-url", async (req, res) => {
+  const { blobName } = req.query;
+
+  if (!blobName) {
+    return res.status(400).json({ error: "Missing blobName" });
+  }
+
+  try {
+    const expiresOn = new Date(Date.now() + 10 * 60 * 1000); // 10 min expiry
+
+    const sasToken = generateBlobSASQueryParameters(
+      {
+        containerName: containerClient.containerName,
+        blobName,
+        permissions: BlobSASPermissions.parse("r"),
+        expiresOn,
+      },
+      sharedKeyCredential
+    ).toString();
+
+    const sasUrl = `https://${accountName}.blob.core.windows.net/${containerClient.containerName}/${blobName}?${sasToken}`;
+
+    res.json({ sasUrl });
+  } catch (err) {
+    console.error("Error generating SAS URL:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 router.post("/upload", upload.array("files"), async (req, res) => {
   const { course_id, assignment_id, user_id } = req.body;
@@ -205,75 +222,73 @@ router.delete("/unsubmit", async (req, res) => {
 });
 
 
-// Get a student’s submissions for an assignment
+// Get all submissions for a student’s assignment (multiple files)
 router.get('/:assignmentId/:studentId', async (req, res) => {
-    const { assignmentId, studentId } = req.params;
-  
-    try {
-      const pool = await sql.connect(config);
-  
-      // 1. Get the latest submission
-      const submissionResult = await pool.request()
-        .input('assignmentId', sql.Int, assignmentId)
-        .input('studentId', sql.Int, studentId)
-        .query(`
-          SELECT TOP 1 id, file_url, file_name, submitted_at
-          FROM assignment_submissions
-          WHERE assignment_id = @assignmentId AND student_id = @studentId
-          ORDER BY submitted_at DESC
-        `);
-  
-  
-      const submission = submissionResult.recordset[0] ?? {};
+  const { assignmentId, studentId } = req.params;
 
-      // 3. Get grade
-      const gradeResult = await pool.request()
-        .input('assignmentId', sql.Int, assignmentId)
-        .input('studentId', sql.Int, studentId)
-        .query(`
-          SELECT grade
-          FROM Grades
-          WHERE assignment_id = @assignmentId AND student_id = @studentId
-        `);
-  
-      const grade = gradeResult.recordset[0]?.grade ?? null;
-  
-      // 4. Get private comments (latest first)
-      const commentsResult = await pool.request()
-        .input('assignmentId', sql.Int, assignmentId)
-        .input('studentId', sql.Int, studentId)
-        .query(`
-          SELECT id, message, sender_id, timestamp
-          FROM AssignmentComments
-          WHERE assignment_id = @assignmentId AND student_id = @studentId
-          ORDER BY timestamp DESC
-        `);
-  
-        res.json({
-            id: submission.id ?? null,
-            file_url: submission.file_url ?? null,
-            file_name: submission.file_name ?? null,
-            submitted_at: submission.submitted_at ?? null,
-            grade,
-            comments: commentsResult.recordset ?? []
-          });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Failed to fetch submission' });
-    }
-  });
+  try {
+    const pool = await sql.connect(config);
+
+    // 1. Get all submissions (files) for the assignment and student
+    const submissionsResult = await pool.request()
+      .input('assignmentId', sql.Int, assignmentId)
+      .input('studentId', sql.Int, studentId)
+      .query(`
+        SELECT id, file_url, file_name, submitted_at
+        FROM assignment_submissions
+        WHERE assignment_id = @assignmentId AND student_id = @studentId
+        ORDER BY submitted_at DESC
+      `);
+
+    const submissions = submissionsResult.recordset; // array of files
+
+    // 2. Get grade (assuming only one grade per assignment/student)
+    const gradeResult = await pool.request()
+      .input('assignmentId', sql.Int, assignmentId)
+      .input('studentId', sql.Int, studentId)
+      .query(`
+        SELECT grade
+        FROM Grades
+        WHERE assignment_id = @assignmentId AND student_id = @studentId
+      `);
+
+    const grade = gradeResult.recordset[0]?.grade ?? null;
+
+    // Get private comments (from oldest comment to latest)
+    const commentsResult = await pool.request()
+      .input('assignmentId', sql.Int, assignmentId)
+      .input('studentId', sql.Int, studentId)
+      .query(`
+        SELECT ac.id, ac.message, ac.sender_id, ac.timestamp, u.name AS sender_name
+        FROM AssignmentComments ac
+        JOIN users u ON ac.sender_id = u.id
+        WHERE ac.assignment_id = @assignmentId AND ac.student_id = @studentId
+        ORDER BY ac.timestamp ASC
+      `);
+
+    res.json({
+      files: submissions,  // <-- array of all files
+      grade,
+      comments: commentsResult.recordset ?? []
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch submission' });
+  }
+});
 
   // Teacher updating a student's submisssion (grade, and comments)
-  router.put('/:assignmentId/:studentId/:teacherId', async (req, res) => {
+  router.put('/teacher/:assignmentId/:studentId/:teacherId', async (req, res) => {
     const { assignmentId, studentId, teacherId } = req.params;
     const { grade, privateComment } = req.body;
-  
+    let transaction;
     try {
       const pool = await sql.connect(config);
       const transaction = new sql.Transaction(pool);
   
       await transaction.begin();
-      const request = new sql.Request(transaction);
+      const request = new sql.Request(transaction);  
   
       // 1. UPSERT: Insert or update grade
       await request
@@ -297,18 +312,18 @@ router.get('/:assignmentId/:studentId', async (req, res) => {
             VALUES (@assignmentId, @studentId, @grade, @teacherId)
           END
         `);
-  
-      // 2. INSERT: Always insert a new private comment
-      await request
-        .input('commentAssignmentId', sql.Int, assignmentId)
-        .input('commentStudentId', sql.Int, studentId)
-        .input('message', sql.NVarChar, privateComment)
-        .input('sender', sql.Int, teacherId)
-        .query(`
-          INSERT INTO AssignmentComments (assignment_id, student_id, message, sender)
-          VALUES (@commentAssignmentId, @commentStudentId, @message, @sender)
-        `);
-  
+      if (privateComment) {
+      // 2. INSERT: Always insert a new private comment if not empty
+        await request
+          .input('commentAssignmentId', sql.Int, assignmentId)
+          .input('commentStudentId', sql.Int, studentId)
+          .input('message', sql.NVarChar, privateComment)
+          .input('sender', sql.Int, teacherId)
+          .query(`
+            INSERT INTO AssignmentComments (assignment_id, student_id, message, sender_id)
+            VALUES (@commentAssignmentId, @commentStudentId, @message, @sender)
+          `);
+      }
       await transaction.commit();
       res.json({ message: 'Grade and comment saved successfully' });
     } catch (err) {

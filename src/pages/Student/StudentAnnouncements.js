@@ -57,7 +57,7 @@ export default function StudentAnnouncements({ courseId }) {
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-        <CircularProgress />
+        <CircularProgress sx={{ color: "#2e7d32" }} />
       </Box>
     );
   }
@@ -84,11 +84,11 @@ export default function StudentAnnouncements({ courseId }) {
               sx={{
                 p: 2.5,
                 borderRadius: "18px",
-                backgroundColor: "#f5f7fa",
+                backgroundColor: "#e8f5e9", // very light green background
                 transition: "all 0.3s ease",
                 "&:hover": {
-                  boxShadow: "0 4px 16px rgba(0, 0, 0, 0.1)",
-                  backgroundColor: "#f0f4f8",
+                  boxShadow: "0 4px 16px rgba(46, 125, 50, 0.3)", // green shadow
+                  backgroundColor: "#c8e6c9", // light green hover
                 },
               }}
             >
@@ -98,14 +98,15 @@ export default function StudentAnnouncements({ courseId }) {
                     sx={{
                       width: 30,
                       height: 30,
-                      bgcolor: "primary.main",
+                      bgcolor: "#388e3c", // medium green
                       fontSize: 14,
                       fontWeight: 500,
+                      color: "white",
                     }}
                   >
                     {a.author ? a.author.charAt(0).toUpperCase() : "U"}
                   </Avatar>
-                  <Typography variant="subtitle2" color="text.secondary">
+                  <Typography variant="subtitle2" color="black">
                     {a.author || "Unknown"} •{" "}
                     {new Date(a.created_at || a.timestamp).toLocaleString()}
                   </Typography>
@@ -113,7 +114,7 @@ export default function StudentAnnouncements({ courseId }) {
               </Box>
 
               <Box mt={1.5}>
-                <Typography variant="body1" color="text.primary">
+                <Typography variant="body1" color="black">
                   <div dangerouslySetInnerHTML={{ __html: a.message }} />
                 </Typography>
               </Box>

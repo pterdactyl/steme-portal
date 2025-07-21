@@ -113,18 +113,18 @@ export default function StudentAssignments({ courseId }) {
   if (loading)
     return (
       <Box mt={4} display="flex" justifyContent="center">
-        <CircularProgress />
+        <CircularProgress sx={{ color: "success.main" }} />
       </Box>
     );
 
   return (
     <Box p={2}>
-      <Typography variant="h5" gutterBottom fontWeight={600}>
+      <Typography variant="h5" gutterBottom fontWeight={600} color="success.dark">
         Assignments
       </Typography>
       <Stack spacing={3}>
         {assignments.length === 0 && (
-          <Typography>No assignments found for this course.</Typography>
+          <Typography color="text.secondary">No assignments found for this course.</Typography>
         )}
         {assignments.map((assignment) => {
           const status = getStatus(assignment);
@@ -137,8 +137,8 @@ export default function StudentAssignments({ courseId }) {
                 borderRadius: "16px",
                 transition: "0.3s",
                 "&:hover": {
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-                  backgroundColor: "#f8f9fa",
+                  boxShadow: "0 4px 20px rgba(46, 125, 50, 0.3)",
+                  backgroundColor: "transparent",
                 },
               }}
             >
@@ -149,7 +149,7 @@ export default function StudentAssignments({ courseId }) {
                 alignItems="center"
                 mb={1}
               >
-                <Typography variant="body2" fontWeight={600}>
+                <Typography variant="body2" fontWeight={600} color="success.dark">
                   {assignment.due_date
                     ? `Due: ${new Date(assignment.due_date).toLocaleString()}`
                     : "No due date"}
@@ -164,36 +164,39 @@ export default function StudentAssignments({ courseId }) {
 
               {/* Title & Description */}
               <Box
-                component={RouterLink}
-                to={`/student/assignments/${assignment.id}`}
-                sx={{
-                  textDecoration: "none",
-                  color: "inherit",
-                  "&:hover .title": { color: "primary.main" },
-                }}
-              >
-                <Typography
-                  className="title"
-                  variant="h6"
-                  fontWeight={600}
-                  sx={{ transition: "color 0.3s", cursor: "pointer" }}
-                >
-                  {assignment.title}
-                </Typography>
-                <Box mt={1}>
-                  <div
-                    dangerouslySetInnerHTML={{ __html: assignment.description }}
-                  />
-                </Box>
-              </Box>
+  component={RouterLink}
+  to={`/student/assignments/${assignment.id}`}
+  sx={{
+    textDecoration: "none",
+    color: "inherit",
+  }}
+>
+  <Typography
+    className="title"
+    variant="h6"
+    fontWeight={600}
+    sx={{ transition: "color 0.3s", cursor: "pointer" }}
+  >
+    {assignment.title}
+  </Typography>
+  <Box mt={1}>
+    <div
+      dangerouslySetInnerHTML={{ __html: assignment.description }}
+      style={{ color: "black" }}
+    />
+  </Box>
+</Box>
+
 
               {/* Attached Files */}
               <Box mt={2}>
-                <Typography variant="subtitle2" fontWeight={600}>
+                <Typography variant="subtitle2" fontWeight={600} color="success.dark">
                   Files:
                 </Typography>
                 {loadingFiles[assignment.id] ? (
-                  <Typography fontSize="0.9rem">Loading files...</Typography>
+                  <Typography fontSize="0.9rem" color="success.dark">
+                    Loading files...
+                  </Typography>
                 ) : filesByAssignment[assignment.id]?.length > 0 ? (
                   <Stack spacing={0.5}>
                     {filesByAssignment[assignment.id].map((file) => (
@@ -201,7 +204,7 @@ export default function StudentAssignments({ courseId }) {
                         key={file.id}
                         component="button"
                         underline="hover"
-                        sx={{ fontSize: "0.95rem", textAlign: "left", color: "primary.dark" }}
+                        sx={{ fontSize: "0.95rem", textAlign: "left", color: "success.dark" }}
                         onClick={async () => {
                           const url = new URL(file.file_url);
                           const blobName = decodeURIComponent(
@@ -225,7 +228,9 @@ export default function StudentAssignments({ courseId }) {
                     ))}
                   </Stack>
                 ) : (
-                  <Typography fontSize="0.9rem">No files uploaded.</Typography>
+                  <Typography fontSize="0.9rem" color="success.dark">
+                    No files uploaded.
+                  </Typography>
                 )}
               </Box>
             </Paper>
