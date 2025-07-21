@@ -78,22 +78,21 @@ export default function AnnouncementsTab() {
   };
 
   const handleDelete = async (id) => {
-  const confirm = window.confirm("Are you sure you want to delete this announcement?");
-  if (!confirm) return;
+    const confirm = window.confirm("Are you sure you want to delete this announcement?");
+    if (!confirm) return;
 
-  try {
-    const res = await fetch(`http://localhost:4000/api/courses/${courseId}/announcements/${id}`, {
-      method: "DELETE",
-    });
+    try {
+      const res = await fetch(`http://localhost:4000/api/courses/${courseId}/announcements/${id}`, {
+        method: "DELETE",
+      });
 
-    if (!res.ok) throw new Error("Failed to delete announcement");
+      if (!res.ok) throw new Error("Failed to delete announcement");
 
-    setAnnouncements((prev) => prev.filter((a) => a.announcement_id !== id));
-  } catch (err) {
-    alert(err.message);
-  }
-};
-
+      setAnnouncements((prev) => prev.filter((a) => a.announcement_id !== id));
+    } catch (err) {
+      alert(err.message);
+    }
+  };
 
   const startEditing = (id, message) => {
     setEditingId(id);
@@ -106,43 +105,42 @@ export default function AnnouncementsTab() {
   };
 
   const saveEditing = async (id) => {
-  try {
-    const res = await fetch(`http://localhost:4000/api/courses/${courseId}/announcements/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: editingMessage }),
-    });
+    try {
+      const res = await fetch(`http://localhost:4000/api/courses/${courseId}/announcements/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: editingMessage }),
+      });
 
-    if (!res.ok) throw new Error("Failed to update announcement");
+      if (!res.ok) throw new Error("Failed to update announcement");
 
-    setAnnouncements((prev) =>
-      prev.map((a) =>
-        a.announcement_id === id ? { ...a, message: editingMessage } : a
-      )
-    );
-    cancelEditing();
-  } catch (err) {
-    alert(err.message);
-  }
-};
-
+      setAnnouncements((prev) =>
+        prev.map((a) =>
+          a.announcement_id === id ? { ...a, message: editingMessage } : a
+        )
+      );
+      cancelEditing();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
 
   return (
     <Box sx={{ padding: 2 }}>
-      <Typography variant="h5" gutterBottom>
-        {courseData?.title || "Course"} — Announcements
-      </Typography>
+      <Typography variant="h4" fontWeight={700} gutterBottom>
+    Announcements
+  </Typography>
 
       {isTeacher && (
-        <Paper sx={{ p: 2, mb: 3 }}>
+        <Paper sx={{ p: 2, mb: 3, borderRadius: "18px", backgroundColor: "#f5f7fa" }}>
           <Typography variant="subtitle1" gutterBottom>
             Post a New Announcement
           </Typography>
           <Stack spacing={2}>
-           <ReactQuill
+            <ReactQuill
               placeholder="Write your announcement..."
               value={newAnnouncement}
-              onChange={(content) => setNewAnnouncement(content)} 
+              onChange={(content) => setNewAnnouncement(content)}
             />
             <Button
               variant="contained"
@@ -170,57 +168,68 @@ export default function AnnouncementsTab() {
         <Stack spacing={2}>
           {announcements.map((a) => (
             <Paper
-                key={a.announcement_id}
-                sx={{
-                  p: 2,
-                  borderRadius: "20px",
-                  transition: "box-shadow 0.3s ease, background-color 0.3s ease",
-                  "&:hover": {
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                    backgroundColor: "#f9f9f9",
-                  },
-                }}
-              >
+              key={a.announcement_id}
+              sx={{
+                p: 2,
+                borderRadius: "18px",
+                backgroundColor: "#f5f7fa",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  boxShadow: "0 4px 16px rgba(0, 0, 0, 0.1)",
+                  backgroundColor: "#f0f4f8",
+                },
+              }}
+            >
               <Box display="flex" justifyContent="space-between" alignItems="center">
-                <Box display="flex" alignItems="center" gap={1}>
-                  <Avatar sx={{ width: 28, height: 28, bgcolor: "primary.main", fontSize: 14 }}>
-                    {a.author ? a.author.charAt(0).toUpperCase() : "U"}
-                  </Avatar>
+                <Box display="flex" alignItems="center" gap={1.2}>
+                  <Avatar
+  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+    a.author ? a.author.charAt(0).toUpperCase() : "U"
+  )}&background=random`}
+  alt={a.author || "User"}
+  sx={{
+    width: 30,
+    height: 30,
+    fontSize: 14,
+  }}
+>
+  {!a.author && "U"}
+</Avatar>
+
                   <Typography variant="subtitle2" color="text.secondary">
                     {a.author} • {new Date(a.created_at).toLocaleString()}
                   </Typography>
                 </Box>
 
                 {isTeacher && (
-            <Stack direction="row" spacing={1}>
-             {editingId === a.announcement_id ? (
-              <>
-                <IconButton onClick={() => saveEditing(a.announcement_id)}>
-                  <Save />
-                </IconButton>
-                <IconButton onClick={cancelEditing}>
-                  <Cancel />
-                </IconButton>
-              </>
-            ) : (
-        <>
-        <IconButton onClick={() => startEditing(a.announcement_id, a.message)}>
-          <Edit />
-        </IconButton>
-        <IconButton onClick={() => handleDelete(a.announcement_id)}>
-          <Delete />
-        </IconButton>
-      </>
-    )}
-  </Stack>
-)}
-
+                  <Stack direction="row" spacing={1}>
+                    {editingId === a.announcement_id ? (
+                      <>
+                        <IconButton onClick={() => saveEditing(a.announcement_id)}>
+                          <Save />
+                        </IconButton>
+                        <IconButton onClick={cancelEditing}>
+                          <Cancel />
+                        </IconButton>
+                      </>
+                    ) : (
+                      <>
+                        <IconButton onClick={() => startEditing(a.announcement_id, a.message)}>
+                          <Edit />
+                        </IconButton>
+                        <IconButton onClick={() => handleDelete(a.announcement_id)}>
+                          <Delete />
+                        </IconButton>
+                      </>
+                    )}
+                  </Stack>
+                )}
               </Box>
 
               {editingId === a.announcement_id ? (
                 <ReactQuill
                   value={editingMessage}
-                  onChange={(content) => setEditingMessage(content)} 
+                  onChange={(content) => setEditingMessage(content)}
                 />
               ) : (
                 <div dangerouslySetInnerHTML={{ __html: a.message }} />

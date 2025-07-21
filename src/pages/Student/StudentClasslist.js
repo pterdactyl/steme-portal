@@ -57,40 +57,41 @@ export default function StudentClasslist({ courseId }) {
       ) : (
         <Stack spacing={2}>
           {students.map((student) => {
-            const firstName = student.fullName.split(" ")[0];
-            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(firstName)}&background=random`;
+  const firstName = student.fullName.split(" ")[0];
+  const firstInitial = firstName.charAt(0);
+  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(firstInitial)}&background=random`;
 
-            return (
-              <Paper
-                key={student.id}
-                elevation={2}
-                sx={{
-                  p: 2,
-                  borderRadius: "16px",
-                  transition: "box-shadow 0.3s ease",
-                  "&:hover": {
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                  },
-                }}
-              >
-                <Stack direction="row" spacing={2} alignItems="center">
-                  <Avatar
-                    alt={firstName}
-                    src={avatarUrl}
-                    sx={{ width: 44, height: 44, fontWeight: 500 }}
-                  />
-                  <Box>
-                    <Typography variant="subtitle1" fontWeight={500}>
-                      {student.fullName}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {student.email}
-                    </Typography>
-                  </Box>
-                </Stack>
-              </Paper>
-            );
-          })}
+  return (
+    <Paper
+      key={student.id}
+      elevation={2}
+      sx={{
+        p: 2,
+        borderRadius: "16px",
+        transition: "box-shadow 0.3s ease",
+        "&:hover": {
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+        },
+      }}
+    >
+      <Stack direction="row" spacing={2} alignItems="center">
+        <Avatar
+          alt={firstInitial}
+          src={avatarUrl}
+          sx={{ width: 44, height: 44, fontWeight: 500 }}
+        />
+        <Box>
+          <Typography variant="subtitle1" fontWeight={500}>
+            {student.fullName}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {student.email}
+          </Typography>
+        </Box>
+      </Stack>
+    </Paper>
+  );
+})}
         </Stack>
       )}
     </Box>

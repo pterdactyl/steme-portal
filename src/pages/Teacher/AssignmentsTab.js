@@ -206,7 +206,7 @@ export default function AssignmentsTab({ user }) {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h1>Assignments for Course</h1>
+      <h1>Assignments</h1>
 
       <Button
         variant={showForm ? "outlined" : "contained"}

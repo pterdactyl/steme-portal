@@ -1,134 +1,134 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../Auth/AuthContext";
 import {
   Box,
   Typography,
   Paper,
-  Stack,
-  IconButton,
+  Grid,
+  CircularProgress,
 } from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import SchoolIcon from "@mui/icons-material/School";
+import { AuthContext } from "../../Auth/AuthContext";
 
 export default function TeacherDashboard() {
   const navigate = useNavigate();
-  const { user, role, userId } = useContext(AuthContext);
-
+  const { userId, role } = useContext(AuthContext);
   const [courses, setCourses] = useState([]);
-  const [filterText, setFilterText] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCourses = async () => {
       if (!userId || role !== "teacher") {
         setCourses([]);
+        setLoading(false);
         return;
       }
 
       try {
         const response = await fetch(`http://localhost:4000/api/courses?teacherId=${userId}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch courses");
-        }
-
+        if (!response.ok) throw new Error("Failed to fetch courses");
         const data = await response.json();
         setCourses(data);
       } catch (error) {
         console.error("Error fetching courses:", error);
         setCourses([]);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchCourses();
   }, [userId, role]);
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedCourse, setSelectedCourse] = useState(null);
-
-  const handleMenuClick = (event, courseId) => {
-    event.stopPropagation();
-    setAnchorEl(event.currentTarget);
-    setSelectedCourse(courseId);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedCourse(null);
-  };
-
-  const handleAction = (action) => {
-    if (action === "Edit") {
-      navigate(`/edit/${selectedCourse}`);
-    } else {
-      alert(`${action} clicked for course ID ${selectedCourse}`);
-    }
-    handleMenuClose();
-  };
-
-  const filteredCourses = courses.filter(course =>
-    course.title.toLowerCase().includes(filterText.toLowerCase()) ||
-    course.course_code.toLowerCase().includes(filterText.toLowerCase())
-  );
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
-    <Box p={3}>
-      <Typography variant="h5" mb={2}>
-        My Courses
-      </Typography>
+    <Box sx={{ maxWidth: 1200, mx: "auto", mt: 4, px: 2 }}>
+      {/* Gradient Header */}
+      <Paper
+        elevation={3}
+        sx={{
+          background: "linear-gradient(135deg, #42a5f5, #478ed1)",
+          color: "white",
+          p: 3,
+          borderRadius: 3,
+          mb: 4,
+        }}
+      >
+        <Typography variant="h4" fontWeight="bold">
+          Welcome Back!
+        </Typography>
+        <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
+          Here are the courses you’re teaching
+        </Typography>
+      </Paper>
 
-      <Box mb={2} maxWidth={300}>
-        <input
-          type="text"
-          placeholder="Search courses..."
-          value={filterText}
-          onChange={(e) => setFilterText(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "8px",
-            borderRadius: "6px",
-            border: "1px solid #ccc",
-            fontSize: "14px",
-          }}
-        />
-      </Box>
-
-      <Stack spacing={2}>
-        {filteredCourses.length > 0 ? (
-          filteredCourses.map((course) => (
-            <Paper
-              key={course.id}
-              sx={{
-                p: 2,
-                cursor: "pointer",
-                bgcolor: "#b3e5fc",
-              }}
-              onClick={() => navigate(`/dashboard/course/${course.id}`)}
-            >
-              <Box
+      {/* Course List */}
+      {courses.length === 0 ? (
+        <Typography color="text.secondary">
+          You are not assigned to any courses yet. Please contact your administrator.
+        </Typography>
+      ) : (
+        <Grid container spacing={3}>
+          {courses.map((course) => (
+            <Grid item xs={12} sm={6} md={3} key={course.id}>
+              <Paper
+                elevation={2}
+                onClick={() => navigate(`/dashboard/course/${course.id}`)}
                 sx={{
+                  width: 250,
+                  height: 150,
+                  borderRadius: 2,
+                  p: 2,
+                  cursor: "pointer",
                   display: "flex",
+                  flexDirection: "column",
                   justifyContent: "space-between",
-                  alignItems: "center",
+                  bgcolor: "#e3f2fd", // light blue
+                  transition: "0.3s",
+                  "&:hover": {
+                    boxShadow: 4,
+                    transform: "translateY(-2px)",
+                  },
                 }}
               >
+                {/* Top Section */}
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <SchoolIcon sx={{ fontSize: 30, color: "#2196f3", mr: 1 }} />
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight="bold"
+                    color="black"
+                    noWrap
+                  >
+                    {course.course_code || "N/A"}
+                  </Typography>
+                </Box>
+
+                {/* Bottom Section (Title) */}
                 <Typography
-                  sx={{ cursor: "pointer" }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/dashboard/course/${course.id}`);
+                  variant="body2"
+                  color="text.primary"
+                  sx={{
+                    fontWeight: 500,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   {course.title}
                 </Typography>
-                <IconButton onClick={(e) => handleMenuClick(e, course.id)}>
-                  <MoreVertIcon />
-                </IconButton>
-              </Box>
-            </Paper>
-          ))
-        ) : (
-          <Typography>No courses found.</Typography>
-        )}
-      </Stack>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </Box>
   );
 }

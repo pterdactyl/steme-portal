@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import OutlineContent from "./OutlineContent";
 import '../../styles/EditOutline.css';
 import html2pdf from "html2pdf.js";
-import { createRoot } from 'react-dom/client';
 import {
   Box,
   Typography,
@@ -24,23 +23,18 @@ export default function OutlinePage() {
   const { user, role, userId } = useContext(AuthContext);
   const [courses, setCourses] = useState([]);
   const [filterText, setFilterText] = useState("");
- 
-  // State for menus and selection
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [exportAnchorEl, setExportAnchorEl] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
 
-  // State for on-the-fly PDF generation
   const [outlineForExport, setOutlineForExport] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
   const exportContainerRef = useRef(null);
 
-  // 🔁 Fetch courses from Azure SQL backend
   useEffect(() => {
     async function fetchCourses() {
       try {
-        console.log(userId);
-        console.log(user);
         const res = await fetch(`http://localhost:4000/api/courses?teacherId=${userId}`);
         const data = await res.json();
         setCourses(data);
@@ -49,33 +43,29 @@ export default function OutlinePage() {
       }
     }
     if (userId) fetchCourses();
-  }, [user]);
+  }, [userId]);
 
-  // useEffect for On-the-Fly PDF Generation
   useEffect(() => {
-    // This now correctly triggers when exportToPDF sets isExporting to true
     if (isExporting && exportContainerRef.current && outlineForExport) {
       const element = exportContainerRef.current;
       const options = {
         margin: 0,
         filename: `${outlineForExport.courseCode}_${outlineForExport.courseName}_Outline.pdf`,
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, logging: true, useCORS: true },
+        html2canvas: { scale: 2, logging: false, useCORS: true },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
         pagebreak: { mode: ['css', 'legacy'] },
       };
 
-      console.log("Starting PDF generation from ref element...");
       setTimeout(async () => {
         try {
           await html2pdf().from(element).set(options).save();
-          console.log("PDF generation successful.");
         } catch (error) {
           console.error("PDF generation failed:", error);
           alert("Failed to generate PDF. Check console for errors.");
         } finally {
           setIsExporting(false);
-          handleCloseMenus(); // Close all menus after export
+          handleCloseMenus();
         }
       }, 100);
     }
@@ -84,37 +74,33 @@ export default function OutlinePage() {
   const filteredCourses = courses.filter(
     (course) =>
       course.title.toLowerCase().includes(filterText.toLowerCase()) ||
-      course.id.toLowerCase().includes(filterText.toLowerCase())
+      course.course_code.toLowerCase().includes(filterText.toLowerCase())
   );
 
   const handleMenuClick = (event, course) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
-    setSelectedCourse(course); 
+    setSelectedCourse(course);
   };
 
   const handleExportClick = (event) => {
-    setAnchorEl(null); // Close the main menu
-    setExportAnchorEl(event.currentTarget); // Open the export submenu
+    setAnchorEl(null);
+    setExportAnchorEl(event.currentTarget);
   };
-  
+
   const handleCloseMenus = () => {
     setAnchorEl(null);
     setExportAnchorEl(null);
-    // Don't reset selectedCourse here, we might need it for the iframe
   };
-
-  // --- UNIFIED EXPORT FUNCTIONS ---
 
   const exportToPDF = async () => {
     if (!selectedCourse) return;
-  
+
     try {
       const res = await fetch(`http://localhost:4000/api/outlines/${selectedCourse.id}`);
       if (!res.ok) throw new Error("Outline not found");
-  
+
       const outlineData = await res.json();
-      console.log(outlineData); 
       setOutlineForExport({
         courseCode: selectedCourse.course_code,
         courseName: outlineData.course_name || "",
@@ -128,49 +114,19 @@ export default function OutlinePage() {
         finalAssessments: outlineData.final_assessments || [],
         totalHours: outlineData.total_hours || 0,
       });
-  
+
       setIsExporting(true);
     } catch (error) {
       console.error("Failed to fetch outline for export:", error);
       alert(`Failed to export PDF: ${error.message}`);
     }
-  
+
     handleCloseMenus();
   };
 
   const printContent = async () => {
-    // if (!selectedCourse) return;
-    // const docRef = doc(db, "courseOutlines", selectedCourse.id);
-    // const docSnap = await getDoc(docRef);
-
-    // if (docSnap.exists()) {
-    //     const outlineData = { ...docSnap.data(), courseCode: selectedCourse.id };
-    //     const tempDivForPrint = document.createElement('div');
-    //     document.body.appendChild(tempDivForPrint);
-    //     const reactRootForPrint = createRoot(tempDivForPrint);
-    //     reactRootForPrint.render(
-    //         <OutlineContent
-    //             outline={outlineData}
-    //             units={outlineData.units || []}
-    //             finalAssessments={outlineData.finalAssessments || []}
-    //             totalHours={outlineData.totalHours || 0}
-    //             viewOnly={true}
-    //         />
-    //     );
-    //     setTimeout(() => {
-    //         const printWindow = window.open("", "", "width=900,height=650");
-    //         printWindow.document.write(`<html><head><title>${outlineData.courseCode} Outline</title></head><body>${tempDivForPrint.innerHTML}</body></html>`);
-    //         printWindow.document.close();
-    //         printWindow.focus();
-    //         printWindow.print();
-    //         printWindow.close();
-    //         reactRootForPrint.unmount();
-    //         document.body.removeChild(tempDivForPrint);
-    //     }, 100);
-    // } else {
-    //     alert("Outline content not found for printing!");
-    // }
-    // handleCloseMenus();
+    // Placeholder for print logic if you want to re-enable later
+    handleCloseMenus();
   };
 
   const handleEdit = () => {
@@ -186,42 +142,79 @@ export default function OutlinePage() {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" mb={3}>Course Outlines</Typography>
+    <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1100, mx: "auto" }}>
+      <Typography variant="h4" mb={3} sx={{ fontWeight: 700, letterSpacing: 1 }}>
+        Course Outlines
+      </Typography>
+
       <TextField
         placeholder="Search courses..."
         fullWidth
         value={filterText}
         onChange={(e) => setFilterText(e.target.value)}
-        sx={{ mb: 4 }}
+        sx={{
+          mb: 4,
+          backgroundColor: "white",
+          borderRadius: 2,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          "& .MuiOutlinedInput-root": {
+            borderRadius: 2,
+          },
+        }}
+        variant="outlined"
+        size="medium"
       />
-      <Stack spacing={2}>
+
+      <Stack spacing={3}>
         {filteredCourses.length === 0 ? (
-          <Typography>No courses found.</Typography>
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{ textAlign: "center", mt: 6, fontStyle: "italic" }}
+          >
+            No courses found.
+          </Typography>
         ) : (
           filteredCourses.map((course) => (
             <Paper
               key={course.id}
               sx={{
-                p: 2,
-                bgcolor: "#e3f2fd",
+                p: 3,
+                bgcolor: "background.paper",
+                borderRadius: 3,
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
                 cursor: "pointer",
+                boxShadow: "0 4px 12px rgba(33, 150, 243, 0.1)",
+                transition: "all 0.3s ease",
                 userSelect: "none",
-                '&:hover': {
-                  bgcolor: '#bbdefb', 
+                "&:hover": {
+                  boxShadow: "0 8px 20px rgba(33, 150, 243, 0.25)",
+                  transform: "translateY(-4px)",
+                  bgcolor: "#e3f2fd",
                 },
               }}
               onClick={() => navigate(`/view/${course.course_code}`, { state: { course } })}
+              elevation={4}
             >
               <Box>
-                <Typography variant="h6">{course.title}</Typography>
-                <Typography variant="body2" color="text.secondary">{course.course_code}</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: "#1565c0" }}>
+                  {course.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                  {course.course_code}
+                </Typography>
               </Box>
-              <Tooltip title="Options">
-                <IconButton onClick={(e) => handleMenuClick(e, course)} size="small">
+              <Tooltip title="Options" arrow>
+                <IconButton
+                  onClick={(e) => handleMenuClick(e, course)}
+                  size="small"
+                  sx={{
+                    color: "#1976d2",
+                    "&:hover": { bgcolor: "rgba(25, 118, 210, 0.1)" },
+                  }}
+                >
                   <MoreVertIcon />
                 </IconButton>
               </Tooltip>
@@ -235,35 +228,61 @@ export default function OutlinePage() {
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleCloseMenus}
+        MenuListProps={{ sx: { p: 0 } }}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: "0 6px 15px rgba(0,0,0,0.15)",
+            minWidth: 160,
+          },
+        }}
       >
-        <MenuItem onClick={handleExportClick}>Export</MenuItem>
-        <MenuItem onClick={handleEdit}>Edit</MenuItem>
-        <MenuItem onClick={handleHistory}>History</MenuItem>
+        <MenuItem onClick={handleExportClick} sx={{ fontWeight: 600, color: "#1976d2" }}>
+          Export
+        </MenuItem>
+        <MenuItem onClick={handleEdit} sx={{ fontWeight: 600, color: "#1976d2" }}>
+          Edit
+        </MenuItem>
+        <MenuItem onClick={handleHistory} sx={{ fontWeight: 600, color: "#1976d2" }}>
+          History
+        </MenuItem>
       </Menu>
 
-      {/* Export Submenu - FIXED to call correct functions */}
+      {/* Export Submenu */}
       <Menu
         anchorEl={exportAnchorEl}
         open={Boolean(exportAnchorEl)}
         onClose={handleCloseMenus}
+        MenuListProps={{ sx: { p: 0 } }}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: "0 6px 15px rgba(0,0,0,0.15)",
+            minWidth: 180,
+          },
+        }}
       >
-        <MenuItem onClick={exportToPDF}>Generate New PDF</MenuItem>
-        <MenuItem onClick={printContent}>Print</MenuItem>
+        <MenuItem onClick={exportToPDF} sx={{ fontWeight: 600, color: "#1976d2" }}>
+          Generate New PDF
+        </MenuItem>
+        <MenuItem onClick={printContent} sx={{ fontWeight: 600, color: "#1976d2" }}>
+          Print
+        </MenuItem>
       </Menu>
 
-      {/* Hidden container for PDF generation */}
+      {/* Hidden PDF export container */}
       {isExporting && outlineForExport && (
-         <div style={{ opacity: 0, pointerEvents: 'none', position: 'fixed' }}>
-            <div ref={exportContainerRef}>
-                <OutlineContent
-                    outline={outlineForExport}
-                    units={outlineForExport.units || []}
-                    finalAssessments={outlineForExport.finalAssessments || []}
-                    totalHours={outlineForExport.totalHours || 0}
-                    viewOnly={true}
-                />
-            </div>
-         </div>
+        <div style={{ opacity: 0, pointerEvents: "none", position: "fixed" }}>
+          <div ref={exportContainerRef}>
+            <OutlineContent
+              outline={outlineForExport}
+              units={outlineForExport.units || []}
+              finalAssessments={outlineForExport.finalAssessments || []}
+              totalHours={outlineForExport.totalHours || 0}
+              viewOnly={true}
+            />
+          </div>
+        </div>
       )}
     </Box>
   );

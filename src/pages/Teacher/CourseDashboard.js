@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate, useLocation, Outlet } from "react-router-dom";
-import { Box, Typography, Tabs, Tab } from "@mui/material";
-import { AuthContext } from "../../Auth/AuthContext"; // ✅ Import context
+import { Box, Typography, Tabs, Tab, Paper } from "@mui/material";
+import { AuthContext } from "../../Auth/AuthContext";
 
 export default function CourseDashboard() {
-  const { user } = useContext(AuthContext); // ✅ Get user from context
+  const { user } = useContext(AuthContext);
   const { courseId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,62 +44,84 @@ export default function CourseDashboard() {
     return (
       location.pathname === fullPath ||
       (tab.path === "" && location.pathname === `/dashboard/course/${courseId}`) ||
-      (tab.path && location.pathname.startsWith(fullPath + "/")) // Matches attendance/2/history
+      (tab.path && location.pathname.startsWith(fullPath + "/"))
     );
   });
+
   const tabValue = currentTabIndex === -1 ? false : currentTabIndex;
 
   const handleTabChange = (e, newVal) => {
     const selectedPath = tabs[newVal].path;
     const basePath = `/dashboard/course/${courseId}`;
     const targetPath = selectedPath === "" ? basePath : `${basePath}/${selectedPath}`;
-  
-    // Only navigate if it's actually different
+
     if (location.pathname !== targetPath) {
       navigate(targetPath);
     } else {
-      // Force navigation to reset nested component
-      navigate(targetPath, { replace: true });
+      navigate(targetPath, { replace: true }); // Refresh nested
     }
-  
-    console.log("Navigating to:", targetPath);
   };
 
   return (
-    <Box p={3}>
-      <Box mb={2}>
-        <Typography variant="h6" sx={{ lineHeight: 1.3 }}>
+    <Paper
+      elevation={4}
+      sx={{
+        p: 0,
+        borderRadius: 4,
+        overflow: "hidden",
+        maxWidth: 1100,
+        mx: "auto",
+        mt: 4,
+      }}
+    >
+      {/* Header */}
+      <Box
+        sx={{
+          background: "linear-gradient(135deg, #1976d2, #42a5f5)",
+          color: "white",
+          p: 3,
+        }}
+      >
+        <Typography variant="h4" fontWeight="bold">
           {courseData?.course_code || "Course Code"}
         </Typography>
-        <Typography variant="subtitle1" color="text.secondary" sx={{ lineHeight: 1.2 }}>
-          {courseData?.teachers?.[0]?.name || "Unnamed Teacher"}
+        <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
+          {courseData?.title || "Course Overview"}
         </Typography>
       </Box>
 
-      <Tabs
-        value={tabValue}
-        onChange={handleTabChange}
-        sx={{ mb: 3 }}
-        variant="scrollable"
-        scrollButtons="auto"
-        indicatorColor="primary"
-        textColor="primary"
-      >
-        {tabs.map((tab, index) => (
-          <Tab key={tab.label} label={tab.label} value={index} />
-        ))}
-      </Tabs>
+      {/* Tabs */}
+      <Box sx={{ px: 3, pt: 2, bgcolor: "background.paper" }}>
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          indicatorColor="primary"
+          textColor="primary"
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+          }}
+        >
+          {tabs.map((tab, index) => (
+            <Tab key={tab.label} label={tab.label} value={index} />
+          ))}
+        </Tabs>
+      </Box>
 
-      {/* Pass course info and user into all tabs */}
-      <Outlet
-        context={{
-          courseId,
-          courseData,
-          students,
-          outlineUrl,
-          user, // ✅ Provided to nested tabs like AnnouncementsTab
-        }}
-      />
-    </Box>
+      {/* Content */}
+      <Box sx={{ px: 3, pb: 4 }}>
+        <Outlet
+          context={{
+            courseId,
+            courseData,
+            students,
+            outlineUrl,
+            user,
+          }}
+        />
+      </Box>
+    </Paper>
   );
 }

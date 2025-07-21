@@ -141,7 +141,7 @@ export default function AttendanceTab() {
   return (
     <Box p={4}>
       <Stack spacing={3} mb={3}>
-      <Typography variant="h6">
+      <Typography variant="h5" fontWeight="bold">
         Attendance for {localDate.toLocaleDateString("en-US", {
           weekday: "long",
           year: "numeric",

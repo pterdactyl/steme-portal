@@ -75,40 +75,12 @@ export default function CourseSelection() {
 
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedCourseDetail, setSelectedCourseDetail] = useState(null);
-  
   const [courses, setCourses] = useState(initialCourses);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalGrade, setModalGrade] = useState(null);
   const [filterGroup, setFilterGroup] = useState(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-
-  // Load saved courses on mount
-//   useEffect(() => {
-//   if (!user?.username) return;
-
-//   const loadSavedCourses = async () => {
-//     try {
-//       const res = await fetch(
-//   http://localhost:4000/api/courses?email=${encodeURIComponent(user.email)}&grade=${encodeURIComponent(currentGrade)}
-// );
-//       if (!res.ok) throw new Error("Failed to fetch courses");
-//       const data = await res.json();
-
-//       if (data?.courses) {
-//         setCourses(prev => ({
-//           ...prev,
-//           [currentGrade]: data.courses,
-//         }));
-//         setHasSubmitted(true);
-//       }
-//     } catch (error) {
-//       console.error("Error loading saved courses:", error);
-//     }
-//   };
-
-//   loadSavedCourses();
-// }, [user]);
-
+  const [message, setMessage] = useState({ type: "", text: "" });
 
   const handleAddCourse = (grade, group = null) => {
     if (gradeLevels.indexOf(grade) < gradeLevels.indexOf(currentGrade)) return;
@@ -119,89 +91,84 @@ export default function CourseSelection() {
   };
 
   const handleSelectCourse = (course) => {
-  if (!modalGrade) return;
+    if (!modalGrade) return;
 
-  // Check prerequisite if it exists
-  if (course.prerequisite) {
-    const allSelectedCourses = [];
+    if (course.prerequisite) {
+      const allSelectedCourses = [];
 
-    gradeLevels.forEach((grade) => {
-      // Only consider grades before or equal to the current one
-      if (gradeLevels.indexOf(grade) <= gradeLevels.indexOf(modalGrade)) {
-        const gradeCourses = courses[grade] || [];
-        gradeCourses.forEach(c => allSelectedCourses.push(c.code));
+      gradeLevels.forEach((grade) => {
+        if (gradeLevels.indexOf(grade) <= gradeLevels.indexOf(modalGrade)) {
+          const gradeCourses = courses[grade] || [];
+          gradeCourses.forEach((c) => allSelectedCourses.push(c.code));
+        }
+      });
+
+      if (!allSelectedCourses.includes(course.prerequisite)) {
+        setMessage({
+          type: "error",
+          text: `❌ You must complete ${course.prerequisite} before taking ${course.code}.`,
+        });
+        return;
       }
+    }
+
+    setCourses((prev) => {
+      const existing = prev[modalGrade] || [];
+      const filtered = course.group
+        ? existing.filter((c) => c.group !== course.group)
+        : existing;
+
+      return {
+        ...prev,
+        [modalGrade]: [...filtered, course],
+      };
     });
 
-    if (!allSelectedCourses.includes(course.prerequisite)) {
-      alert(`❌ You must complete ${course.prerequisite} before taking ${course.code}.`);
-      return;
-    }
-  }
-
-  setCourses(prev => {
-    const existing = prev[modalGrade] || [];
-
-    const filtered = course.group
-      ? existing.filter(c => c.group !== course.group)
-      : existing;
-
-    return {
-      ...prev,
-      [modalGrade]: [...filtered, course],
-    };
-  });
-
-  setModalOpen(false);
-  setFilterGroup(null);
-};
+    setModalOpen(false);
+    setFilterGroup(null);
+  };
 
   const handleRemoveCourse = (grade, courseId) => {
     if (gradeLevels.indexOf(grade) < gradeLevels.indexOf(currentGrade)) return;
     if (grade === currentGrade && hasSubmitted) return;
 
-    setCourses(prev => ({
+    setCourses((prev) => ({
       ...prev,
-      [grade]: prev[grade].filter(c => c.id !== courseId),
+      [grade]: prev[grade].filter((c) => c.id !== courseId),
     }));
   };
 
-const handleSubmitCourses = async (grade) => {
-  // if (!user?.username) {
-  //   alert("❌ You must be logged in to submit courses.");
-  //   return;
-  // }
+  const handleSubmitCourses = async (grade) => {
+    console.log("Submitting courses:", {
+      email: userId,
+      grade,
+      courses: courses[grade] || [],
+    });
 
-  console.log("Submitting courses:", {
-  email: userId,
-  grade,
-  courses: courses[grade] || [],
-});
+    try {
+      const response = await fetch("http://localhost:4000/api/courses/studentselections", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: userId,
+          grade,
+          courses: courses[grade] || [],
+        }),
+      });
 
-  try {
-    const response = await fetch("http://localhost:4000/api/courses/studentselections", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    id: userId,
-    grade,
-    courses: courses[grade] || [],
-  }),
-});
+      if (!response.ok) throw new Error("Failed to save courses");
 
-    if (!response.ok) throw new Error("Failed to save courses");
-
-    alert(`✅ Courses submitted for ${grade}!`);
-    setHasSubmitted(true);
-  } catch (error) {
-    console.error("Error saving courses:", error);
-    alert("❌ Failed to save courses. Try again.");
-  }
-};
+      setMessage({ type: "success", text: `✅ Courses submitted for ${grade}!` });
+      setHasSubmitted(true);
+    } catch (error) {
+      console.error("Error saving courses:", error);
+      setMessage({ type: "error", text: "❌ Failed to save courses. Try again." });
+    }
+  };
 
   const getCreditCounts = () => {
     let total = 0;
-    let earned = 0; // You can customize earned logic
+    let earned = 0;
     let planned = 0;
 
     gradeLevels.forEach((grade) => {
@@ -220,158 +187,169 @@ const handleSubmitCourses = async (grade) => {
   const { total, earned, planned } = getCreditCounts();
 
   const takenCourseIds = new Set();
-Object.values(courses).forEach((gradeCourses) => {
-  gradeCourses.forEach((c) => takenCourseIds.add(c.id));
-});
+  Object.values(courses).forEach((gradeCourses) => {
+    gradeCourses.forEach((c) => takenCourseIds.add(c.id));
+  });
 
-return (
-  <div className="planner-container">
-    <div className="credit-summary">
-      <h3>Credit Summary</h3>
-      <p><strong>Total Selected:</strong> {total} credits</p>
-      <p><strong>Earned:</strong> {earned} credits</p>
-      <p><strong>Planned:</strong> {planned} credits</p>
-    </div>
+  return (
+    <div className="planner-container">
+      {message.text && (
+        <div className={`alert-box ${message.type}`}>
+          {message.text}
+          <button className="close-alert" onClick={() => setMessage({ type: "", text: "" })}>
+            ✕
+          </button>
+        </div>
+      )}
 
-    <div className="planner-columns">
-      {gradeLevels.map((grade) => {
-        const selected = courses[grade] || [];
-        const isCurrent = grade === currentGrade;
-        const isFuture = gradeLevels.indexOf(grade) > gradeLevels.indexOf(currentGrade);
-        const artsCourse = selected.find(c => c.group === "arts");
-        const nonArtsCourses = selected.filter(c => c.group !== "arts");
+      <div className="credit-summary">
+        <h3>Credit Summary</h3>
+        <p>
+          <strong>Total Selected:</strong> {total} credits
+        </p>
+        <p>
+          <strong>Earned:</strong> {earned} credits
+        </p>
+        <p>
+          <strong>Planned:</strong> {planned} credits
+        </p>
+      </div>
 
-        const totalCredits = selected.reduce((sum, c) => sum + c.credits, 0);
-        const maxCredits = 8;
-        const emptySlots = Math.max(0, Math.floor(maxCredits - totalCredits));
-        const needsArts = grade === "Grade 9" && !artsCourse;
+      <div className="planner-columns">
+        {gradeLevels.map((grade) => {
+          const selected = courses[grade] || [];
+          const isCurrent = grade === currentGrade;
+          const isFuture = gradeLevels.indexOf(grade) > gradeLevels.indexOf(currentGrade);
+          const artsCourse = selected.find((c) => c.group === "arts");
+          const nonArtsCourses = selected.filter((c) => c.group !== "arts");
 
-        return (
-          <div key={grade} className="grade-column">
-            <div className="grade-header">
-              {grade}
-              <br />
-              <span className="sub">{isCurrent ? "Current Grade" : isFuture ? "Plan Ahead" : "Completed"}</span>
-            </div>
+          const totalCredits = selected.reduce((sum, c) => sum + c.credits, 0);
+          const maxCredits = 8;
+          const emptySlots = Math.max(0, Math.floor(maxCredits - totalCredits));
+          const needsArts = grade === "Grade 9" && !artsCourse;
 
-            {nonArtsCourses.map((course) => (
-              <div
-  key={course.id}
-  className={`course-box ${course.required ? "required" : ""} clickable`}
-  onClick={() => {
-    const descriptionMatch = courseDescriptions.find(cd => cd.courseCode === course.code);
-    setSelectedCourseDetail({
-      ...course,
-      description: descriptionMatch?.description || "No description available.",
-      units: descriptionMatch?.units || [],
-      hours: descriptionMatch?.hours || "Not specified",
-      prerequisites: course.prerequisite ? [course.prerequisite] : [],
-    });
-    setDetailModalOpen(true);
-  }}
->
-                <div className="course-title">{course.title}</div>
-                <div className="course-code">
-                  <span>{course.code}</span>
-                  <span>{course.credits} Credit</span>
-                </div>
-                {course.prerequisite && (
-                  <div className="course-prereq">
-                    Prerequisite: <strong>{course.prerequisite}</strong>
+          return (
+            <div key={grade} className="grade-column">
+              <div className="grade-header">
+                {grade}
+                <br />
+                <span className="sub">
+                  {isCurrent ? "Current Grade" : isFuture ? "Plan Ahead" : "Completed"}
+                </span>
+              </div>
+
+              {nonArtsCourses.map((course) => (
+                <div
+                  key={course.id}
+                  className={`course-box ${course.required ? "required" : ""} clickable`}
+                  onClick={() => {
+                    const descriptionMatch = courseDescriptions.find(
+                      (cd) => cd.courseCode === course.code
+                    );
+                    setSelectedCourseDetail({
+                      ...course,
+                      description: descriptionMatch?.description || "No description available.",
+                      units: descriptionMatch?.units || [],
+                      hours: descriptionMatch?.hours || "Not specified",
+                      prerequisites: course.prerequisite ? [course.prerequisite] : [],
+                    });
+                    setDetailModalOpen(true);
+                  }}
+                >
+                  <div className="course-title">{course.title}</div>
+                  <div className="course-code">
+                    <span>{course.code}</span>
+                    <span>{course.credits} Credit</span>
                   </div>
-                )}
-
-                {(isCurrent || isFuture) && !course.required && (!hasSubmitted || !isCurrent) && (
-                  <button
-  className="remove-course-btn"
-  onClick={(e) => {
-    e.stopPropagation(); // ⛔️ Prevent triggering the parent div's onClick
-    handleRemoveCourse(grade, course.id);
-  }}
->
-  ✕
-</button>
-
-                )}
-
-                {!isCurrent && !isFuture && <span className="planned-tag">Completed</span>}
-                {isFuture && <span className="planned-tag">Planned</span>}
-              </div>
-            ))}
-
-            {/* Arts requirement for Grade 9 */}
-            {grade === "Grade 9" && (
-              <div
-                className={`course-box ${artsCourse ? "" : "empty"} clickable`}
-                onClick={() => handleAddCourse(grade, "arts")}
-              >
-                {artsCourse ? (
-                  <>
-                    <div className="course-title">{artsCourse.title}</div>
-                    <div className="course-code">
-                      <span>{artsCourse.code}</span>
-                      <span>{artsCourse.credits} Credit</span>
+                  {course.prerequisite && (
+                    <div className="course-prereq">
+                      Prerequisite: <strong>{course.prerequisite}</strong>
                     </div>
-                    <div className="sub">(Arts Requirement)</div>
-                  </>
-                ) : (
-                  "+ Arts Requirement"
-                )}
-              </div>
-            )}
+                  )}
+                  {(isCurrent || isFuture) &&
+                    !course.required &&
+                    (!hasSubmitted || !isCurrent) && (
+                      <button
+                        className="remove-course-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveCourse(grade, course.id);
+                        }}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  {!isCurrent && !isFuture && <span className="planned-tag">Completed</span>}
+                  {isFuture && <span className="planned-tag">Planned</span>}
+                </div>
+              ))}
 
-            {/* Empty slots */}
-            {Array.from({ length: emptySlots - (needsArts ? 1 : 0) }).map((_, i) => (
-              <div
-                key={i}
-                className={`course-box empty ${(isCurrent || isFuture) && (!hasSubmitted || !isCurrent) ? "clickable" : ""}`}
-                onClick={() => handleAddCourse(grade)}
-              >
-                + Course
-              </div>
-            ))}
+              {grade === "Grade 9" && (
+                <div
+                  className={`course-box ${artsCourse ? "" : "empty"} clickable`}
+                  onClick={() => handleAddCourse(grade, "arts")}
+                >
+                  {artsCourse ? (
+                    <>
+                      <div className="course-title">{artsCourse.title}</div>
+                      <div className="course-code">
+                        <span>{artsCourse.code}</span>
+                        <span>{artsCourse.credits} Credit</span>
+                      </div>
+                      <div className="sub">(Arts Requirement)</div>
+                    </>
+                  ) : (
+                    "+ Arts Requirement"
+                  )}
+                </div>
+              )}
 
-            {/* Submit button for current grade */}
-            {isCurrent && !hasSubmitted && (
-              <button className="submit-grade-btn" onClick={() => handleSubmitCourses(grade)}>
-                Submit All Courses
-              </button>
-            )}
-          </div>
-        );
-      })}
+              {Array.from({ length: emptySlots - (needsArts ? 1 : 0) }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`course-box empty ${
+                    isCurrent || isFuture ? (!hasSubmitted || !isCurrent ? "clickable" : "") : ""
+                  }`}
+                  onClick={() => handleAddCourse(grade)}
+                >
+                  + Course
+                </div>
+              ))}
+
+              {isCurrent && !hasSubmitted && (
+                <button className="submit-grade-btn" onClick={() => handleSubmitCourses(grade)}>
+                  Submit All Courses
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <CourseDetailModal
+        open={detailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
+        course={selectedCourseDetail}
+      />
+
+      <CourseModal
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setFilterGroup(null);
+        }}
+        onSelect={handleSelectCourse}
+        courseOptions={(filterGroup === "arts" ? artsCourses : availableCourses)
+          .filter((c) => !takenCourseIds.has(c.id))
+          .map((course) => {
+            const descriptionMatch = courseDescriptions.find((cd) => cd.courseCode === course.code);
+            return {
+              ...course,
+              description: descriptionMatch?.description || "No description available.",
+              units: descriptionMatch?.units || [],
+            };
+          })}
+      />
     </div>
-
-    <CourseDetailModal
-  open={detailModalOpen}
-  onClose={() => setDetailModalOpen(false)}
-  course={selectedCourseDetail}
-/>
-
-
-    <CourseModal
-      open={modalOpen}
-      onClose={() => {
-        setModalOpen(false);
-        setFilterGroup(null);
-      }}
-      onSelect={handleSelectCourse}
-      courseOptions={
-  (filterGroup === "arts" ? artsCourses : availableCourses)
-    .filter(c => !takenCourseIds.has(c.id))
-    .map(course => {
-      const descriptionMatch = courseDescriptions.find(cd => cd.courseCode === course.code);
-      return {
-        ...course,
-        description: descriptionMatch?.description || "No description available.",
-        units: descriptionMatch?.units || [],
-      };
-    })
-}
-
-
-
-    />
-  </div>
-);
+  );
 }

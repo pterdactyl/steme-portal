@@ -5,6 +5,7 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submittedFiles, setSubmittedFiles] = useState([]);
 
@@ -31,24 +32,21 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
   };
 
   const fetchSubmittedFiles = async () => {
-  try {
-    const res = await fetch(`http://localhost:4000/api/submissions/file-url/${assignmentId}/${userId}`);
-    const data = await res.json();
+    try {
+      const res = await fetch(`http://localhost:4000/api/submissions/file-url/${assignmentId}/${userId}`);
+      const data = await res.json();
 
-    if (Array.isArray(data) && data.length > 0) {
-      setSubmittedFiles(data); // data is array of { url, name }
-    } else {
-      setSubmittedFiles([]);
+      setSubmittedFiles(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch submitted files", err);
     }
-  } catch (err) {
-    console.error("Failed to fetch submitted files", err);
-  }
-};
+  };
 
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files);
     setFiles((prevFiles) => [...prevFiles, ...newFiles]);
     setError("");
+    setMessage("");
   };
 
   const handleRemoveFile = (indexToRemove) => {
@@ -56,6 +54,7 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
   };
 
   const handleSubmit = async () => {
+    setMessage("");
     if (files.length === 0) {
       setError("Please select at least one file to submit.");
       return;
@@ -87,9 +86,9 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
 
       setFiles([]);
       setSubmitted(true);
-      fetchSubmittedFiles(); // Get file info
+      fetchSubmittedFiles();
       if (onSubmitted) onSubmitted();
-      alert("Files uploaded successfully!");
+      setMessage("Files uploaded successfully!");
     } catch (err) {
       console.error("Upload error:", err);
       setError(err.message || "Upload failed. Please try again.");
@@ -99,8 +98,7 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
   };
 
   const handleUnsubmit = async () => {
-    if (!window.confirm("Are you sure you want to withdraw your submission to edit?")) return;
-
+    setMessage("");
     try {
       const res = await fetch("http://localhost:4000/api/submissions/unsubmit", {
         method: "DELETE",
@@ -115,10 +113,10 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
       setFiles([]);
       setSubmittedFiles([]);
       if (onSubmitted) onSubmitted();
-      alert("Submission withdrawn. You can now upload new files.");
+      setMessage("Submission withdrawn. You can now upload new files.");
     } catch (err) {
       console.error(err);
-      alert(err.message || "Failed to withdraw submission");
+      setError(err.message || "Failed to withdraw submission");
     }
   };
 
@@ -149,6 +147,18 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
           >
             Withdraw Submission / Edit
           </Button>
+
+          {message && (
+            <Typography color="success.main" variant="body2" mt={1}>
+              {message}
+            </Typography>
+          )}
+
+          {error && (
+            <Typography color="error" variant="body2" mt={1}>
+              {error}
+            </Typography>
+          )}
         </>
       ) : (
         <>
@@ -187,13 +197,19 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
               </ul>
             </Box>
           )}
-        </>
-      )}
 
-      {error && (
-        <Typography color="error" variant="caption" display="block" mt={1}>
-          {error}
-        </Typography>
+          {message && (
+            <Typography color="success.main" variant="body2" mt={1}>
+              {message}
+            </Typography>
+          )}
+
+          {error && (
+            <Typography color="error" variant="body2" mt={1}>
+              {error}
+            </Typography>
+          )}
+        </>
       )}
     </Box>
   );

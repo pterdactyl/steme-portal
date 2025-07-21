@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
   Typography,
   Paper,
   CircularProgress,
   Stack,
-  Divider,
+  Avatar,
 } from "@mui/material";
 
 export default function StudentsTab() {
@@ -15,7 +14,6 @@ export default function StudentsTab() {
   const [students, setStudents] = useState([]);
   const [courseTitle, setCourseTitle] = useState("");
   const [loading, setLoading] = useState(true);
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,7 +22,6 @@ export default function StudentsTab() {
         const res = await fetch(`http://localhost:4000/api/courses/${courseId}`);
         if (!res.ok) throw new Error("Failed to fetch course");
         const data = await res.json();
-
         setStudents(data.students || []);
         setCourseTitle(data.title || "Course");
       } catch (err) {
@@ -39,34 +36,55 @@ export default function StudentsTab() {
 
   return (
     <Box p={3}>
-      <Typography variant="h5" mb={2}>
+      <Typography variant="h5" fontWeight={600} gutterBottom>
         Students in {courseTitle}
       </Typography>
 
       {loading ? (
         <CircularProgress />
       ) : students.length === 0 ? (
-        <Typography>No students enrolled in this course.</Typography>
+        <Typography color="text.secondary">No students enrolled in this course.</Typography>
       ) : (
         <Stack spacing={2}>
-          {students.map((student) => (
-            <Paper
-  key={student.id}
-  onClick={() => navigate(`/students/${student.id}`)}
-  sx={{
-    p: 2,
-    borderRadius: 2,
-    boxShadow: 1,
-    cursor: "pointer",
-    '&:hover': { boxShadow: 3 },
-  }}
->
-  <Typography variant="subtitle1">{student.name}</Typography>
-  <Typography variant="body2" color="text.secondary">
-    {student.email}
-  </Typography>
-</Paper>
-          ))}
+          {students.map((student) => {
+            const firstInitial = student.name?.charAt(0).toUpperCase() || "U";
+            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+              firstInitial
+            )}&background=random`;
+
+            return (
+              <Paper
+                key={student.id}
+                onClick={() => navigate(`/students/${student.id}`)}
+                elevation={2}
+                sx={{
+                  p: 2,
+                  borderRadius: "16px",
+                  transition: "box-shadow 0.3s ease",
+                  cursor: "pointer",
+                  "&:hover": {
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  },
+                }}
+              >
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Avatar
+                    alt={firstInitial}
+                    src={avatarUrl}
+                    sx={{ width: 44, height: 44, fontWeight: 500 }}
+                  />
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight={500}>
+                      {student.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {student.email}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Paper>
+            );
+          })}
         </Stack>
       )}
     </Box>

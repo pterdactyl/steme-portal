@@ -79,34 +79,48 @@ export default function StudentDashboard() {
           {courses.map((course) => (
             <Grid item xs={12} sm={6} md={3} key={course.id}>
   <Paper
-    elevation={3}
-    onClick={() => navigate(`/course/${course.id}`)}
+  elevation={2}
+  onClick={() => navigate(`/course/${course.id}`)}
+  sx={{
+    width: 250,
+    height: 150,
+    borderRadius: 2,
+    p: 2,
+    cursor: "pointer",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    bgcolor: "#e3f2fd", // light blue
+    transition: "0.3s",
+    "&:hover": {
+      boxShadow: 4,
+      transform: "translateY(-2px)",
+    },
+  }}
+>
+  {/* Top Section */}
+  <Box sx={{ display: "flex", alignItems: "center" }}>
+    <SchoolIcon sx={{ fontSize: 30, color: "#2196f3", mr: 1 }} />
+    <Typography variant="subtitle1" fontWeight="bold" color="black" noWrap>
+      {course.course_code || "N/A"}
+    </Typography>
+  </Box>
+
+  {/* Bottom Section (Title) */}
+  <Typography
+    variant="body2"
+    color="text.primary"
     sx={{
-      p: 3,
-      borderRadius: 3,
-      cursor: "pointer",
-      transition: "0.3s",
-      bgcolor: "#f5faff",
-      height: 180,  // fixed height
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
-      "&:hover": {
-        boxShadow: 6,
-        bgcolor: "#e3f2fd",
-      },
+      fontWeight: 500,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
     }}
   >
-    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-      <SchoolIcon sx={{ fontSize: 40, color: "#42a5f5", mr: 1 }} />
-      <Typography variant="h6" fontWeight="bold" noWrap>
-        {course.title}
-      </Typography>
-    </Box>
-    <Typography variant="body2" color="text.secondary" sx={{ mt: "auto" }}>
-      {course.course_code || "Course Code N/A"}
-    </Typography>
-  </Paper>
+    {course.title}
+  </Typography>
+</Paper>
+
 </Grid>
             
           ))}
