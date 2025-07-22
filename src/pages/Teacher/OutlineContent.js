@@ -25,7 +25,12 @@ export default function OutlineContent({
               {viewOnly ? (
                 <div className="view-text-style">{outline.courseName}</div>
               ) : (
-                <input type="text" value={outline.courseName} onChange={(e) => handleChange("courseName", e.target.value)} className="inputStyle" />
+                <input
+                  type="text"
+                  value={outline.courseName}
+                  onChange={(e) => handleChange("courseName", e.target.value)}
+                  className="inputStyle"
+                />
               )}
             </td>
           </tr>
@@ -35,7 +40,12 @@ export default function OutlineContent({
               {viewOnly ? (
                 <div className="view-text-style">{outline.grade}</div>
               ) : (
-                <input type="text" value={outline.grade} onChange={(e) => handleChange("grade", e.target.value)} className="inputStyle" />
+                <input
+                  type="text"
+                  value={outline.grade}
+                  onChange={(e) => handleChange("grade", e.target.value)}
+                  className="inputStyle"
+                />
               )}
             </td>
           </tr>
@@ -45,7 +55,12 @@ export default function OutlineContent({
               {viewOnly ? (
                 <div className="view-text-style">{outline.courseType}</div>
               ) : (
-                <input type="text" value={outline.courseType} onChange={(e) => handleChange("courseType", e.target.value)} className="inputStyle" />
+                <input
+                  type="text"
+                  value={outline.courseType}
+                  onChange={(e) => handleChange("courseType", e.target.value)}
+                  className="inputStyle"
+                />
               )}
             </td>
           </tr>
@@ -55,10 +70,38 @@ export default function OutlineContent({
               {viewOnly ? (
                 <div className="view-text-style">{outline.credit}</div>
               ) : (
-                <input type="text" value={outline.credit} onChange={(e) => handleChange("credit", e.target.value)} className="inputStyle" />
+                <input
+                  type="text"
+                  value={outline.credit}
+                  onChange={(e) => handleChange("credit", e.target.value)}
+                  className="inputStyle"
+                />
               )}
             </td>
           </tr>
+         {/* NEW Prerequisites row */}
+<tr>
+  <td className="leftSide"><strong>Prerequisite(s)</strong></td>
+  <td className="cellStyle">
+    {viewOnly ? (
+      <div className="view-text-style">
+        {outline.prerequisite && outline.prerequisite.trim() !== "" 
+          ? outline.prerequisite 
+          : "None"}
+      </div>
+    ) : (
+      <input
+        type="text"
+        value={outline.prerequisite && outline.prerequisite.trim() !== "" 
+          ? outline.prerequisite 
+          : "None"}
+        onChange={(e) => handleChange("prerequisite", e.target.value)}  // fixed key here
+        className="inputStyle"
+        placeholder="None"
+      />
+    )}
+  </td>
+</tr>
           <tr>
             <td className="leftSide"><strong>Description</strong></td>
             <td className="cellStyle">
@@ -131,21 +174,110 @@ export default function OutlineContent({
               </table>
             </td>
           </tr>
+
           <tr>
             <td className="leftSide"><strong>Assessment</strong></td>
             <td className="cellStyle">
-              {viewOnly ? (
-                <div className="view-textarea-style">{outline.assessment}</div>
-              ) : (
-                <textarea
-                  value={outline.assessment}
-                  onChange={(e) => handleChange("assessment", e.target.value)}
-                  onInput={(e) => { e.target.style.height = "auto"; e.target.style.height = `${e.target.scrollHeight}px`; }}
-                  className="textareaStyle"
-                />
-              )}
+              {(() => {
+                let parsed = { term: 0, final: 0, categories: {} };
+                try {
+                  parsed = typeof outline.assessment === "string" && outline.assessment.trim() !== ""
+                    ? JSON.parse(outline.assessment)
+                    : outline.assessment || parsed;
+                } catch {
+                  return <div style={{ color: "red" }}>Invalid assessment data</div>;
+                }
+
+                const updateField = (field, value) => {
+                  const updated = { ...parsed };
+                  if (field === "term" || field === "final") {
+                    updated[field] = Number(value) || 0;
+                  }
+                  handleChange("assessment", JSON.stringify(updated));
+                };
+
+                const updateCategory = (key, value) => {
+                  const updated = { ...parsed };
+                  updated.categories = { ...updated.categories, [key]: Number(value) || 0 };
+                  handleChange("assessment", JSON.stringify(updated));
+                };
+
+                if (viewOnly) {
+                  return (
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
+                      <tbody>
+                        <tr>
+                          <td style={{ fontWeight: "bold", borderBottom: "1px solid #ccc" }}>Term Work</td>
+                          <td style={{ borderBottom: "1px solid #ccc" }}>{parsed.term}%</td>
+                        </tr>
+                        {parsed.categories &&
+                          Object.entries(parsed.categories).map(([key, val]) => (
+                            <tr key={key}>
+                              <td style={{ paddingLeft: "2rem" }}>• {key}</td>
+                              <td>{val}%</td>
+                            </tr>
+                          ))}
+                        <tr>
+                          <td style={{ fontWeight: "bold", borderTop: "1px solid #ccc" }}>Final Evaluation</td>
+                          <td style={{ borderTop: "1px solid #ccc" }}>{parsed.final}%</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  );
+                }
+
+                return (
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
+                    <tbody>
+                      <tr>
+                        <td style={{ fontWeight: "bold", borderBottom: "1px solid #ccc" }}>Term Work</td>
+                        <td style={{ borderBottom: "1px solid #ccc" }}>
+                          <input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={parsed.term}
+                            onChange={e => updateField("term", e.target.value)}
+                            style={{ width: "60px" }}
+                          />%
+                        </td>
+                      </tr>
+                      {parsed.categories &&
+                        Object.entries(parsed.categories).map(([key, val]) => (
+                          <tr key={key}>
+                            <td style={{ paddingLeft: "2rem" }}>• {key}</td>
+                            <td>
+                              <input
+                                type="number"
+                                min={0}
+                                max={100}
+                                value={val}
+                                onChange={e => updateCategory(key, e.target.value)}
+                                style={{ width: "60px" }}
+                              />%
+                            </td>
+                          </tr>
+                        ))}
+                      <tr>
+                        <td style={{ fontWeight: "bold", borderTop: "1px solid #ccc" }}>Final Evaluation</td>
+                        <td style={{ borderTop: "1px solid #ccc" }}>
+                          <input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={parsed.final}
+                            onChange={e => updateField("final", e.target.value)}
+                            style={{ width: "60px" }}
+                          />%
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                );
+              })()}
             </td>
           </tr>
+
         </tbody>
       </table>
     </div>

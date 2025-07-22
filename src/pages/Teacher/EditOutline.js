@@ -3,6 +3,7 @@ import { useParams, useLocation } from "react-router-dom";
 import '../../styles/EditOutline.css';
 import OutlineContent from "./OutlineContent";
 import { AuthContext } from "../../Auth/AuthContext";
+import CustomSnackbar from '../../components/CustomSnackbar';
 
 export default function EditOutline() {
   const { courseId } = useParams();
@@ -12,6 +13,21 @@ export default function EditOutline() {
   const courseFromState = location.state?.course;
   const [viewMode, setViewMode] = useState("draft"); // "draft" or "published"
   const [isLoading, setIsLoading] = useState(false);
+
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = React.useState("info");
+
+  const showSnackbar = (message, severity = "info") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+  
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setSnackbarOpen(false);
+  };
 
   const [outline, setOutline] = useState({
     courseCode: "",
@@ -23,6 +39,7 @@ export default function EditOutline() {
     description: "",
     learningGoals: "",
     assessment: "",
+    prerequisite: "",
   });
 
   const [units, setUnits] = useState([{ unitNum: "", unitDescription: "", unitHours: "" }]);
@@ -36,16 +53,36 @@ export default function EditOutline() {
     async function fetchOutline() {
       if (!courseId || !userId) return;
       setIsLoading(true);
-      try {
-        const endpoint =
-          viewMode === "draft"
-            ? `http://localhost:4000/api/outlines/${courseId}/draft?teacherId=${userId}`
-            : `http://localhost:4000/api/outlines/${courseId}`;
   
-        const res = await fetch(endpoint);
-        if (!res.ok) throw new Error("Failed to load outline");
+      const draftEndpoint = `http://localhost:4000/api/outlines/${courseId}/draft?teacherId=${userId}`;
+      const publishedEndpoint = `http://localhost:4000/api/outlines/${courseId}`;
+  
+      try {
+        let res;
+        if (viewMode === "draft") {
+          // Try to fetch draft first
+          res = await fetch(draftEndpoint);
+          if (!res.ok) {
+            // If draft fetch fails, fallback to published version
+            console.warn("Draft fetch failed, loading published version instead.");
+            showSnackbar("Draft not found, loading published version.", "warning");
+            res = await fetch(publishedEndpoint);
+            if (!res.ok) {
+              throw new Error("Failed to load published outline fallback");
+              showSnackbar("Loaded published version as fallback.", "info");
+            }
+          }
+        } else {
+          // If viewMode is published, fetch published directly
+          res = await fetch(publishedEndpoint);
+          if (!res.ok) {
+            throw new Error("Failed to load outline");
+            showSnackbar("Failed to load published outline.", "error");
+          }
+        }
   
         const data = await res.json();
+  
         setOutline({
           courseId,
           courseCode: courseFromState?.course_code || "",
@@ -56,11 +93,13 @@ export default function EditOutline() {
           description: data.description || "",
           learningGoals: data.learning_goals || "",
           assessment: data.assessment || "",
+          prerequisite: data.prerequisite || "",
         });
         setUnits(data.units || []);
         setFinalAssessments(data.final_assessments || []);
       } catch (err) {
-        console.error("Fetch error:", err);
+        showSnackbar("Failed to load outline data.", "error");
+        // Optionally reset or show fallback UI here
       } finally {
         setIsLoading(false);
       }
@@ -122,21 +161,22 @@ export default function EditOutline() {
             final_assessments: finalAssessments,
             total_hours: totalHours,
             updated_by: userId,
-            course_code: courseFromState?.course_code
+            course_code: courseFromState?.course_code,
+            prerequisite: outline.prerequisite,
           }),
         });
     
         if (!response.ok) throw new Error("Failed to save draft");
-        alert("Draft saved!");
+        showSnackbar("Draft saved!", "success");
       } catch (err) {
         console.error(err);
-        alert("Failed to save draft");
+        showSnackbar("Failed to save draft", "error"); 
       }
     };
 
   const handlePublish = async () => {
     try {
-      const response = await fetch(`http://localhost:4000/api/outlines/${courseId}`, {
+      const response = await fetch(`http://lolhost:4000/api/outlines/${courseId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -153,21 +193,22 @@ export default function EditOutline() {
           final_assessments: finalAssessments,
           total_hours: totalHours,
           updated_by: userId,
-          course_code: courseFromState?.course_code
+          course_code: courseFromState?.course_code,
+          prerequisite: outline.prerequisite,
         }),
       });
 
       if (response.ok) {
         const data = await response.json().catch(() => null);
         console.log("Azure Save Success:", data);
-        alert("Outline saved to Azure!");
+        showSnackbar("Published Outline!", "success");
       } else {
         const errorText = await response.text();
         throw new Error(`Azure responded with ${response.status}: ${errorText}`);
       }
     } catch (error) {
       console.error("Azure Save Error:", error);
-      alert(`Failed to save to Azure: ${error.message}`);
+      showSnackbar(`Failed to publish outline: ${error.message}`, "error");
     }
   };
 
@@ -211,6 +252,12 @@ export default function EditOutline() {
           Publish Changes
         </button>
       </div>
+      <CustomSnackbar
+        open={snackbarOpen}
+        onClose={handleSnackbarClose}
+        severity={snackbarSeverity}
+        message={snackbarMessage}
+      />
     </div>
   );
 }

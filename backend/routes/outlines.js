@@ -29,28 +29,6 @@ router.get("/:courseId", async (req, res) => {
     }
   });
 
-    // // Fetching a Course Outline's history
-    // router.get('/:courseId/history', async (req, res) => {
-    //     const { courseId } = req.params;
-    //     try {
-    //         const pool = await sql.connect(config);
-    //         const result = await pool.request()
-    //             .input('courseId', sql.Int, courseId)
-    //             .query(`
-    //             SELECT ov.*, u.name AS editor_name
-    //             FROM CourseOutlineVersions ov
-    //             LEFT JOIN Users u ON ov.updated_by = u.id
-    //             WHERE course_id = @courseId
-    //             ORDER BY updated_at DESC
-    //             `);
-        
-    //         res.json(result.recordset);
-    //         } catch (err) {
-    //         console.error("Error fetching version history:", err);
-    //         res.status(500).json({ error: "Server error" });
-    //         }
-    // });
-
   // Publishing a Course Outline (updates the CourseOutline and CourseOutlineVersions table)
   router.post("/:courseId", async (req, res) => {
     try {
@@ -68,6 +46,7 @@ router.get("/:courseId", async (req, res) => {
         total_hours,
         updated_by,
         course_code,
+        prerequisite,
       } = req.body;
   
       const pool = await sql.connect(config);
@@ -86,6 +65,7 @@ router.get("/:courseId", async (req, res) => {
         .input("total_hours", sql.Int, total_hours)
         .input("updated_by", sql.Int, updated_by)
         .input("course_code", sql.VarChar, course_code)
+        .input("prerequisite", sql.Text, prerequisite)
         .query(`
           MERGE CourseOutlines AS target
           USING (SELECT @course_id AS course_id) AS source
@@ -104,16 +84,17 @@ router.get("/:courseId", async (req, res) => {
               total_hours = @total_hours,
               updated_by = @updated_by,
               updated_at = GETDATE(),
-              course_code = @course_code
+              course_code = @course_code,
+              prerequisite = @prerequisite
           WHEN NOT MATCHED THEN
             INSERT (
               course_id, course_name, grade, course_type, credit,
               description, learning_goals, assessment, units,
-              final_assessments, total_hours, updated_by, updated_at, course_code
+              final_assessments, total_hours, updated_by, updated_at, course_code, prerequisite
             ) VALUES (
               @course_id, @course_name, @grade, @course_type, @credit,
               @description, @learning_goals, @assessment, @units,
-              @final_assessments, @total_hours, @updated_by, GETDATE(), @course_code
+              @final_assessments, @total_hours, @updated_by, GETDATE(), @course_code, @prerequisite
             );
         `);
         const versionResult = await pool.request()
@@ -137,15 +118,16 @@ router.get("/:courseId", async (req, res) => {
         .input("total_hours", sql.Int, total_hours)
         .input("updated_by", sql.Int, updated_by)
         .input("course_code", sql.VarChar, course_code)
+        .input("prerequisite", sql.Text, prerequisite)
         .query(`
           INSERT INTO CourseOutlineVersions (
             course_id, version_number, course_name, grade, course_type, credit,
             description, learning_goals, assessment, units, final_assessments,
-            total_hours, updated_by, course_code
+            total_hours, updated_by, course_code, prerequisite
           ) VALUES (
             @course_id, @version_number, @course_name, @grade, @course_type, @credit,
             @description, @learning_goals, @assessment, @units, @final_assessments,
-            @total_hours, @updated_by, @course_code
+            @total_hours, @updated_by, @course_code, @prerequisite
           )
         `);
 
@@ -174,6 +156,7 @@ router.get("/:courseId", async (req, res) => {
           total_hours,
           updated_by,
           course_code,
+          prerequisite,
         } = req.body;
     
         const pool = await sql.connect(config);
@@ -192,6 +175,7 @@ router.get("/:courseId", async (req, res) => {
         .input("total_hours", sql.Int, total_hours)
         .input("updated_by", sql.Int, updated_by)
         .input("course_code", sql.VarChar, course_code)
+        .input("prerequisite", sql.Text, prerequisite)
         .query(`
             UPDATE CourseOutlineDrafts
             SET 
@@ -206,7 +190,8 @@ router.get("/:courseId", async (req, res) => {
             final_assessments = @final_assessments,
             total_hours = @total_hours,
             updated_at = GETDATE(),
-            course_code = @course_code
+            course_code = @course_code,
+            prerequisite = @prerequisite
             WHERE course_id = @course_id AND updated_by = @updated_by;
 
             IF @@ROWCOUNT = 0
@@ -214,11 +199,11 @@ router.get("/:courseId", async (req, res) => {
             INSERT INTO CourseOutlineDrafts (
                 course_id, course_name, grade, course_type, credit,
                 description, learning_goals, assessment, units,
-                final_assessments, total_hours, updated_by, course_code
+                final_assessments, total_hours, updated_by, course_code, prerequisite
             ) VALUES (
                 @course_id, @course_name, @grade, @course_type, @credit,
                 @description, @learning_goals, @assessment, @units,
-                @final_assessments, @total_hours, @updated_by, @course_code
+                @final_assessments, @total_hours, @updated_by, @course_code, @prerequisite
             );
             END
         `);

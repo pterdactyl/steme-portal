@@ -38,6 +38,7 @@ export default function ViewOutline() {
           units: data.units || [],
           finalAssessments: data.final_assessments || [],
           totalHours: data.total_hours || 0,
+          prerequisite: data.prerequisite || ""
         });
       } catch (err) {
         console.error("Fetch error:", err);
