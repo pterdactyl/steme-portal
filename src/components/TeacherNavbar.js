@@ -57,42 +57,42 @@ export default function TeacherNavbar({ user }) {
   color="inherit"
   onClick={() => navigate("/courses")}
   sx={{
-    fontWeight: 600,
+    fontWeight: 300,
     textTransform: "none",
     fontSize: "1rem",    // bigger font size
-    px: 3,                 // horizontal padding
+    px: 2,                 // horizontal padding
     py: 1.5,               // vertical padding
   }}
 >
-  Courses
+  COURSES
 </Button>
 
 <Button
   color="inherit"
   onClick={() => navigate("/outline")}
   sx={{
-    fontWeight: 600,
+    fontWeight: 300,
     textTransform: "none",
     fontSize: "1rem",
-    px: 3,
+    px: 2,
     py: 1.5,
   }}
 >
-  Outlines
+  OUTLINES
 </Button>
 
 <Button
   color="inherit"
   onClick={() => navigate("/profile")}
   sx={{
-    fontWeight: 600,
+    fontWeight: 300,
     textTransform: "none",
     fontSize: "1rem",
-    px: 3,
+    px: 2,
     py: 1.5,
   }}
 >
-  Profile
+  PROFILE
 </Button>
 
 <Button
@@ -101,7 +101,7 @@ export default function TeacherNavbar({ user }) {
   sx={{
     border: "1.5px solid #bbdefb",
     borderRadius: "20px",
-    paddingX: 3,
+    paddingX: 2,
     paddingY: 1.5,
     fontSize: "0.9em",
     "&:hover": {
