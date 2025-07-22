@@ -163,15 +163,16 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
       ) : (
         <>
           <Input type="file" inputProps={{ multiple: true }} onChange={handleFileChange} />
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleSubmit}
-            disabled={uploading}
-            sx={{ ml: 1, mt: 1 }}
-          >
-            {uploading ? "Uploading..." : "Submit"}
-          </Button>
+         <Button
+  variant="contained"
+  color="success"
+  size="small"
+  onClick={handleSubmit}
+  disabled={uploading}
+  sx={{ ml: 1, mt: 1 }}
+>
+  {uploading ? "Uploading..." : "Submit"}
+</Button>
 
           {files.length > 0 && (
             <Box mt={2}>

@@ -95,17 +95,20 @@ export default function StudentAnnouncements({ courseId }) {
               <Box display="flex" justifyContent="space-between" alignItems="center">
                 <Box display="flex" alignItems="center" gap={1.2}>
                   <Avatar
-                    sx={{
-                      width: 30,
-                      height: 30,
-                      bgcolor: "#388e3c", // medium green
-                      fontSize: 14,
-                      fontWeight: 500,
-                      color: "white",
-                    }}
-                  >
-                    {a.author ? a.author.charAt(0).toUpperCase() : "U"}
-                  </Avatar>
+  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+    a.author ? a.author.split(" ")[0].charAt(0).toUpperCase() : "U"
+  )}&background=random`}
+  alt={a.author || "User"}
+  sx={{
+    width: 30,
+    height: 30,
+    fontSize: 14,
+    fontWeight: 500,
+  }}
+>
+  {a.author ? a.author.split(" ")[0].charAt(0).toUpperCase() : "U"}
+</Avatar>
+
                   <Typography variant="subtitle2" color="black">
                     {a.author || "Unknown"} •{" "}
                     {new Date(a.created_at || a.timestamp).toLocaleString()}

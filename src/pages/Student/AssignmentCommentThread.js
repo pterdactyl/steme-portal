@@ -69,16 +69,19 @@ const AssignmentCommentThread = ({ assignmentId, userId }) => {
             {comments.map((c) => (
               <Stack direction="row" spacing={2} alignItems="flex-start" key={c.id}>
                 <Avatar
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    bgcolor: "primary.main",
-                    fontSize: 14,
-                    mt: 0.5,
-                  }}
-                >
-                  {(c.sender_name || "U")[0].toUpperCase()}
-                </Avatar>
+  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+    c.sender_name ? c.sender_name.split(" ")[0].charAt(0).toUpperCase() : "U"
+  )}&background=random`}
+  alt={c.sender_name || "User"}
+  sx={{
+    width: 30,
+    height: 30,
+    fontSize: 14,
+    fontWeight: 500,
+  }}
+>
+  {c.sender_name ? c.sender_name.split(" ")[0].charAt(0).toUpperCase() : "U"}
+</Avatar>
 
                 <Box>
                   <Stack direction="row" spacing={0.5} alignItems="center">

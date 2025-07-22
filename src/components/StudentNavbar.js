@@ -21,7 +21,7 @@ export default function StudentNavbar({ user }) {
     <AppBar
       position="static"
       sx={{
-        background: "linear-gradient(90deg, #66bb6a, #2e7d32)", // green gradient
+        background: "linear-gradient(90deg, #ccfcc0, #2e7d32)", // green gradient
         boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
         paddingX: { xs: 2, sm: 4 },
         paddingY: 1,

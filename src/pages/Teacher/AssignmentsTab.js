@@ -259,15 +259,27 @@ export default function AssignmentsTab({ user }) {
           onSubmit={editAssignmentId ? handleEditSubmit : handleSubmit}
           style={{ marginTop: "1rem", marginBottom: "2rem" }}
         >
-          <TextField
+         <TextField
             label="Assignment Title"
             variant="outlined"
             fullWidth
             required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            sx={{ mb: 2 }}
+             inputProps={{ maxLength: 50 }}  
+            helperText={`${title.length}/50 characters`}
+            sx={{
+              mb: 2,
+              input: {
+                fontWeight: "normal", // input text
+              },
+              label: {
+                fontWeight: "normal", // label text
+              },
+            }}
           />
+
+
           <div style={{ marginBottom: 16 }}>
             <ReactQuill
               label="Description"
@@ -318,12 +330,12 @@ export default function AssignmentsTab({ user }) {
               variant="contained"
               startIcon={<CloudUploadIcon />}
               sx={{
-    backgroundColor: "#4caf50", // green
-    color: "white",
-    "&:hover": {
-      backgroundColor: "#45a049", // darker green on hover
-    },
-  }}
+                    backgroundColor: "#4caf50", // green
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: "#45a049", // darker green on hover
+                    },
+                  }}
             >
               Upload
               <input
@@ -395,7 +407,9 @@ export default function AssignmentsTab({ user }) {
                 }}
                 onClick={() => navigate(`/dashboard/course/${courseId}/assignment/${a.id}/students`)}
               >
-                <h3>{a.title}</h3>
+                <Typography variant="h6" sx={{ fontWeight: 'normal' }}>
+                  {a.title}
+                </Typography>
               
                 {a.due_date && (
                   <p
@@ -429,12 +443,9 @@ export default function AssignmentsTab({ user }) {
                   variant="text"
                   size="small"
                   sx={{
-    backgroundColor: "#4caf50", // green
-    color: "white",
-    "&:hover": {
-      backgroundColor: "#45a049", // darker green on hover
-    },
-  }}
+                  color: "#50C878	"
+                 
+                }}
                 >
                   Edit
                 </Button>
@@ -448,12 +459,8 @@ export default function AssignmentsTab({ user }) {
                     size="small"
                     startIcon={<DeleteIcon />}
                     sx={{
-    backgroundColor: "#4caf50", // green
-    color: "white",
-    "&:hover": {
-      backgroundColor: "#45a049", // darker green on hover
-    },
-  }}
+                    color: "grey"
+                      }}
                   >
                     Delete
                   </Button>
