@@ -311,8 +311,8 @@ export default function AssignmentsTab({ user }) {
             required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-             inputProps={{ maxLength: 50 }}  
-            helperText={`${title.length}/50 characters`}
+             inputProps={{ maxLength: 80 }}  
+            helperText={`${title.length}/80 characters`}
             sx={{
               mb: 2,
               input: {
@@ -454,7 +454,7 @@ export default function AssignmentsTab({ user }) {
                 }}
                 onClick={() => navigate(`/dashboard/course/${courseId}/assignment/${a.id}/students`)}
               >
-                <Typography variant="h6" sx={{ fontWeight: 'normal' }}>
+                <Typography variant="h6" sx={{ fontWeight: 'normal' , fontSize: '1.1rem' }}>
                   {a.title}
                 </Typography>
               

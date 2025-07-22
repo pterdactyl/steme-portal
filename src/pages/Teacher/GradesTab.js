@@ -98,14 +98,14 @@ export default function GradesTab() {
       <TableContainer
         component={Paper}
         sx={{
-          borderRadius: 2,
+          borderRadius: 1,
           boxShadow: 3,
           border: "1px solid #a5d6a7", // green border
         }}
       >
         <Table size="small" sx={{ minWidth: "100%" }}>
           <TableHead>
-            <TableRow sx={{ backgroundColor: "#a5d6a7" }}>
+            <TableRow sx={{ backgroundColor: "#f0f0f0ff" }}>
               <TableCell sx={{ minWidth: 180, fontWeight: "bold", color: "black" }}>
                 Student
               </TableCell>
@@ -119,9 +119,9 @@ export default function GradesTab() {
                     wordWrap: "break-word",
                     padding: "8px",
                     textAlign: "center",
-                    backgroundColor: "#a5d6a7",
-                    color: "#0231bd",
-                    fontWeight: "bold",
+                    backgroundColor: "#f0f0f0ff",
+                    color: "#01030aff",
+                    fontWeight: "normal",
                     verticalAlign: "top",
                     cursor: "pointer",
                     textDecoration: "underline",
@@ -190,7 +190,7 @@ export default function GradesTab() {
             ))}
 
             {/* Class average row */}
-            <TableRow sx={{ backgroundColor: "#a5d6a7", fontWeight: "bold", color: "black" }}>
+            <TableRow sx={{ backgroundColor: "#f0f0f0ff", fontWeight: "bold", color: "black" }}>
               <TableCell>Class Average</TableCell>
               {assignments.map((assignment) => {
                 const gradesForAssignment = students
