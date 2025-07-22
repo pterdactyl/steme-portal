@@ -64,7 +64,7 @@ export default function StudentAnnouncements({ courseId }) {
 
   return (
     <Box sx={{ padding: 2 }}>
-      <Typography variant="h5" mb={2} fontWeight={600} color="black">
+      <Typography variant="h5" mb={2} color="black">
         Announcements
       </Typography>
 
@@ -84,11 +84,11 @@ export default function StudentAnnouncements({ courseId }) {
               sx={{
                 p: 2.5,
                 borderRadius: "18px",
-                backgroundColor: "#e8f5e9", // very light green background
+                backgroundColor: "transparent", // very light green background
                 transition: "all 0.3s ease",
                 "&:hover": {
                   boxShadow: "0 4px 16px rgba(46, 125, 50, 0.3)", // green shadow
-                  backgroundColor: "#c8e6c9", // light green hover
+                  backgroundColor: "transparent", // light green hover
                 },
               }}
             >

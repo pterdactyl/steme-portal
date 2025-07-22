@@ -57,7 +57,7 @@ export default function StudentGrades({ courseId }) {
 
   return (
     <Box mt={4}>
-      <Typography variant="h5" gutterBottom fontWeight={600} color="black">
+      <Typography variant="h5" gutterBottom color="black">
         Your Grades
       </Typography>
 

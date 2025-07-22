@@ -141,7 +141,7 @@ export default function AttendanceTab() {
   return (
     <Box p={4}>
       <Stack spacing={3} mb={3}>
-      <Typography variant="h5" fontWeight="bold">
+      <Typography variant="h5">
         Attendance for {localDate.toLocaleDateString("en-US", {
           weekday: "long",
           year: "numeric",
@@ -206,6 +206,13 @@ export default function AttendanceTab() {
                   variant="outlined"
                   size="small"
                   onClick={() => navigate(`/dashboard/course/${courseId}/attendance/${student.id}/history`)}
+                  sx={{
+    backgroundColor: "#4caf50", // green
+    color: "white",
+    "&:hover": {
+      backgroundColor: "#45a049", // darker green on hover
+    },
+  }}
                 >
                   View Attendance
                 </Button>
@@ -215,17 +222,54 @@ export default function AttendanceTab() {
         </TableBody>
       </Table>
   
-      <Stack direction="row" spacing={2} mt={4}>
-        <Button variant="contained" onClick={handleSave}>
-          Save Attendance
-        </Button>
-        <Button variant="outlined" onClick={exportCSV}>
-          Export today's attendance
-        </Button>
-        <Button variant="outlined" onClick={exportCourseAttendanceCSV}>
-          Export Full Course Attendance
-        </Button>
-      </Stack>
+     <Stack direction="row" spacing={2} mt={4}>
+  <Button
+    variant="contained"
+    onClick={handleSave}
+    sx={{
+      backgroundColor: "#4caf50", // green
+      color: "white",
+      "&:hover": {
+        backgroundColor: "#45a049", // darker green on hover
+      },
+    }}
+  >
+    Save Attendance
+  </Button>
+
+  <Button
+    variant="outlined"
+    onClick={exportCSV}
+    sx={{
+      backgroundColor: "#4caf50", // green background for outlined button
+      color: "white",
+      borderColor: "#4caf50",
+      "&:hover": {
+        backgroundColor: "#45a049", // darker green on hover
+        borderColor: "#45a049",
+      },
+    }}
+  >
+    Export today's attendance
+  </Button>
+
+  <Button
+    variant="outlined"
+    onClick={exportCourseAttendanceCSV}
+    sx={{
+      backgroundColor: "#4caf50",
+      color: "white",
+      borderColor: "#4caf50",
+      "&:hover": {
+        backgroundColor: "#45a049",
+        borderColor: "#45a049",
+      },
+    }}
+  >
+    Export Full Course Attendance
+  </Button>
+</Stack>
+
     </Box>
   );
 } 

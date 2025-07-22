@@ -119,7 +119,7 @@ export default function StudentAssignments({ courseId }) {
 
   return (
     <Box p={2}>
-      <Typography variant="h5" gutterBottom fontWeight={600} color="success.dark">
+      <Typography variant="h5" gutterBottom color="black">
         Assignments
       </Typography>
       <Stack spacing={3}>

@@ -141,9 +141,9 @@ export default function OutlinePage() {
     handleCloseMenus();
   };
 
-  return (
+ return (
     <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1100, mx: "auto" }}>
-      <Typography variant="h4" mb={3} sx={{ fontWeight: 700, letterSpacing: 1 }}>
+      <Typography variant="h4" mb={3} sx={{ fontWeight: 700, letterSpacing: 1, color: "#2e7d32" }}>
         Course Outlines
       </Typography>
 
@@ -156,9 +156,12 @@ export default function OutlinePage() {
           mb: 4,
           backgroundColor: "white",
           borderRadius: 2,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          boxShadow: "0 2px 8px rgba(46, 125, 50, 0.1)", // green shadow
           "& .MuiOutlinedInput-root": {
             borderRadius: 2,
+            "&.Mui-focused fieldset": {
+              borderColor: "#4caf50", // green border on focus
+            },
           },
         }}
         variant="outlined"
@@ -186,20 +189,20 @@ export default function OutlinePage() {
                 justifyContent: "space-between",
                 alignItems: "center",
                 cursor: "pointer",
-                boxShadow: "0 4px 12px rgba(33, 150, 243, 0.1)",
+                boxShadow: "0 4px 12px rgba(76, 175, 80, 0.1)", // green shadow
                 transition: "all 0.3s ease",
                 userSelect: "none",
                 "&:hover": {
-                  boxShadow: "0 8px 20px rgba(33, 150, 243, 0.25)",
+                  boxShadow: "0 8px 20px rgba(76, 175, 80, 0.25)", // stronger green shadow
                   transform: "translateY(-4px)",
-                  bgcolor: "#e3f2fd",
+                  bgcolor: "#e8f5e9", // very light green bg on hover
                 },
               }}
               onClick={() => navigate(`/view/${course.course_code}`, { state: { course } })}
               elevation={4}
             >
               <Box>
-                <Typography variant="h6" sx={{ fontWeight: 600, color: "#1565c0" }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: "#388e3c" }}>
                   {course.title}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
@@ -211,8 +214,8 @@ export default function OutlinePage() {
                   onClick={(e) => handleMenuClick(e, course)}
                   size="small"
                   sx={{
-                    color: "#1976d2",
-                    "&:hover": { bgcolor: "rgba(25, 118, 210, 0.1)" },
+                    color: "#4caf50",
+                    "&:hover": { bgcolor: "rgba(76, 175, 80, 0.1)" },
                   }}
                 >
                   <MoreVertIcon />
@@ -237,13 +240,13 @@ export default function OutlinePage() {
           },
         }}
       >
-        <MenuItem onClick={handleExportClick} sx={{ fontWeight: 600, color: "#1976d2" }}>
+        <MenuItem onClick={handleExportClick} sx={{ fontWeight: 600, color: "#4caf50" }}>
           Export
         </MenuItem>
-        <MenuItem onClick={handleEdit} sx={{ fontWeight: 600, color: "#1976d2" }}>
+        <MenuItem onClick={handleEdit} sx={{ fontWeight: 600, color: "#4caf50" }}>
           Edit
         </MenuItem>
-        <MenuItem onClick={handleHistory} sx={{ fontWeight: 600, color: "#1976d2" }}>
+        <MenuItem onClick={handleHistory} sx={{ fontWeight: 600, color: "#4caf50" }}>
           History
         </MenuItem>
       </Menu>
@@ -262,10 +265,10 @@ export default function OutlinePage() {
           },
         }}
       >
-        <MenuItem onClick={exportToPDF} sx={{ fontWeight: 600, color: "#1976d2" }}>
+        <MenuItem onClick={exportToPDF} sx={{ fontWeight: 600, color: "#4caf50" }}>
           Generate New PDF
         </MenuItem>
-        <MenuItem onClick={printContent} sx={{ fontWeight: 600, color: "#1976d2" }}>
+        <MenuItem onClick={printContent} sx={{ fontWeight: 600, color: "#4caf50" }}>
           Print
         </MenuItem>
       </Menu>

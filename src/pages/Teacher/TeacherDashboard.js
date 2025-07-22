@@ -4,8 +4,8 @@ import {
   Box,
   Typography,
   Paper,
-  Grid,
   CircularProgress,
+  Grid,
 } from "@mui/material";
 import SchoolIcon from "@mui/icons-material/School";
 import { AuthContext } from "../../Auth/AuthContext";
@@ -50,11 +50,11 @@ export default function TeacherDashboard() {
 
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", mt: 4, px: 2 }}>
-      {/* Gradient Header */}
+      {/* Green Gradient Header */}
       <Paper
         elevation={3}
         sx={{
-          background: "linear-gradient(135deg, #42a5f5, #478ed1)",
+          background: "linear-gradient(135deg, #00923F, #007A34)", // Green gradient
           color: "white",
           p: 3,
           borderRadius: 3,
@@ -90,7 +90,7 @@ export default function TeacherDashboard() {
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  bgcolor: "#e3f2fd", // light blue
+                  bgcolor: "#E8F5E9", // Light green
                   transition: "0.3s",
                   "&:hover": {
                     boxShadow: 4,
@@ -100,7 +100,7 @@ export default function TeacherDashboard() {
               >
                 {/* Top Section */}
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <SchoolIcon sx={{ fontSize: 30, color: "#2196f3", mr: 1 }} />
+                  <SchoolIcon sx={{ fontSize: 30, color: "#00923F", mr: 1 }} /> {/* Green icon */}
                   <Typography
                     variant="subtitle1"
                     fontWeight="bold"

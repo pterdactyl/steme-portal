@@ -48,7 +48,7 @@ export default function StudentClasslist({ courseId }) {
 
   return (
     <Box mt={2}>
-      <Typography variant="h5" fontWeight={600} color="black" gutterBottom>
+      <Typography variant="h5" color="black" gutterBottom>
         Classmates ({students.length})
       </Typography>
 

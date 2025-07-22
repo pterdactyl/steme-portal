@@ -317,9 +317,14 @@ export default function CourseSelection() {
               ))}
 
               {isCurrent && !hasSubmitted && (
-                <button className="submit-grade-btn" onClick={() => handleSubmitCourses(grade)}>
-                  Submit All Courses
-                </button>
+                <button
+  className="submit-grade-btn"
+  onClick={() => handleSubmitCourses(grade)}
+  style={{ backgroundColor: 'green', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}
+>
+  Submit All Courses
+</button>
+
               )}
             </div>
           );

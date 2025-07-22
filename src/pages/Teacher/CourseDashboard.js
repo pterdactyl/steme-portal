@@ -2,6 +2,15 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate, useLocation, Outlet } from "react-router-dom";
 import { Box, Typography, Tabs, Tab, Paper } from "@mui/material";
 import { AuthContext } from "../../Auth/AuthContext";
+import {
+  Campaign,
+  Assignment,
+  Grade,
+  People,
+  MenuBook,
+  EventNote,
+} from "@mui/icons-material";
+
 
 export default function CourseDashboard() {
   const { user } = useContext(AuthContext);
@@ -31,13 +40,14 @@ export default function CourseDashboard() {
   }, [courseId]);
 
   const tabs = [
-    { label: "Announcements", path: "" },
-    { label: "Assignments", path: "assignments" },
-    { label: "Grades & Feedback", path: "grades" },
-    { label: "Students", path: "students" },
-    { label: "Course Outline", path: "outline" },
-    { label: "Attendance", path: "attendance" },
-  ];
+  { label: "Announcements", path: "", icon: <Campaign fontSize="small" /> },
+  { label: "Assignments", path: "assignments", icon: <Assignment fontSize="small" /> },
+  { label: "Grades & Feedback", path: "grades", icon: <Grade fontSize="small" /> },
+  { label: "Students", path: "students", icon: <People fontSize="small" /> },
+  { label: "Course Outline", path: "outline", icon: <MenuBook fontSize="small" /> },
+  { label: "Attendance", path: "attendance", icon: <EventNote fontSize="small" /> },
+];
+
 
   const currentTabIndex = tabs.findIndex(tab => {
     const fullPath = `/dashboard/course/${courseId}/${tab.path}`;
@@ -77,7 +87,7 @@ export default function CourseDashboard() {
       {/* Header */}
       <Box
         sx={{
-          background: "linear-gradient(135deg, #1976d2, #42a5f5)",
+          background: "linear-gradient(135deg, #66bb6a, #2e7d32)",
           color: "white",
           p: 3,
         }}
@@ -93,21 +103,38 @@ export default function CourseDashboard() {
       {/* Tabs */}
       <Box sx={{ px: 3, pt: 2, bgcolor: "background.paper" }}>
         <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          indicatorColor="primary"
-          textColor="primary"
-          variant="scrollable"
-          scrollButtons="auto"
-          sx={{
-            borderBottom: 1,
-            borderColor: "divider",
-          }}
-        >
-          {tabs.map((tab, index) => (
-            <Tab key={tab.label} label={tab.label} value={index} />
-          ))}
-        </Tabs>
+  value={tabValue}
+  onChange={handleTabChange}
+  indicatorColor="primary"
+  textColor="inherit"
+  variant="scrollable"
+  scrollButtons="auto"
+  sx={{
+    borderBottom: 1,
+    borderColor: "divider",
+    "& .MuiTabs-indicator": {
+      backgroundColor: "#2e7d32",
+    },
+  }}
+>
+  {tabs.map((tab, index) => (
+    <Tab
+      key={tab.label}
+      label={tab.label}
+      icon={tab.icon}
+      iconPosition="start"
+      value={index}
+      sx={{
+        color: "text.primary",
+        "&.Mui-selected": {
+          color: "#2e7d32",
+          fontWeight: "bold",
+        },
+      }}
+    />
+  ))}
+</Tabs>
+
       </Box>
 
       {/* Content */}

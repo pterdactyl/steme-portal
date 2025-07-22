@@ -10,9 +10,8 @@ import {
   Typography,
   Paper,
   TableContainer,
-  Link,
 } from "@mui/material";
-import { useOutletContext, useNavigate } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import { AuthContext } from "../../Auth/AuthContext";
 
 export default function GradesTab() {
@@ -21,7 +20,7 @@ export default function GradesTab() {
   const [students, setStudents] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [grades, setGrades] = useState({}); // { "studentId-assignmentId": grade }
-  const [activeField, setActiveField] = useState(null); // track which input is focused or hovered
+  const [activeField, setActiveField] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -37,7 +36,6 @@ export default function GradesTab() {
         gradeRes.json(),
       ]);
 
-      // Sort assignments by due date descending (latest first)
       assignmentsData.sort((a, b) => new Date(b.due_date) - new Date(a.due_date));
 
       const gradeMap = {};
@@ -92,15 +90,17 @@ export default function GradesTab() {
 
   return (
     <Box mt={4}>
-      <Typography variant="h5" gutterBottom fontWeight={1000} color="black">
-        Grades for Students
-      </Typography>
+      <Typography variant="h5" gutterBottom color="green.dark">
+  Grades for Students
+</Typography>
 
-      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>
+      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3, bgcolor: "#e8f5e9" }}>
         <Table size="small" sx={{ minWidth: "100%" }}>
           <TableHead>
-            <TableRow sx={{ backgroundColor: "#e3f2fd" }}>
-              <TableCell sx={{ minWidth: 180, fontWeight: "bold" }}>Student</TableCell>
+            <TableRow sx={{ backgroundColor: "#a5d6a7" }}>
+              <TableCell sx={{ minWidth: 180, fontWeight: "bold", color: "#1b5e20" }}>
+                Student
+              </TableCell>
               {assignments.map((assignment) => (
                 <TableCell
                   key={assignment.id}
@@ -111,8 +111,9 @@ export default function GradesTab() {
                     wordWrap: "break-word",
                     padding: "8px",
                     textAlign: "center",
-                    backgroundColor: "#f9f9f9",
+                    backgroundColor: "#c8e6c9",
                     verticalAlign: "top",
+                    color: "#2e7d32",
                   }}
                 >
                   <Typography variant="caption" color="text.secondary" noWrap>
@@ -136,14 +137,13 @@ export default function GradesTab() {
                       whiteSpace: "normal",
                       marginTop: "4px",
                       fontSize: "0.85rem",
-                      cursor: "pointer", 
-                      color: "#275ec4",      
-                      textDecoration: "underline"  
-                      
+                      cursor: "pointer",
+                      color: "#2e7d32",
+                      textDecoration: "underline",
                     }}
                     onClick={() =>
-                        window.open(`/dashboard/course/${courseId}/assignment/${assignment.id}/submissions`, "_blank")
-                      }
+                      window.open(`/dashboard/course/${courseId}/assignment/${assignment.id}/submissions`, "_blank")
+                    }
                   >
                     {assignment.title}
                   </Typography>
@@ -157,9 +157,9 @@ export default function GradesTab() {
               <TableRow
                 key={student.id}
                 hover
-                sx={{ backgroundColor: rowIndex % 2 === 0 ? "#fafafa" : "white" }}
+                sx={{ backgroundColor: rowIndex % 2 === 0 ? "#f1f8e9" : "white" }}
               >
-                <TableCell sx={{ minWidth: 180, backgroundColor: "#fafafa" }}>
+                <TableCell sx={{ minWidth: 180, backgroundColor: "#f1f8e9", color: "#1b5e20" }}>
                   {student.name}
                 </TableCell>
 
@@ -186,13 +186,14 @@ export default function GradesTab() {
                           min: 0,
                           max: 100,
                           inputMode: "numeric",
-                          style: { fontSize: "14px", textAlign: "center" },
+                          style: { fontSize: "14px", textAlign: "center", color: "#2e7d32" },
                           pattern: "[0-9]*",
                         }}
                         variant="standard"
                         sx={{
                           '& input[type=number]': {
                             MozAppearance: "textfield",
+                            color: "#2e7d32",
                           },
                           '& input[type=number]::-webkit-outer-spin-button': {
                             WebkitAppearance: "none",
@@ -211,7 +212,7 @@ export default function GradesTab() {
             ))}
 
             {/* Class average row */}
-            <TableRow sx={{ backgroundColor: "#e0e0e0", fontWeight: "bold" }}>
+            <TableRow sx={{ backgroundColor: "#a5d6a7", fontWeight: "bold", color: "#1b5e20" }}>
               <TableCell>Class Average</TableCell>
               {assignments.map((assignment) => {
                 const gradesForAssignment = students

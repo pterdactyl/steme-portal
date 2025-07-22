@@ -1,7 +1,6 @@
 import { useEventCallback } from "@mui/material";
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { TextField } from '@mui/material';
@@ -9,6 +8,8 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import { Button, IconButton, Typography } from '@mui/material';
+
 
 export default function AssignmentsTab({ user }) {
   const formRef = useRef(null);
@@ -216,31 +217,41 @@ export default function AssignmentsTab({ user }) {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h1>Assignments</h1>
+      <Typography variant="h4" sx={{ fontWeight: 'normal', mb: 2 }}>
+  Assignments
+</Typography>
+
 
       <Button
-        variant={showForm ? "outlined" : "contained"}
-        color="primary"
-        onClick={() => {
-          if (showForm) {
-            setShowForm(false);
-            setTitle("");
-            setDescription("");
-            setDeadline("");
-            setEditAssignmentId(null);
-            setEditingFiles([]);
-            setSelectedFiles([]);
-            setFilesToDelete([]);
-          } else {
-            setShowForm(true);
-            setEditingFiles([]);
-            setSelectedFiles([]);
-            setFilesToDelete([]);
-          }
-        }}
-      >
-        {showForm ? "Cancel" : "+ New Assignment"}
-      </Button>
+  variant={showForm ? "outlined" : "contained"}
+  onClick={() => {
+    if (showForm) {
+      setShowForm(false);
+      setTitle("");
+      setDescription("");
+      setDeadline("");
+      setEditAssignmentId(null);
+      setEditingFiles([]);
+      setSelectedFiles([]);
+      setFilesToDelete([]);
+    } else {
+      setShowForm(true);
+      setEditingFiles([]);
+      setSelectedFiles([]);
+      setFilesToDelete([]);
+    }
+  }}
+  sx={{
+    backgroundColor: showForm ? "white" : "#4caf50", // green when contained
+    color: showForm ? "#4caf50" : "white", // text color
+    border: showForm ? "1px solid #4caf50" : "none",
+    "&:hover": {
+      backgroundColor: showForm ? "#f4f4f4" : "#45a049",
+    },
+  }}
+>
+  {showForm ? "Cancel" : "+ New Assignment"}
+</Button>
 
       {showForm && (
         <form
@@ -306,6 +317,13 @@ export default function AssignmentsTab({ user }) {
               size="small"
               variant="contained"
               startIcon={<CloudUploadIcon />}
+              sx={{
+    backgroundColor: "#4caf50", // green
+    color: "white",
+    "&:hover": {
+      backgroundColor: "#45a049", // darker green on hover
+    },
+  }}
             >
               Upload
               <input
@@ -339,6 +357,13 @@ export default function AssignmentsTab({ user }) {
               type="submit"
               variant="contained"
               size="small"
+              sx={{
+    backgroundColor: "#4caf50", // green
+    color: "white",
+    "&:hover": {
+      backgroundColor: "#45a049", // darker green on hover
+    },
+  }}
             >
               Save
             </Button>
@@ -403,6 +428,13 @@ export default function AssignmentsTab({ user }) {
                   }}
                   variant="text"
                   size="small"
+                  sx={{
+    backgroundColor: "#4caf50", // green
+    color: "white",
+    "&:hover": {
+      backgroundColor: "#45a049", // darker green on hover
+    },
+  }}
                 >
                   Edit
                 </Button>
@@ -415,6 +447,13 @@ export default function AssignmentsTab({ user }) {
                     variant="text"
                     size="small"
                     startIcon={<DeleteIcon />}
+                    sx={{
+    backgroundColor: "#4caf50", // green
+    color: "white",
+    "&:hover": {
+      backgroundColor: "#45a049", // darker green on hover
+    },
+  }}
                   >
                     Delete
                   </Button>

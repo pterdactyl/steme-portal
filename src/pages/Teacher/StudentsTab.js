@@ -36,7 +36,7 @@ export default function StudentsTab() {
 
   return (
     <Box p={3}>
-      <Typography variant="h5" fontWeight={600} gutterBottom>
+      <Typography variant="h5" gutterBottom>
         Students in {courseTitle}
       </Typography>
 
