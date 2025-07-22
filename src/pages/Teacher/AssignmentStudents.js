@@ -193,10 +193,33 @@ export default function AssignmentStudents() {
 
   return (
     <Box sx={{ p: 2 }}>
-      <Tabs value={tabIndex} onChange={(_, newVal) => setTabIndex(newVal)} sx={{ mb: 2 }}>
-        <Tab label="Assignment Info" />
-        <Tab label="Student Submissions" />
-      </Tabs>
+      <Tabs
+  value={tabIndex}
+  onChange={(_, newVal) => setTabIndex(newVal)}
+  sx={{
+    mb: 2,
+    "& .MuiTabs-indicator": {
+      backgroundColor: "#388e3c", // green indicator
+    },
+  }}
+>
+  <Tab
+    label="Assignment Info"
+    sx={{
+      "&.Mui-selected": {
+        color: "#388e3c", // green text when active
+      },
+    }}
+  />
+  <Tab
+    label="Student Submissions"
+    sx={{
+      "&.Mui-selected": {
+        color: "#388e3c", // green text when active
+      },
+    }}
+  />
+</Tabs>
 
       {tabIndex === 0 && assignmentInfo && (
   <Box component="form" onSubmit={(e) => {
@@ -272,6 +295,12 @@ export default function AssignmentStudents() {
         size="small"
         variant="contained"
         startIcon={<CloudUploadIcon />}
+        sx={{
+    bgcolor: "#388e3c",
+    "&:hover": {
+      bgcolor: "#2e7d32",
+    },
+  }}
       >
         Upload
         <input
@@ -301,9 +330,20 @@ export default function AssignmentStudents() {
         </ul>
       )}
 
-      <Button type="submit" variant="contained" size="small">
-        Save
-      </Button>
+      <Button
+  type="submit"
+  variant="contained"
+  size="small"
+  sx={{
+    bgcolor: "#388e3c",
+    "&:hover": {
+      bgcolor: "#2e7d32",
+    },
+  }}
+>
+  Save
+</Button>
+
     </Box>
   </Box>
 )}

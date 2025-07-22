@@ -122,9 +122,18 @@ const AssignmentCommentThread = ({ assignmentId, userId }) => {
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
         />
-        <Button variant="contained" onClick={handleSend}>
-          Send
-        </Button>
+        <Button
+  variant="contained"
+  onClick={handleSend}
+  sx={{
+    bgcolor: "#388e3c", // green background
+    "&:hover": {
+      bgcolor: "#2e7d32", // darker green on hover
+    },
+  }}
+>
+  Send
+</Button>
       </Stack>
     </Box>
   );

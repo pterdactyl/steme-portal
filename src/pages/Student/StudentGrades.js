@@ -87,13 +87,13 @@ export default function StudentGrades({ courseId }) {
               >
                 <TableCell>
                   <Link
-                    component={RouterLink}
-                    to={`/student/assignments/${g.assignment_id}`}
-                    underline="hover"
-                    sx={{ fontWeight: 500, color: "black" }} // black link
-                  >
-                    {g.assignment_title}
-                  </Link>
+  component={RouterLink}
+  to={`/student/assignments/${g.assignment_id}`}
+  underline="hover"
+  sx={{ fontWeight: 500, color: "#1976d2" }} // blue text
+>
+  {g.assignment_title}
+</Link>
                 </TableCell>
                 <TableCell sx={{ fontWeight: 500, color: "black" }}>{g.grade}</TableCell>
                 <TableCell sx={{ color: "black" }}>{new Date(g.recorded_at).toLocaleString()}</TableCell>

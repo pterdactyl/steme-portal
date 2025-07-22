@@ -86,13 +86,21 @@ export default function StudentAssignmentDetail() {
   return (
     <Box p={3} maxWidth="md" mx="auto">
       <Link
-        component={RouterLink}
-        to={`/course/${assignment.course_id}?tab=1`}
-        underline="hover"
-        sx={{ display: "inline-block", mb: 2 }}
-      >
-        ← Back to Assignments
-      </Link>
+  component={RouterLink}
+  to={`/course/${assignment.course_id}?tab=1`}
+  underline="hover"
+  sx={{
+    display: "inline-block",
+    mb: 2,
+    color: "#388e3c", // green text
+    fontWeight: 500,
+    "&:hover": {
+      color: "#2e7d32", // darker green on hover
+    },
+  }}
+>
+  ← Back to Assignments
+</Link>
 
       <Paper elevation={3} sx={{ p: 4, borderRadius: "20px" }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom>

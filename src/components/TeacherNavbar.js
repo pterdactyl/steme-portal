@@ -20,7 +20,7 @@ export default function TeacherNavbar({ user }) {
     <AppBar
       position="static"
       sx={{
-        background: "linear-gradient(90deg, #66bb6a, #2e7d32)", // blue gradient like teacher theme
+        background: "linear-gradient(90deg, #66bb6a, #2e7d32)", // green gradient
         boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
         paddingX: { xs: 2, sm: 4 },
         paddingY: 1,
@@ -41,7 +41,7 @@ export default function TeacherNavbar({ user }) {
             src="/stem-e.png" // absolute path from public folder
             alt="STEM-E Logo"
             style={{
-              height: "100px", // bigger logo like student navbar
+              height: "100px", // same as student navbar
               width: "auto",
               borderRadius: "8px",
               padding: "4px",
@@ -53,66 +53,30 @@ export default function TeacherNavbar({ user }) {
         <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
           {user ? (
             <>
+              <Button color="inherit" onClick={() => navigate("/courses")}>
+                Courses
+              </Button>
+              <Button color="inherit" onClick={() => navigate("/outline")}>
+                Outlines
+              </Button>
+              <Button color="inherit" onClick={() => navigate("/profile")}>
+                Profile
+              </Button>
               <Button
-  color="inherit"
-  onClick={() => navigate("/courses")}
-  sx={{
-    fontWeight: 600,
-    textTransform: "none",
-    fontSize: "1rem",    // bigger font size
-    px: 3,                 // horizontal padding
-    py: 1.5,               // vertical padding
-  }}
->
-  Courses
-</Button>
-
-<Button
-  color="inherit"
-  onClick={() => navigate("/outline")}
-  sx={{
-    fontWeight: 600,
-    textTransform: "none",
-    fontSize: "1rem",
-    px: 3,
-    py: 1.5,
-  }}
->
-  Outlines
-</Button>
-
-<Button
-  color="inherit"
-  onClick={() => navigate("/profile")}
-  sx={{
-    fontWeight: 600,
-    textTransform: "none",
-    fontSize: "1rem",
-    px: 3,
-    py: 1.5,
-  }}
->
-  Profile
-</Button>
-
-<Button
-  color="inherit"
-  onClick={handleLogout}
-  sx={{
-    border: "1.5px solid #bbdefb",
-    borderRadius: "20px",
-    paddingX: 3,
-    paddingY: 1.5,
-    fontSize: "0.9em",
-    "&:hover": {
-      backgroundColor: "#bbdefb",
-      color: "#0d47a1",
-    },
-  }}
->
-  Logout
-</Button>
-
+                color="inherit"
+                onClick={handleLogout}
+                sx={{
+                  border: "1.5px solid #bbdefb",
+                  borderRadius: "20px",
+                  paddingX: 2,
+                  "&:hover": {
+                    backgroundColor: "#bbdefb",
+                    color: "#0d47a1",
+                  },
+                }}
+              >
+                Logout
+              </Button>
             </>
           ) : (
             <Typography sx={{ color: "#e3f2fd" }}>Not logged in</Typography>
