@@ -11,7 +11,7 @@ import {
   Paper,
   TableContainer,
 } from "@mui/material";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Auth/AuthContext";
 
 export default function GradesTab() {
@@ -21,6 +21,7 @@ export default function GradesTab() {
   const [assignments, setAssignments] = useState([]);
   const [grades, setGrades] = useState({}); // { "studentId-assignmentId": grade }
   const [activeField, setActiveField] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchData() {
@@ -90,63 +91,46 @@ export default function GradesTab() {
 
   return (
     <Box mt={4}>
-      <Typography variant="h5" gutterBottom color="green.dark">
-  Grades for Students
-</Typography>
+      <Typography variant="h5" gutterBottom color="black">
+        Grades for Students
+      </Typography>
 
-      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3, bgcolor: "#e8f5e9" }}>
+      <TableContainer
+        component={Paper}
+        sx={{
+          borderRadius: 2,
+          boxShadow: 3,
+          border: "1px solid #a5d6a7", // green border
+        }}
+      >
         <Table size="small" sx={{ minWidth: "100%" }}>
           <TableHead>
             <TableRow sx={{ backgroundColor: "#a5d6a7" }}>
-              <TableCell sx={{ minWidth: 180, fontWeight: "bold", color: "#1b5e20" }}>
+              <TableCell sx={{ minWidth: 180, fontWeight: "bold", color: "black" }}>
                 Student
               </TableCell>
               {assignments.map((assignment) => (
                 <TableCell
                   key={assignment.id}
                   sx={{
-                    width: 120,
-                    maxWidth: 120,
+                    width: 140,
+                    maxWidth: 140,
                     whiteSpace: "normal",
                     wordWrap: "break-word",
                     padding: "8px",
                     textAlign: "center",
-                    backgroundColor: "#c8e6c9",
+                    backgroundColor: "#a5d6a7",
+                    color: "#0231bd",
+                    fontWeight: "bold",
                     verticalAlign: "top",
-                    color: "#2e7d32",
+                    cursor: "pointer",
+                    textDecoration: "underline",
                   }}
+                  onClick={() =>
+                    navigate(`/dashboard/course/${courseId}/assignment/${assignment.id}/students`, "_blank")
+                  }
                 >
-                  <Typography variant="caption" color="text.secondary" noWrap>
-                    {assignment.due_date
-                      ? (() => {
-                          const date = new Date(assignment.due_date);
-                          const now = new Date();
-                          const formatOptions = { day: "numeric", month: "short" };
-                          if (date.getFullYear() !== now.getFullYear()) {
-                            formatOptions.year = "numeric";
-                          }
-                          return date.toLocaleDateString("en-GB", formatOptions);
-                        })()
-                      : "No due date"}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    fontWeight="bold"
-                    sx={{
-                      wordBreak: "break-word",
-                      whiteSpace: "normal",
-                      marginTop: "4px",
-                      fontSize: "0.85rem",
-                      cursor: "pointer",
-                      color: "#2e7d32",
-                      textDecoration: "underline",
-                    }}
-                    onClick={() =>
-                      window.open(`/dashboard/course/${courseId}/assignment/${assignment.id}/submissions`, "_blank")
-                    }
-                  >
-                    {assignment.title}
-                  </Typography>
+                  {assignment.title}
                 </TableCell>
               ))}
             </TableRow>
@@ -154,14 +138,8 @@ export default function GradesTab() {
 
           <TableBody>
             {students.map((student, rowIndex) => (
-              <TableRow
-                key={student.id}
-                hover
-                sx={{ backgroundColor: rowIndex % 2 === 0 ? "#f1f8e9" : "white" }}
-              >
-                <TableCell sx={{ minWidth: 180, backgroundColor: "#f1f8e9", color: "#1b5e20" }}>
-                  {student.name}
-                </TableCell>
+              <TableRow key={student.id} sx={{ backgroundColor: "white" }} hover>
+                <TableCell sx={{ minWidth: 180, color: "black" }}>{student.name}</TableCell>
 
                 {assignments.map((assignment) => {
                   const key = `${student.id}-${assignment.id}`;
@@ -186,14 +164,14 @@ export default function GradesTab() {
                           min: 0,
                           max: 100,
                           inputMode: "numeric",
-                          style: { fontSize: "14px", textAlign: "center", color: "#2e7d32" },
+                          style: { fontSize: "14px", textAlign: "center", color: "black" },
                           pattern: "[0-9]*",
                         }}
                         variant="standard"
                         sx={{
                           '& input[type=number]': {
                             MozAppearance: "textfield",
-                            color: "#2e7d32",
+                            color: "black",
                           },
                           '& input[type=number]::-webkit-outer-spin-button': {
                             WebkitAppearance: "none",
@@ -212,7 +190,7 @@ export default function GradesTab() {
             ))}
 
             {/* Class average row */}
-            <TableRow sx={{ backgroundColor: "#a5d6a7", fontWeight: "bold", color: "#1b5e20" }}>
+            <TableRow sx={{ backgroundColor: "#a5d6a7", fontWeight: "bold", color: "black" }}>
               <TableCell>Class Average</TableCell>
               {assignments.map((assignment) => {
                 const gradesForAssignment = students
@@ -224,7 +202,7 @@ export default function GradesTab() {
                     ? (gradesForAssignment.reduce((a, b) => a + b, 0) / gradesForAssignment.length).toFixed(1)
                     : "-";
                 return (
-                  <TableCell key={assignment.id} align="center">
+                  <TableCell key={assignment.id} align="center" sx={{ color: "black" }}>
                     {avg !== "-" ? avg : "-"}
                   </TableCell>
                 );

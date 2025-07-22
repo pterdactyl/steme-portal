@@ -3,12 +3,11 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { TextField } from '@mui/material';
+import { TextField, Typography, Button, IconButton, } from '@mui/material';
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
-import { Button, IconButton, Typography } from '@mui/material';
 
 
 export default function AssignmentsTab({ user }) {
@@ -30,6 +29,9 @@ export default function AssignmentsTab({ user }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [students, setStudents] = useState([]);
+  const [submissions, setSubmissions ] = useState({});
+
 
 
   function formatDateForInput(datetime) {
@@ -42,6 +44,47 @@ export default function AssignmentsTab({ user }) {
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
   const navigate = useNavigate();
+
+  useEffect(() => {
+    async function fetchStudents() {
+      try {
+        const res = await fetch(`http://localhost:4000/api/courses/${courseId}`);
+        if (!res.ok) throw new Error("Failed to fetch students");
+        const data = await res.json();
+        setStudents(data.students);
+        console.log(data);
+  
+      } catch (err) {
+        console.error("Error fetching students", err);
+      }
+    }
+  
+    if (courseId) fetchStudents();
+  }, [courseId]);
+
+  async function fetchSubmissions() {
+    try {
+      const res = await fetch(`http://localhost:4000/api/courses/submissions/${courseId}`);
+      const data = await res.json();
+  
+      const grouped = {};
+      for (const sub of data) {
+        if (!grouped[sub.assignment_id]) grouped[sub.assignment_id] = new Set();
+        grouped[sub.assignment_id].add(sub.student_id); // Avoid duplicates
+      }
+  
+      // Convert Sets to counts
+      const counts = {};
+      for (const [assignmentId, studentSet] of Object.entries(grouped)) {
+        counts[assignmentId] = studentSet.size;
+      }
+  
+      setSubmissions(counts);
+      console.log("counts:", counts);
+    } catch (err) {
+      console.error("Error fetching submissions:", err);
+    }
+  }
 
   useEffect(() => {
     if (!courseId) return;
@@ -61,6 +104,7 @@ export default function AssignmentsTab({ user }) {
       setLoading(false);
     }
     fetchAssignments();
+    fetchSubmissions();
   }, [courseId]);
 
   useEffect(() => {
@@ -75,6 +119,7 @@ export default function AssignmentsTab({ user }) {
             newFilesMap[a.id] = files;
           }
         }
+        console.log("Assignment files:", newFilesMap);
         setAssignmentFiles(newFilesMap);
       } catch (err) {
         console.error("Error fetching assignment files", err);
@@ -303,6 +348,8 @@ export default function AssignmentsTab({ user }) {
             sx={{ mb: 2 }}
           />
 
+          
+
           {editAssignmentId && editingFiles.length > 0 && (
             <ul style={{ marginBottom: "0.5rem" }}>
               {editingFiles.map((file, index) => (
@@ -388,7 +435,7 @@ export default function AssignmentsTab({ user }) {
           <p>No assignments yet.</p>
         ) : (
           [...assignments]
-            .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
+            .sort((a, b) => new Date(b.due_date) - new Date(a.due_date))
             .map((a) => (
               <div
                 key={a.id}
@@ -412,24 +459,41 @@ export default function AssignmentsTab({ user }) {
                 </Typography>
               
                 {a.due_date && (
-                  <p
-                    style={{
-                      position: 'absolute',
-                      top: '10px',
-                      right: '40px',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    Due:{" "}
-                    {new Date(a.due_date).toLocaleString(undefined, {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                )}
+  <div
+  style={{
+    position: "absolute",
+    top: "10px",
+    right: "20px",
+    fontWeight: "bold",
+    fontSize: "0.9rem",
+  }}
+  >
+    Due:{" "}
+    {new Date(a.due_date).toLocaleString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })}
+  </div>
+)}
+
+{/* Submission status badge - bottom right */}
+<div
+  style={{
+    position: "absolute",
+    bottom: "10px",
+    right: "15px",
+    backgroundColor: "#f0f0f0",
+    padding: "4px 8px",
+    borderRadius: "8px",
+    fontSize: "0.85rem",
+    color: "#333",
+  }}
+>
+  {submissions[a.id] || 0} / {students.length} students submitted
+</div>
 
               
 
