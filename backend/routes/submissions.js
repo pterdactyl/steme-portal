@@ -237,6 +237,28 @@ router.delete("/unsubmit", async (req, res) => {
   }
 });
 
+// Get all submissions for an assignment
+router.get("/assignment/:assignmentId", async (req, res) => {
+  const { assignmentId } = req.params;
+
+  
+
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool.request()
+      .input("assignmentId", sql.Int, assignmentId)
+      .query(`
+        SELECT student_id, submitted_at
+        FROM assignment_submissions
+        WHERE assignment_id = @assignmentId
+      `);
+
+    res.json(result.recordset);
+  } catch (err) {
+    console.error("Error fetching submissions:", err);
+    res.status(500).json({ error: "Failed to fetch submissions" });
+  }
+});
 
 // Get all submissions for a student’s assignment (multiple files)
 router.get('/:assignmentId/:studentId', async (req, res) => {
@@ -387,6 +409,7 @@ router.get('/:assignmentId/:studentId', async (req, res) => {
     res.status(500).json({ error: "Failed to generate download link" });
   }
 });
+
 
 
 

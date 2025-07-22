@@ -10,7 +10,7 @@ import {
   Avatar,
   Tabs,
   Tab,
-  IconButton,
+  IconButton, Select, MenuItem, InputLabel, FormControl
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -74,12 +74,24 @@ export default function AssignmentStudents() {
   const [dueDate, setDueDate] = useState(""); 
   const [error, setError] = useState(null);
 
+  const [submissions, setSubmissions] = useState([]);
+  const [statusMap, setStatusMap] = useState({});
+  const [showOnlySubmitted, setShowOnlySubmitted] = useState(false);
+  const [filterStatus, setFilterStatus] = useState("all");
+
 
   useEffect(() => {
     const fetchAssignment = async () => {
       const res = await fetch(`http://localhost:4000/api/assignments/${assignmentId}`);
       const data = await res.json();
       setAssignmentInfo(data);
+
+      console.log(assignmentId);
+      // Fetch all submissions for this assignment
+      const res2 = await fetch(`http://localhost:4000/api/submissions/assignment/${assignmentId}`);
+      const submissionData = await res2.json();
+      setSubmissions(submissionData);
+      console.log(submissionData);
 
       const fileRes = await fetch(`http://localhost:4000/api/assignments/assignment_files?assignment_id=${assignmentId}`);
       const fileData = await fileRes.json();
@@ -96,6 +108,26 @@ export default function AssignmentStudents() {
     fetchAssignment();
     fetchStudents().finally(() => setLoading(false));
   }, [assignmentId, courseId]);
+
+  // Edit student stauses when assignmentInfo is fetched
+
+  useEffect(() => {
+    if (!assignmentInfo || submissions.length === 0) return;
+  
+    const map = {};
+    const dueDate = new Date(assignmentInfo.due_date);
+  
+    submissions.forEach(sub => {
+      const submittedAt = new Date(sub.submitted_at);
+      const isLate = submittedAt > dueDate;
+      map[sub.student_id] = {
+        submitted_at: sub.submitted_at,
+        is_late: isLate,
+      };
+    });
+  
+    setStatusMap(map);
+  }, [assignmentInfo, submissions]);
 
   useEffect(() => {
     if (assignmentInfo) {
@@ -170,19 +202,12 @@ export default function AssignmentStudents() {
         method: "PUT",
         body: formData,
       });
-  
+      console.log(res);
       if (!res.ok) throw new Error(await res.text());
   
       const updated = await res.json();
       alert("Assignment updated!");
-  
-      setAssignmentInfo(updated);
-      setTitle("");
-      setDescription("");
-      setDueDate("");
-      setSelectedFiles([]);
-      setFilesToDelete([]);
-      setEditingFiles(updated.files || []);
+     
     } catch (err) {
       console.error(err);
       setError("Error updating assignment");
@@ -191,8 +216,14 @@ export default function AssignmentStudents() {
 
   if (loading) return <CircularProgress sx={{ m: 4 }} />;
 
+
+
   return (
     <Box sx={{ p: 2 }}>
+      {/* Assignment title at top */}
+    <Typography variant="h5" fontWeight="bold" mb={2}>
+      {assignmentInfo ? assignmentInfo.title : "Loading assignment..."}
+    </Typography>
       <Tabs value={tabIndex} onChange={(_, newVal) => setTabIndex(newVal)} sx={{ mb: 2 }}>
         <Tab label="Assignment Info" />
         <Tab label="Student Submissions" />
@@ -223,25 +254,24 @@ export default function AssignmentStudents() {
       sx={{ mb: 2 }}
     />
 
-    <Box sx={{ mb: 2 }}>
+    <Stack spacing={2} sx={{ mb: 2 }}>
       <ReactQuill
         value={description}
         onChange={(val) => setDescription(val)}
         theme="snow"
-        style={{ height: "200px" }}
+        style={{ minHeight: "200px" }}
       />
-    </Box>
 
-    <TextField
-      label="Deadline"
-      type="datetime-local"
-      variant="outlined"
-      fullWidth
-      InputLabelProps={{ shrink: true }}
-      value={dueDate}
-      onChange={(e) => setDueDate(e.target.value)}
-      sx={{ mb: 2 }}
-    />
+      <TextField
+        label="Deadline"
+        type="datetime-local"
+        variant="outlined"
+        fullWidth
+        InputLabelProps={{ shrink: true }}
+        value={dueDate}
+        onChange={(e) => setDueDate(e.target.value)}
+      />
+    </Stack>
 
     {/* Attached Files (existing) */}
     {editingFiles.length > 0 && (
@@ -311,19 +341,78 @@ export default function AssignmentStudents() {
       {tabIndex === 1 && (
         <Box display="flex" height="100%">
           <Box width="25%" p={2} borderRight="1px solid #ccc">
+
+          
+          <FormControl fullWidth sx={{ mb: 2 }}>
+  <InputLabel id="filter-status-label">Filter by</InputLabel>
+  <Select
+    labelId="filter-status-label"
+    value={filterStatus}
+    label="Filter by"
+    onChange={(e) => setFilterStatus(e.target.value)}
+    size="small"
+  >
+    <MenuItem value="name">Name</MenuItem>  
+    <MenuItem value="submitted">Submitted</MenuItem>
+    <MenuItem value="submittedLate">Submitted Late</MenuItem>
+    <MenuItem value="notSubmitted">Not Submitted</MenuItem>
+    
+
+  </Select>
+</FormControl>
             <Typography variant="h6">Students</Typography>
             <Divider sx={{ my: 1 }} />
-            {students.map((s) => (
-              <Button
-                key={s.id}
-                fullWidth
-                variant={selectedStudentId === s.id ? "contained" : "text"}
-                onClick={() => setSelectedStudentId(s.id)}
-                sx={{ justifyContent: "flex-start", mb: 1 }}
-              >
-                {s.name}
-              </Button>
-            ))}
+            {[...students]
+  .filter((s) => {
+    const status = statusMap[s.id];
+    if (filterStatus === "submitted") return status && !status.is_late;
+    if (filterStatus === "submittedLate") return status && status.is_late;
+    if (filterStatus === "notSubmitted") return !status;
+    return true; // "name" or "all"
+  })
+  .sort((a, b) => {
+    if (filterStatus === "name") {
+      return a.name.localeCompare(b.name);
+    }
+    return 0; // don't sort for other filters
+  })
+  .map((s) => {
+    const status = statusMap[s.id];
+    let statusLabel = "Not Submitted";
+    let statusColor = "gray";
+
+    if (status) {
+      if (status.is_late) {
+        statusLabel = "Submitted Late";
+        statusColor = "orange";
+      } else {
+        statusLabel = "Submitted";
+        statusColor = "green";
+      }
+    }
+
+    return (
+      <Button
+        key={s.id}
+        fullWidth
+        variant={selectedStudentId === s.id ? "contained" : "text"}
+        onClick={() => setSelectedStudentId(s.id)}
+        sx={{
+          justifyContent: "space-between",
+          mb: 1,
+          textTransform: "none",
+          alignItems: "center",
+        }}
+      >
+        <Box display="flex" flexDirection="column" alignItems="flex-start">
+          <Typography>{s.name}</Typography>
+          <Typography variant="caption" sx={{ color: statusColor }}>
+            {statusLabel}
+          </Typography>
+        </Box>
+      </Button>
+    );
+  })}
           </Box>
 
           <Box width="75%" p={4}>
