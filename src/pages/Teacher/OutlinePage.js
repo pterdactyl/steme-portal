@@ -124,10 +124,6 @@ export default function OutlinePage() {
     handleCloseMenus();
   };
 
-  const printContent = async () => {
-    // Placeholder for print logic if you want to re-enable later
-    handleCloseMenus();
-  };
 
   const handleEdit = () => {
     if (selectedCourse) {
@@ -266,11 +262,9 @@ export default function OutlinePage() {
         }}
       >
         <MenuItem onClick={exportToPDF} sx={{ fontWeight: 600, color: "#4caf50" }}>
-          Generate New PDF
+          Export as PDF
         </MenuItem>
-        <MenuItem onClick={printContent} sx={{ fontWeight: 600, color: "#4caf50" }}>
-          Print
-        </MenuItem>
+  
       </Menu>
 
       {/* Hidden PDF export container */}
