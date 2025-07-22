@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, use } from "react";
 import {
   Box,
   Table,
@@ -22,6 +22,7 @@ export default function GradesTab() {
   const [assignments, setAssignments] = useState([]);
   const [grades, setGrades] = useState({}); // { "studentId-assignmentId": grade }
   const [activeField, setActiveField] = useState(null); // track which input is focused or hovered
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchData() {
@@ -142,7 +143,7 @@ export default function GradesTab() {
                       
                     }}
                     onClick={() =>
-                        window.open(`/dashboard/course/${courseId}/assignment/${assignment.id}/submissions`, "_blank")
+                        navigate(`/dashboard/course/${courseId}/assignment/${assignment.id}/students`, "_blank")
                       }
                   >
                     {assignment.title}

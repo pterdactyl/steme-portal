@@ -67,6 +67,27 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get all submissions (students) for a Course
+router.get('/submissions/:courseId', async (req, res) => {
+  const { courseId } = req.params;
+
+  try {
+    await sql.connect(config);
+
+    const result = await sql.query`
+      SELECT s.id, s.assignment_id, s.student_id, s.submitted_at
+      FROM assignment_submissions s
+      INNER JOIN Assignments a ON s.assignment_id = a.id
+      WHERE a.course_id = ${courseId} 
+    `;
+
+    res.json(result.recordset);
+  } catch (err) {
+    console.error("Error fetching submissions:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Create a new course
 router.post('/create', async (req, res) => {
   const { title, courseCode, teacherIds } = req.body;
@@ -117,6 +138,8 @@ router.put('/:id', async (req, res) => {
     res.status(500).json({ error: 'Server error updating course' });
   }
 });
+
+
 
 // Fetch info from a Course including teachers and students
 router.get('/:courseId', async (req, res) => {
