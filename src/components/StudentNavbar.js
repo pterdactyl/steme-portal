@@ -21,7 +21,7 @@ export default function StudentNavbar({ user }) {
     <AppBar
       position="static"
       sx={{
-        background: "linear-gradient(90deg, #ccfcc0, #2e7d32)", // green gradient
+        background: "linear-gradient(90deg, #ffffffff, #ffffffff)",
         boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
         paddingX: { xs: 2, sm: 4 },
         paddingY: 1,
@@ -54,33 +54,35 @@ export default function StudentNavbar({ user }) {
         <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
           {user ? (
             <>
-              <Button color="inherit" onClick={() => navigate("/dashboard/student")}>
-                Courses
-              </Button>
-              <Button color="inherit" onClick={() => navigate("/pathways")}>
-                Pathways
-              </Button>
-              <Button color="inherit" onClick={() => navigate("/course-selection")}>
-                Course Selection
-              </Button>
-              <Button color="inherit" onClick={() => navigate("/profile")}>
-                Profile
-              </Button>
-              <Button
-                color="inherit"
-                onClick={handleLogout}
-                sx={{
-                  border: "1.5px solid #c8e6c9",
-                  borderRadius: "20px",
-                  paddingX: 2,
-                  "&:hover": {
-                    backgroundColor: "#c8e6c9",
-                    color: "#1b5e20",
-                  },
-                }}
-              >
-                Logout
-              </Button>
+              <Button color="inherit" onClick={() => navigate("/dashboard/student")} sx={{ color: "#1b5e20", fontWeight: "bold" }}>
+  Courses
+</Button>
+<Button color="inherit" onClick={() => navigate("/pathways")} sx={{ color: "#1b5e20", fontWeight: "bold" }}>
+  Pathways
+</Button>
+<Button color="inherit" onClick={() => navigate("/course-selection")} sx={{ color: "#1b5e20", fontWeight: "bold" }}>
+  Course Selection
+</Button>
+<Button color="inherit" onClick={() => navigate("/profile")} sx={{ color: "#1b5e20", fontWeight: "bold" }}>
+  Profile
+</Button>
+<Button
+  color="inherit"
+  onClick={handleLogout}
+  sx={{
+    color: "#1b5e20",
+    fontWeight: "bold",
+    border: "1.5px solid #c8e6c9",
+    borderRadius: "20px",
+    paddingX: 2,
+    "&:hover": {
+      backgroundColor: "#c8e6c9",
+      color: "#1b5e20",
+    },
+  }}
+>
+  Logout
+</Button>
             </>
           ) : (
             <Typography sx={{ color: "#e3f2fd" }}>Not logged in</Typography>
