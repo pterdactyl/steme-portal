@@ -20,8 +20,7 @@ export default function TeacherNavbar({ user }) {
     <AppBar
       position="static"
       sx={{
-        background: "linear-gradient(90deg, #ccfcc0, #2e7d32)", // blue gradient like teacher theme
-        boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+        background: "linear-gradient(90deg, #ffffffff, #ffffffff)", 
         paddingX: { xs: 2, sm: 4 },
         paddingY: 1,
       }}
@@ -57,7 +56,8 @@ export default function TeacherNavbar({ user }) {
   color="inherit"
   onClick={() => navigate("/courses")}
   sx={{
-    fontWeight: 300,
+    fontWeight: 600,
+    color: '#228B22',
     textTransform: "none",
     fontSize: "1rem",    // bigger font size
     px: 2,                 // horizontal padding
@@ -71,7 +71,8 @@ export default function TeacherNavbar({ user }) {
   color="inherit"
   onClick={() => navigate("/outline")}
   sx={{
-    fontWeight: 300,
+    fontWeight: 600,
+    color: '#228B22',
     textTransform: "none",
     fontSize: "1rem",
     px: 2,
@@ -85,8 +86,9 @@ export default function TeacherNavbar({ user }) {
   color="inherit"
   onClick={() => navigate("/profile")}
   sx={{
-    fontWeight: 300,
+    fontWeight: 600,
     textTransform: "none",
+    color: '#228B22',
     fontSize: "1rem",
     px: 2,
     py: 1.5,
@@ -99,14 +101,15 @@ export default function TeacherNavbar({ user }) {
   color="inherit"
   onClick={handleLogout}
   sx={{
-    border: "1.5px solid #bbdefb",
+    border: "1.5px solid #228B22",
     borderRadius: "20px",
     paddingX: 2,
+    color: '#228B22',
     paddingY: 1.5,
     fontSize: "0.9em",
     "&:hover": {
-      backgroundColor: "#bbdefb",
-      color: "#0d47a1",
+      backgroundColor: "#228B22",
+      color: "#ffffffff",
     },
   }}
 >
