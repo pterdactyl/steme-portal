@@ -47,7 +47,7 @@ export default function StudentDetail() {
 
   return (
     <Box p={{ xs: 2, sm: 4 }}>
-      <Typography variant="h4" fontWeight="bold" gutterBottom>
+      <Typography variant="h4" gutterBottom>
         📚 Student Assignment Overview
       </Typography>
 
