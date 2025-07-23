@@ -1,7 +1,10 @@
 /* Remove default current date yellow border */
 .react-calendar__tile--now {
-   
-  }
+  background: none !important;
+  border: none !important;
+  color: inherit !important;
+  font-weight: normal !important;
+}
 
   .react-calendar__tile--now:hover,
   .react-calendar__tile--now:focus {
@@ -11,7 +14,7 @@
   /* Color tiles based on attendance status */
   .attendance-present {
     background-color: #C8E6C9;
-  }
+  } 
   
   .attendance-absent {
     background-color: #FFCDD2;

@@ -394,23 +394,54 @@ export default function AssignmentsTab({ user }) {
             </Button>
 
             {selectedFiles.length > 0 && (
-              <ul style={{ marginTop: "0.5rem", marginBottom: "1rem" }}>
-                {selectedFiles.map((file, i) => (
-                  <li key={i} style={{ display: "flex", alignItems: "center" }}>
-                    {file.name}
-                    <IconButton
-                      aria-label="delete"
-                      onClick={() => {
-                        setSelectedFiles((prev) => prev.filter((_, idx) => idx !== i));
-                      }}
-                      style={{ marginLeft: "10px" }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </li>
-                ))}
-              </ul>
+              <ul>
+              {editingFiles.map((file, index) => (
+                <li key={file.id} style={{ display: "flex", alignItems: "center" }}>
+                  <button
+                    onClick={async () => {
+                      console.log('get');
+                      const url = new URL(file.file_url);
+                      const blobName = decodeURIComponent(url.pathname.split("/").pop());
+                      try {
+                        const res = await fetch(
+                          `http://localhost:4000/api/assignments/download-url?blobName=${blobName}`
+                        );
+                        if (!res.ok) throw new Error("Failed to get download URL");
+                        const data = await res.json();
+                        window.open(data.sasUrl, "_blank");
+                      } catch (err) {
+                        console.error("Error fetching download link", err);
+                        alert("Could not download file.");
+                      }
+                    }}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#007bff",
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {file.file_name}
+                  </button>
+            
+                  <IconButton
+                    aria-label="delete"
+                    style={{ marginLeft: "10px" }}
+                    onClick={() => {
+                      const fileToDelete = editingFiles[index];
+                      setFilesToDelete((prev) => [...prev, fileToDelete.id]);
+                      setEditingFiles((prev) => prev.filter((_, i) => i !== index));
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </li>
+              ))}
+            </ul>
             )}
+
+            
 
             <Button
               type="submit"

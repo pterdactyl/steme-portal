@@ -40,7 +40,6 @@ import StudentDetail from "./pages/Teacher/StudentDetail";
 import AssignmentStudents from './pages/Teacher/AssignmentStudents';
 
 import Pathways from "./pages/Student/pathways";
-import Upload from "./pages/Student/upload";
 import CourseSelection from "./pages/Student/CourseSelection";
 import StudentAssignmentDetail from "./pages/Student/StudentAssignmentDetail";
 
@@ -128,14 +127,6 @@ export default function App() {
             element={
               <PrivateRoute>
                 <Pathways user={user} />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/upload"
-            element={
-              <PrivateRoute>
-                <Upload user={user} />
               </PrivateRoute>
             }
           />

@@ -6,6 +6,7 @@ import {
 } from "@mui/material";
 import { AuthContext } from "../../Auth/AuthContext";
 import 'react-calendar/dist/Calendar.css';
+import CustomSnackbar from "../../components/CustomSnackbar";
 
 const STATUS_OPTIONS = ["Present", "Absent", "Late", "Excused"];
 
@@ -20,12 +21,37 @@ export default function AttendanceTab() {
   const localDate = new Date(year, month - 1, day);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = React.useState("info");
+
+  const showSnackbar = (message, severity = "info") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+   };
+  
+  
+   const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setSnackbarOpen(false);
+   };
+ 
+
+   useEffect(() => {
     async function fetchCourseInfo() {
-      const res = await fetch(`http://localhost:4000/api/courses/${courseId}`);
-      const data = await res.json();
-      setStudents(data.students);
-      setCourseCode(data.course_code);
+      try {
+        const res = await fetch(`http://localhost:4000/api/courses/${courseId}`);
+        if (!res.ok) {
+          throw new Error(`Failed to fetch course info: ${res.statusText}`);
+        }
+        const data = await res.json();
+        setStudents(data.students);
+        setCourseCode(data.course_code);
+      } catch (err) {
+        console.error("Error fetching course info:", err);
+        showSnackbar("Failed to load course information.", "error");
+      }
     }
   
     if (courseId) {
@@ -37,17 +63,28 @@ export default function AttendanceTab() {
     async function fetchAttendance() {
       if (!courseId || !selectedDate) return;
   
-      const defaultAttendance = {};
-      students.forEach(s => (defaultAttendance[s.id] = "Present"));
+      try {
+        const defaultAttendance = {};
+        students.forEach(s => (defaultAttendance[s.id] = "Present"));
   
-      const attendanceRes = await fetch(`http://localhost:4000/api/attendance/${courseId}/${selectedDate}`);
-      const attendanceData = await attendanceRes.json();
+        const attendanceRes = await fetch(
+          `http://localhost:4000/api/attendance/${courseId}/${selectedDate}`
+        );
   
-      attendanceData.forEach(record => {
-        defaultAttendance[record.student_id] = record.status;
-      });
+        if (!attendanceRes.ok) {
+          throw new Error(`Failed to fetch attendance: ${attendanceRes.statusText}`);
+        }
   
-      setAttendance(defaultAttendance);
+        const attendanceData = await attendanceRes.json();
+        attendanceData.forEach(record => {
+          defaultAttendance[record.student_id] = record.status;
+        });
+  
+        setAttendance(defaultAttendance);
+      } catch (err) {
+        console.error("Error fetching attendance:", err);
+        showSnackbar("Failed to load attendance for the selected date.", "error");
+      }
     }
   
     fetchAttendance();
@@ -66,14 +103,24 @@ export default function AttendanceTab() {
       recorded_by: userId,
     }));
 
-    const res = await fetch("http://localhost:4000/api/attendance", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(records),
-    });
-
-    alert(res.ok ? "Attendance saved!" : "Error saving attendance.");
-  };
+    try {
+      const res = await fetch("http://localhost:4000/api/attendance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(records),
+      });
+  
+      if (res.ok) {
+        showSnackbar("Attendance saved!", "success");
+      } else {
+        const errorText = await res.text();
+        throw new Error(`Server error: ${errorText}`);
+      }
+    } catch (err) {
+      console.error(err);
+      showSnackbar("Failed to save attendance.", "error");
+    }
+  }
 
   const exportCSV = () => {
     const rows = students.map(student => ({
@@ -133,7 +180,7 @@ export default function AttendanceTab() {
       link.click();
     } catch (error) {
       console.error("Error exporting pivoted attendance:", error);
-      alert("Failed to export attendance. Check console for details.");
+      showSnackbar("Failed to export full course attendance.", "error");
     }
   };
 
@@ -268,6 +315,12 @@ export default function AttendanceTab() {
   >
     Export Full Course Attendance
   </Button>
+  <CustomSnackbar
+         open={snackbarOpen}
+         onClose={handleSnackbarClose}
+         severity={snackbarSeverity}
+         message={snackbarMessage}
+       />
 </Stack>
 
     </Box>
