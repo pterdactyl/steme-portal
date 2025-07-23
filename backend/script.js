@@ -21,85 +21,74 @@ async function importCourses() {
             learning_goals, assessment, units, final_assessments,
             total_hours, course_code, specific_expectations
           } = row;
-  
+
+          let raw = row.prerequisite?.trim();
+let prerequisite = "";
+
+if (raw && raw.toLowerCase() !== "none") {
+  prerequisite = raw.replace(/\s+or\s+/gi, ", ").trim();
+}
           console.log("Here: {row}", row);
+          const newTitle = `Grade ${grade} ${course_name.trim()}`;
   
           try {
-            // Insert into Courses (new id each time)
-            const insertCourse = await pool
-              .request()
-              .input("course_code", sql.VarChar, course_code)
-              .input("title", sql.VarChar, course_name)
-              .query(`
-                INSERT INTO Courses (course_code, title, created_at)
-                OUTPUT INSERTED.id
-                VALUES (@course_code, @title, GETDATE());
-              `);
-  
-            const courseId = insertCourse.recordset[0].id;
-  
-            // Insert into CourseOutlines
+            // Update title and prerequisites in Courses table
             await pool.request()
-              .input("course_id", sql.Int, courseId)
-              .input("course_name", sql.VarChar, course_name.trim())
-              .input("grade", sql.Int, grade)
-              .input("course_type", sql.VarChar, course_type)
-              .input("credit", sql.Decimal(3, 1), credit)
-              .input("description", sql.Text, description)
-              .input("learning_goals", sql.Text, learning_goals)
-              .input("assessment", sql.Text, assessment)
-              .input("units", sql.Text, units)
-              .input("final_assessments", sql.Text, final_assessments)
-              .input("total_hours", sql.Int, total_hours)
-              .input("updated_by", sql.Int, 2)
               .input("course_code", sql.VarChar, course_code)
-              .input("specific_expectations", sql.Text, specific_expectations)
+              .input("title", sql.VarChar, newTitle)
+            
               .query(`
-                INSERT INTO CourseOutlines (
-                  course_id, course_name, grade, course_type, credit, description,
-                  learning_goals, assessment, units, final_assessments, total_hours,
-                  updated_by, updated_at, course_code, specific_expectations
-                )
-                VALUES (
-                  @course_id, @course_name, @grade, @course_type, @credit, @description,
-                  @learning_goals, @assessment, @units, @final_assessments, @total_hours,
-                  @updated_by, GETDATE(), @course_code, @specific_expectations
-                );
+                UPDATE Courses
+                SET title = @title
+                WHERE course_code = @course_code;
               `);
   
-            // Insert into CourseOutlineVersions (version 1)
-            await pool.request()
-              .input("course_id", sql.Int, courseId)
-              .input("version_number", sql.Int, 1)
-              .input("course_name", sql.VarChar, course_name.trim())
-              .input("grade", sql.Int, grade)
-              .input("course_type", sql.VarChar, course_type)
-              .input("credit", sql.Decimal(3, 1), credit)
-              .input("description", sql.Text, description)
-              .input("learning_goals", sql.Text, learning_goals)
-              .input("assessment", sql.Text, assessment)
-              .input("units", sql.Text, units)
-              .input("final_assessments", sql.Text, final_assessments)
-              .input("total_hours", sql.Int, total_hours)
-              .input("updated_by", sql.Int, 2)
+            // Get course_id
+            const courseResult = await pool.request()
               .input("course_code", sql.VarChar, course_code)
-              .input("specific_expectations", sql.Text, specific_expectations)
+              .query(`SELECT id FROM Courses WHERE course_code = @course_code`);
+  
+            if (courseResult.recordset.length === 0) {
+              console.warn(`Course not found: ${course_code}`);
+              continue;
+            }
+  
+            const courseId = courseResult.recordset[0].id;
+  
+            // Update latest CourseOutlineVersion
+            const versionResult = await pool.request()
+              .input("course_id", sql.Int, courseId)
               .query(`
-                INSERT INTO CourseOutlineVersions (
-                  course_id, version_number, course_name, grade, course_type, credit, description,
-                  learning_goals, assessment, units, final_assessments, total_hours,
-                  updated_by, updated_at, course_code, specific_expectations
-                )
-                VALUES (
-                  @course_id, @version_number, @course_name, @grade, @course_type, @credit,
-                  @description, @learning_goals, @assessment, @units, @final_assessments,
-                  @total_hours, @updated_by, GETDATE(), @course_code, @specific_expectations
-                );
+                SELECT TOP 1 id FROM CourseOutlineVersions
+                WHERE course_id = @course_id
+                ORDER BY version_number DESC;
               `);
   
-            console.log(`Inserted ${course_code} - ${course_name.trim()}`);
+            if (versionResult.recordset.length === 0) {
+              console.warn(`No outline versions for course: ${course_code}`);
+              continue;
+            }
+  
+            const versionId = versionResult.recordset[0].id;
+  
+            
+
+              await pool.request()
+              .input("id", sql.Int, versionId)
+              .input("course_name", sql.VarChar, newTitle)
+              .input("prerequisites", sql.Text, prerequisite || "")
+              .input("course_id", sql.Int, courseId)
+              .query(`
+                UPDATE CourseOutlines
+                SET course_name = @course_name,
+                    prerequisite = @prerequisites,
+                    updated_at = GETDATE()
+                WHERE course_id = @course_id;
+              `);
+  
+            console.log(`Updated: ${course_code} - ${newTitle}`);
           } catch (err) {
-            console.error(`Error inserting course ${course_code}`, err);
+            console.error(`Error updating ${course_code}`, err);
           }
         }
   

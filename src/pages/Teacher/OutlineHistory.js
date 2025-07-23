@@ -14,6 +14,7 @@ import {
 import OutlineContent from "../Teacher/OutlineContent";
 import { AuthContext } from "../../Auth/AuthContext";
 import html2pdf from "html2pdf.js";
+import CustomSnackbar from '../../components/CustomSnackbar';
 
 export default function VersionHistory() {
   const { courseId } = useParams();
@@ -29,6 +30,23 @@ export default function VersionHistory() {
   const [isExporting, setIsExporting] = useState(false);
   const exportRef = useRef(null);
 
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = React.useState("info");
+
+  const showSnackbar = (message, severity = "info") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+   };
+   
+   
+   const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setSnackbarOpen(false);
+   };
+   
+
   // Fetch version history
   useEffect(() => {
     async function fetchHistory() {
@@ -38,6 +56,7 @@ export default function VersionHistory() {
         setVersions(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to fetch version history:", err);
+        showSnackbar("Failed to load version history.", "error");
       }
     }
     fetchHistory();
@@ -61,7 +80,7 @@ export default function VersionHistory() {
           await html2pdf().from(element).set(options).save();
         } catch (error) {
           console.error("PDF generation failed:", error);
-          alert("Export failed.");
+          showSnackbar("Failed to generate PDF.", "error");
         } finally {
           setIsExporting(false);
         }
@@ -98,12 +117,13 @@ export default function VersionHistory() {
       const result = await res.json();
       if (res.ok) {
         alert("Version restored successfully!");
+        showSnackbar("Version restored successfully!", "success");
       } else {
-        alert(`Restore failed: ${result.message}`);
+        showSnackbar("Failed to restore version.", "error");
       }
     } catch (err) {
       console.error("Error restoring version:", err);
-      alert("Failed to restore version.");
+      showSnackbar("Error restoring version.", "error");
     }
   };
 
@@ -198,6 +218,12 @@ export default function VersionHistory() {
             </div>
         </div>
         )}
+        <CustomSnackbar
+          open={snackbarOpen}
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          message={snackbarMessage}
+        />
     </Box>
   );
 }
