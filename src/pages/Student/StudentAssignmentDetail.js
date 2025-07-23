@@ -172,7 +172,7 @@ export default function StudentAssignmentDetail() {
 
         <Box>
           <Typography variant="h6" gutterBottom>
-            Comments
+            
           </Typography>
           <AssignmentCommentThread
             assignmentId={assignmentId}

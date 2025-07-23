@@ -58,13 +58,14 @@ export default function AttendanceHistory() {
   return (
     <Box p={3}>
       <Button
-        variant="contained"
-        startIcon={<ArrowBackIcon />}
-        onClick={() => navigate(-1)}
-        sx={{ mb: 3 }}
-      >
-        Back to Attendance
-      </Button>
+  variant="contained"
+  color="success"
+  startIcon={<ArrowBackIcon />}
+  onClick={() => navigate(-1)}
+  sx={{ mb: 3 }}
+>
+  Back to Attendance
+</Button>
 
       <Box display="flex" flexDirection="column" alignItems="center">
         <Calendar
