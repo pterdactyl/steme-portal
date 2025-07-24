@@ -34,8 +34,8 @@ export default function StudentAssignmentDetail() {
     async function fetchData() {
       try {
         const [assignmentRes, filesRes] = await Promise.all([
-          axios.get(`http://localhost:4000/api/assignments/${assignmentId}`),
-          axios.get(`http://localhost:4000/api/assignment-files?assignment_id=${assignmentId}`),
+          axios.get(`${process.env.REACT_APP_API_URL}/assignments/${assignmentId}`),
+          axios.get(`${process.env.REACT_APP_API_URL}/assignment-files?assignment_id=${assignmentId}`),
         ]);
 
         setAssignment(assignmentRes.data);
@@ -69,7 +69,7 @@ export default function StudentAssignmentDetail() {
 
     try {
       const res = await fetch(
-        `http://localhost:4000/api/assignments/download-url?blobName=${blobName}`
+        `${process.env.REACT_APP_API_URL}/assignments/download-url?blobName=${blobName}`
       );
       if (!res.ok) throw new Error("Failed to get download URL");
       const data = await res.json();

@@ -24,7 +24,7 @@ export default function StudentDetail() {
   useEffect(() => {
     async function fetchStudentData() {
       try {
-        const res = await fetch(`http://localhost:4000/api/students/${studentId}/assignments`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/students/${studentId}/assignments`);
         const data = await res.json();
         setCourses(data);
         if (data.length > 0) {
@@ -107,7 +107,7 @@ export default function StudentDetail() {
                             const blobName = decodeURIComponent(url.pathname.split("/").pop());
                             console.log(blobName);
                             const res = await fetch(
-                              `http://localhost:4000/api/assignments/download-url?blobName=${blobName}&containerName=submissions`
+                              `${process.env.REACT_APP_API_URL}/assignments/download-url?blobName=${blobName}&containerName=submissions`
                             );  
                             if (!res.ok) throw new Error("Failed to get download URL");
                             const data = await res.json();

@@ -16,7 +16,7 @@ export default function StudentClasslist({ courseId }) {
   useEffect(() => {
     async function fetchClassList() {
       try {
-        const res = await fetch(`http://localhost:4000/api/courses/${courseId}/students`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/courses/${courseId}/students`);
         if (!res.ok) throw new Error("Failed to fetch student list");
         const data = await res.json();
         setStudents(data || []);

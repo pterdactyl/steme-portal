@@ -25,7 +25,7 @@ export default function SubmissionsPage() {
     const fetchData = async () => { 
       try {
         // Fetch students and their submissions for the assignment
-        const studentRes = await fetch(`http://localhost:4000/api/courses/${courseId}`); 
+        const studentRes = await fetch(`${process.env.REACT_APP_API_URL}/courses/${courseId}`); 
         const studentData = await studentRes.json();
         setStudents(studentData);
         console.log(studentData);
@@ -35,7 +35,7 @@ export default function SubmissionsPage() {
         console.log(selectedId);
 
         // Fetch the submission of the selected student for the given assignment
-        const submissionRes = await fetch(`http://localhost:4000/api/submissions/${assignmentId}/${selectedId}`);
+        const submissionRes = await fetch(`${process.env.REACT_APP_API_URL}/submissions/${assignmentId}/${selectedId}`);
         const submissionData = await submissionRes.json();
         setSubmission(submissionData);
         console.log(submissionData);
@@ -66,7 +66,7 @@ export default function SubmissionsPage() {
         teacher_comment: comment,
         grade: grade === "" ? null : Number(grade),
       };
-      await fetch(`http://localhost:4000/api/submissions/teacher/${assignmentId}/${student.id}/${userId}`, {
+      await fetch(`${process.env.REACT_APP_API_URL}/submissions/teacher/${assignmentId}/${student.id}/${userId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

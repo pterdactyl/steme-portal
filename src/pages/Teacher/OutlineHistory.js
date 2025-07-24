@@ -51,7 +51,7 @@ export default function VersionHistory() {
   useEffect(() => {
     async function fetchHistory() {
       try {
-        const res = await fetch(`http://localhost:4000/api/outlines/${courseId}/history`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/outlines/${courseId}/history`);
         const data = await res.json();
         setVersions(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -104,7 +104,7 @@ export default function VersionHistory() {
     if (!confirm) return;
 
     try {
-      const res = await fetch(`http://localhost:4000/api/outlines/${courseId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/outlines/${courseId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

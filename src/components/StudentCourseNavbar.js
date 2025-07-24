@@ -24,7 +24,7 @@ export default function StudentCourseNavbar() {
   useEffect(() => {
     async function fetchTeacherName() {
       try {
-        const res = await fetch(`http://localhost:4000/api/teacher-name?courseId=${courseId}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/teacher-name?courseId=${courseId}`);
         if (!res.ok) throw new Error("Failed to fetch teacher name");
         const data = await res.json();
         setTeacherName(data.fullName || "Unassigned Teacher");

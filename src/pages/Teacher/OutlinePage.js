@@ -35,7 +35,7 @@ export default function OutlinePage() {
   useEffect(() => {
     async function fetchCourses() {
       try {
-        const res = await fetch(`http://localhost:4000/api/courses?teacherId=${userId}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/courses?teacherId=${userId}`);
         const data = await res.json();
         setCourses(data);
       } catch (err) {
@@ -97,7 +97,7 @@ export default function OutlinePage() {
     if (!selectedCourse) return;
 
     try {
-      const res = await fetch(`http://localhost:4000/api/outlines/${selectedCourse.id}`);
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/outlines/${selectedCourse.id}`);
       if (!res.ok) throw new Error("Outline not found");
 
       const outlineData = await res.json();

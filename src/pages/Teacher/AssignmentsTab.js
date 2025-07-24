@@ -48,7 +48,7 @@ export default function AssignmentsTab({ user }) {
   useEffect(() => {
     async function fetchStudents() {
       try {
-        const res = await fetch(`http://localhost:4000/api/courses/${courseId}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/courses/${courseId}`);
         if (!res.ok) throw new Error("Failed to fetch students");
         const data = await res.json();
         setStudents(data.students);
@@ -64,7 +64,7 @@ export default function AssignmentsTab({ user }) {
 
   async function fetchSubmissions() {
     try {
-      const res = await fetch(`http://localhost:4000/api/courses/submissions/${courseId}`);
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/courses/submissions/${courseId}`);
       const data = await res.json();
   
       const grouped = {};
@@ -93,7 +93,7 @@ export default function AssignmentsTab({ user }) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://localhost:4000/api/assignments?course_id=${courseId}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/assignments?course_id=${courseId}`);
         if (!res.ok) throw new Error("Failed to fetch assignments");
         const data = await res.json();
         setAssignments(data);
@@ -113,7 +113,7 @@ export default function AssignmentsTab({ user }) {
       try {
         const newFilesMap = {};
         for (const a of assignments) {
-          const res = await fetch(`http://localhost:4000/api/assignments/assignment_files?assignment_id=${a.id}`);
+          const res = await fetch(`${process.env.REACT_APP_API_URL}/assignments/assignment_files?assignment_id=${a.id}`);
           if (res.ok) {
             const files = await res.json();
             newFilesMap[a.id] = files;
@@ -150,7 +150,7 @@ export default function AssignmentsTab({ user }) {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`http://localhost:4000/api/assignments/${id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/assignments/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) {
@@ -183,7 +183,7 @@ export default function AssignmentsTab({ user }) {
     selectedFiles.forEach((file) => formData.append("files", file));
 
     try {
-      const res = await fetch("http://localhost:4000/api/assignments", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/assignments`, {
         method: "POST",
         body: formData,
       });
@@ -226,7 +226,7 @@ export default function AssignmentsTab({ user }) {
       selectedFiles.forEach((file) => formData.append("files", file));
       filesToDelete.forEach((id) => formData.append("filesToDelete", id));
 
-      const res = await fetch(`http://localhost:4000/api/assignments/${editAssignmentId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/assignments/${editAssignmentId}`, {
         method: "PUT",
         body: formData,
       });
@@ -404,7 +404,7 @@ export default function AssignmentsTab({ user }) {
                       const blobName = decodeURIComponent(url.pathname.split("/").pop());
                       try {
                         const res = await fetch(
-                          `http://localhost:4000/api/assignments/download-url?blobName=${blobName}`
+                          `${process.env.REACT_APP_API_URL}/assignments/download-url?blobName=${blobName}`
                         );
                         if (!res.ok) throw new Error("Failed to get download URL");
                         const data = await res.json();

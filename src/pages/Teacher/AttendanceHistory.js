@@ -42,7 +42,7 @@ export default function AttendanceHistory() {
   
   useEffect(() => {
     async function fetchData() {
-      const res = await fetch(`http://localhost:4000/api/attendance/student/${studentId}/course/${courseId}`);
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/attendance/student/${studentId}/course/${courseId}`);
       const data = await res.json();
       setRecords(data);
     }

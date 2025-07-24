@@ -41,7 +41,7 @@ export default function AttendanceTab() {
    useEffect(() => {
     async function fetchCourseInfo() {
       try {
-        const res = await fetch(`http://localhost:4000/api/courses/${courseId}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/courses/${courseId}`);
         if (!res.ok) {
           throw new Error(`Failed to fetch course info: ${res.statusText}`);
         }
@@ -68,7 +68,7 @@ export default function AttendanceTab() {
         students.forEach(s => (defaultAttendance[s.id] = "Present"));
   
         const attendanceRes = await fetch(
-          `http://localhost:4000/api/attendance/${courseId}/${selectedDate}`
+          `${process.env.REACT_APP_API_URL}/attendance/${courseId}/${selectedDate}`
         );
   
         if (!attendanceRes.ok) {
@@ -104,7 +104,7 @@ export default function AttendanceTab() {
     }));
 
     try {
-      const res = await fetch("http://localhost:4000/api/attendance", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/attendance`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(records),
@@ -144,7 +144,7 @@ export default function AttendanceTab() {
 
   const exportCourseAttendanceCSV = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/attendance/${courseId}/all`);
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/attendance/${courseId}/all`);
       const data = await res.json();
   
       // Step 1: Get all unique dates across all students

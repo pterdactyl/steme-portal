@@ -23,7 +23,7 @@ const app = express();
 const PORT = 4000;
 
 const corsOptions = {
-  origin: 'http://localhost:3000', // your React app
+  origin: ['http://localhost:3000', 'https://steme-gvh4b7bxd6dxg3bc.canadacentral-01.azurewebsites.net/api'],  // your React app
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true, // allow cookies / headers
 };

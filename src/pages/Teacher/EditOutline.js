@@ -54,8 +54,8 @@ export default function EditOutline() {
       if (!courseId || !userId) return;
       setIsLoading(true);
   
-      const draftEndpoint = `http://localhost:4000/api/outlines/${courseId}/draft?teacherId=${userId}`;
-      const publishedEndpoint = `http://localhost:4000/api/outlines/${courseId}`;
+      const draftEndpoint = `${process.env.REACT_APP_API_URL}/outlines/${courseId}/draft?teacherId=${userId}`;
+      const publishedEndpoint = `${process.env.REACT_APP_API_URL}/outlines/${courseId}`;
   
       try {
         let res;
@@ -146,7 +146,7 @@ export default function EditOutline() {
 
     const handleSaveDraft = async () => {
       try {
-        const response = await fetch(`http://localhost:4000/api/outlines/${courseId}/draft`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/outlines/${courseId}/draft`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

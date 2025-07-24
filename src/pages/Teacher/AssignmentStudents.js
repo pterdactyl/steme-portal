@@ -82,24 +82,24 @@ export default function AssignmentStudents() {
 
   useEffect(() => {
     const fetchAssignment = async () => {
-      const res = await fetch(`http://localhost:4000/api/assignments/${assignmentId}`);
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/assignments/${assignmentId}`);
       const data = await res.json();
       setAssignmentInfo(data);
 
       console.log(assignmentId);
       // Fetch all submissions for this assignment
-      const res2 = await fetch(`http://localhost:4000/api/submissions/assignment/${assignmentId}`);
+      const res2 = await fetch(`${process.env.REACT_APP_API_URL}/submissions/assignment/${assignmentId}`);
       const submissionData = await res2.json();
       setSubmissions(submissionData);
       console.log(submissionData);
 
-      const fileRes = await fetch(`http://localhost:4000/api/assignments/assignment_files?assignment_id=${assignmentId}`);
+      const fileRes = await fetch(`${process.env.REACT_APP_API_URL}/assignments/assignment_files?assignment_id=${assignmentId}`);
       const fileData = await fileRes.json();
       setEditingFiles(fileData);
     };
 
     const fetchStudents = async () => {
-      const res = await fetch(`http://localhost:4000/api/courses/${courseId}`);
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/courses/${courseId}`);
       const data = await res.json();
       setStudents(data.students);
       if (data.students.length > 0) setSelectedStudentId(data.students[0].id);
@@ -141,7 +141,7 @@ export default function AssignmentStudents() {
     const fetchSubmission = async () => {
       if (!selectedStudentId) return;
       const res = await fetch(
-        `http://localhost:4000/api/submissions/${assignmentId}/${selectedStudentId}`
+        `${process.env.REACT_APP_API_URL}/submissions/${assignmentId}/${selectedStudentId}`
       );
       const data = await res.json();
       setSubmission(data);
@@ -158,7 +158,7 @@ export default function AssignmentStudents() {
         grade: grade === "" ? null : Number(grade),
       };
       await fetch(
-        `http://localhost:4000/api/submissions/teacher/${assignmentId}/${selectedStudentId}/${userId}`,
+        `${process.env.REACT_APP_API_URL}/submissions/teacher/${assignmentId}/${selectedStudentId}/${userId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -169,7 +169,7 @@ export default function AssignmentStudents() {
       alert("Submission saved!");
       // Refetch the submission to update comment history
       const res = await fetch(
-        `http://localhost:4000/api/submissions/${assignmentId}/${selectedStudentId}`
+        `${process.env.REACT_APP_API_URL}/submissions/${assignmentId}/${selectedStudentId}`
       );
       const data = await res.json();
       setSubmission(data);
@@ -198,7 +198,7 @@ export default function AssignmentStudents() {
       selectedFiles.forEach((file) => formData.append("files", file));
       filesToDelete.forEach((id) => formData.append("filesToDelete", id));
   
-      const res = await fetch(`http://localhost:4000/api/assignments/${assignmentId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/assignments/${assignmentId}`, {
         method: "PUT",
         body: formData,
       });
@@ -471,7 +471,7 @@ export default function AssignmentStudents() {
                         onClick={async () => {
                           const blobName = decodeURIComponent(new URL(f.file_url).pathname.split("/").pop());
                           const res = await fetch(
-                            `http://localhost:4000/api/submissions/download-url?blobName=${blobName}`
+                            `${process.env.REACT_APP_API_URL}/submissions/download-url?blobName=${blobName}`
                           );
                           const data = await res.json();
                           window.open(data.sasUrl, "_blank");

@@ -25,7 +25,7 @@ export default function StudentAssignments({ courseId }) {
     async function fetchAssignments() {
       try {
         const res = await axios.get(
-          `http://localhost:4000/api/assignments?course_id=${courseId}`
+          `${process.env.REACT_APP_API_URL}/assignments?course_id=${courseId}`
         );
         const sortedAssignments = res.data.sort(
           (a, b) => new Date(b.due_date) - new Date(a.due_date)
@@ -39,7 +39,7 @@ export default function StudentAssignments({ courseId }) {
     async function fetchSubmissions() {
       try {
         const res = await axios.get(
-          `http://localhost:4000/api/submissions/student/${userId}`
+          `${process.env.REACT_APP_API_URL}/submissions/student/${userId}`
         );
         const map = {};
         res.data.forEach((sub) => {
@@ -63,7 +63,7 @@ export default function StudentAssignments({ courseId }) {
     setLoadingFiles((prev) => ({ ...prev, [assignmentId]: true }));
     try {
       const res = await axios.get(
-        `http://localhost:4000/api/assignment-files?assignment_id=${assignmentId}`
+        `${process.env.REACT_APP_API_URL}/assignment-files?assignment_id=${assignmentId}`
       );
       setFilesByAssignment((prev) => ({
         ...prev,

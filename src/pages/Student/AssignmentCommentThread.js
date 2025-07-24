@@ -28,7 +28,7 @@ const AssignmentCommentThread = ({ assignmentId, userId }) => {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const res = await axios.get(`http://localhost:4000/api/comments/${assignmentId}`);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/comments/${assignmentId}`);
         setComments(res.data);
       } catch (err) {
         console.error("Failed to load comments:", err);
@@ -41,14 +41,14 @@ const AssignmentCommentThread = ({ assignmentId, userId }) => {
   const handleSend = async () => {
     if (!newMessage.trim()) return;
     try {
-      await axios.post('http://localhost:4000/api/comments', {
+      await axios.post(`${process.env.REACT_APP_API_URL}/comments`, {
         assignment_id: assignmentId,
         sender_id: userId,
         message: newMessage.trim(),
       });
       setNewMessage("");
       // Refresh comments
-      const res = await axios.get(`http://localhost:4000/api/comments/${assignmentId}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/comments/${assignmentId}`);
       setComments(res.data);
     } catch (err) {
       console.error("Failed to send comment:", err);

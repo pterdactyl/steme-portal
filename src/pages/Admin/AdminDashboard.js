@@ -25,8 +25,8 @@ export default function AdminDashboard() {
     async function fetchData() {
       try {
         const [teacherRes, courseRes] = await Promise.all([
-          fetch('http://localhost:4000/api/users/teachers'),
-          fetch('http://localhost:4000/api/courses')
+          fetch(`${process.env.REACT_APP_API_URL}/users/teachers`),
+          fetch(`${process.env.REACT_APP_API_URL}/courses`)
         ]);
         const teachers = await teacherRes.json();
         const courses = await courseRes.json();
@@ -49,7 +49,7 @@ export default function AdminDashboard() {
     }
 
     try {
-      await fetch('http://localhost:4000/api/courses/create', {
+      await fetch(`${process.env.REACT_APP_API_URL}/courses/create`, {
         method: 'POST',
         body: JSON.stringify({
           courseCode: code,
@@ -70,7 +70,7 @@ export default function AdminDashboard() {
 
   const handleUpdateCourse = async () => {
     try {
-      await fetch(`http://localhost:4000/api/courses/${editingCourseId}`, {
+      await fetch(`${process.env.REACT_APP_API_URL}/courses/${editingCourseId}`, {
         method: 'PUT',
         body: JSON.stringify({
           title,

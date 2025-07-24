@@ -18,7 +18,7 @@ export default function StudentAnnouncements({ courseId }) {
     async function fetchCourse() {
       if (!courseId) return;
       try {
-        const res = await fetch(`http://localhost:4000/api/courses/${courseId}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/courses/${courseId}`);
         if (!res.ok) throw new Error("Failed to load course info");
         const data = await res.json();
         setCourse(data);
@@ -36,7 +36,7 @@ export default function StudentAnnouncements({ courseId }) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://localhost:4000/api/courses/${courseId}/announcements`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/courses/${courseId}/announcements`);
         if (!res.ok) throw new Error("Failed to load announcements");
         const data = await res.json();
 

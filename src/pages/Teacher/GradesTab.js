@@ -26,9 +26,9 @@ export default function GradesTab() {
   useEffect(() => {
     async function fetchData() {
       const [studentRes, assignmentRes, gradeRes] = await Promise.all([
-        fetch(`http://localhost:4000/api/courses/${courseId}`),
-        fetch(`http://localhost:4000/api/assignments?course_id=${courseId}`),
-        fetch(`http://localhost:4000/api/grades/${courseId}`),
+        fetch(`${process.env.REACT_APP_API_URL}/courses/${courseId}`),
+        fetch(`${process.env.REACT_APP_API_URL}/assignments?course_id=${courseId}`),
+        fetch(`${process.env.REACT_APP_API_URL}/grades/${courseId}`),
       ]);
 
       const [studentsData, assignmentsData, gradesData] = await Promise.all([
@@ -70,7 +70,7 @@ export default function GradesTab() {
     const numericGrade = gradeValue === "" ? null : Number(gradeValue);
 
     if (gradeValue === "" || (!isNaN(numericGrade) && numericGrade >= 0 && numericGrade <= 100)) {
-      fetch("http://localhost:4000/api/grades", {
+      fetch(`${process.env.REACT_APP_API_URL}/grades`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

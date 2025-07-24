@@ -15,8 +15,8 @@ export default function AdminStudents() {
     async function fetchData() {
       try {
         const [studentsRes, coursesRes] = await Promise.all([
-          fetch('http://localhost:4000/api/users/students'),
-          fetch('http://localhost:4000/api/courses'),
+          fetch(`${process.env.REACT_APP_API_URL}/users/students`),
+          fetch(`${process.env.REACT_APP_API_URL}/courses`),
         ]);
         const studentsData = await studentsRes.json();
         const coursesData = await coursesRes.json();
@@ -47,7 +47,7 @@ export default function AdminStudents() {
     setMessage("");
     try {
       const courseIds = selectedCourses.map(c => c.value);
-      await fetch(`http://localhost:4000/api/users/students/${editingStudentId}/courses`, {
+      await fetch(`${process.env.REACT_APP_API_URL}/users/students/${editingStudentId}/courses`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ courseIds }),

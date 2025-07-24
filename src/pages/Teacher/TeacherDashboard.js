@@ -25,7 +25,7 @@ export default function TeacherDashboard() {
       }
 
       try {
-        const response = await fetch(`http://localhost:4000/api/courses?teacherId=${userId}`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/courses?teacherId=${userId}`);
         if (!response.ok) throw new Error("Failed to fetch courses");
         const data = await response.json();
         setCourses(data);

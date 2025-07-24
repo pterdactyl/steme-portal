@@ -44,7 +44,7 @@ export default function StudentCourse({ user }) {
   useEffect(() => {
     async function fetchCourseData() {
       try {
-        const res = await fetch(`http://localhost:4000/api/courses/${courseId}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/courses/${courseId}`);
         if (!res.ok) throw new Error("Failed to fetch course info");
         const data = await res.json();
         setCourseData(data);

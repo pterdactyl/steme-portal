@@ -35,7 +35,7 @@ export default function AnnouncementsTab() {
   useEffect(() => {
     if (!courseId) return;
     setLoading(true);
-    fetch(`http://localhost:4000/api/courses/${courseId}/announcements`)
+    fetch(`${process.env.REACT_APP_API_URL}/courses/${courseId}/announcements`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load announcements");
         return res.json();
@@ -54,7 +54,7 @@ export default function AnnouncementsTab() {
     if (!newAnnouncement.trim()) return;
     setPosting(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/courses/${courseId}/announcements`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/courses/${courseId}/announcements`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -76,7 +76,7 @@ export default function AnnouncementsTab() {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this announcement?")) return;
     try {
-      const res = await fetch(`http://localhost:4000/api/courses/${courseId}/announcements/${id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/courses/${courseId}/announcements/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete");
@@ -88,7 +88,7 @@ export default function AnnouncementsTab() {
 
   const saveEditing = async (id) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/courses/${courseId}/announcements/${id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/courses/${courseId}/announcements/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: editingMessage }),

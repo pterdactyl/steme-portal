@@ -146,7 +146,7 @@ export default function CourseSelection() {
     });
 
     try {
-      const response = await fetch("http://localhost:4000/api/courses/studentselections", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/courses/studentselections`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

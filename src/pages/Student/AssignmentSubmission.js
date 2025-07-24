@@ -18,7 +18,7 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
   const fetchSubmissionStatus = async () => {
     try {
       const res = await fetch(
-        `http://localhost:4000/api/submissions/submitted-status?course_id=${courseId}&assignment_id=${assignmentId}&user_id=${userId}`
+        `${process.env.REACT_APP_API_URL}/submissions/submitted-status?course_id=${courseId}&assignment_id=${assignmentId}&user_id=${userId}`
       );
       const data = await res.json();
       setSubmitted(data.submitted);
@@ -33,7 +33,7 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
 
   const fetchSubmittedFiles = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/submissions/file-url/${assignmentId}/${userId}`);
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/submissions/file-url/${assignmentId}/${userId}`);
       const data = await res.json();
       console.log(data);
       setSubmittedFiles(Array.isArray(data) ? data : []);
@@ -74,7 +74,7 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
       formData.append("assignment_id", assignmentId.toString());
       formData.append("user_id", userId.toString());
 
-      const response = await fetch("http://localhost:4000/api/submissions/upload", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/submissions/upload`, {
         method: "POST",
         body: formData,
       });
@@ -100,7 +100,7 @@ export default function AssignmentSubmission({ courseId, assignmentId, userId, o
   const handleUnsubmit = async () => {
     setMessage("");
     try {
-      const res = await fetch("http://localhost:4000/api/submissions/unsubmit", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/submissions/unsubmit`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ course_id: courseId, assignment_id: assignmentId, user_id: userId }),

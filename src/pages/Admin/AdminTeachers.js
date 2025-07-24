@@ -21,8 +21,8 @@ export default function AdminTeachers() {
   useEffect(() => {
     async function fetchData() {
       const [teacherRes, courseRes] = await Promise.all([
-        fetch('http://localhost:4000/api/users/teachers'),
-        fetch('http://localhost:4000/api/courses')
+        fetch(`${process.env.REACT_APP_API_URL}/users/teachers`),
+        fetch(`${process.env.REACT_APP_API_URL}/courses`)
       ]);
 
       const teachers = await teacherRes.json();
@@ -68,13 +68,13 @@ export default function AdminTeachers() {
     try {
       const courseIds = selectedCourses.map(c => c.value);
 
-      await fetch(`http://localhost:4000/api/users/teachers/${selectedTeacher.id}/courses`, {
+      await fetch(`${process.env.REACT_APP_API_URL}/users/teachers/${selectedTeacher.id}/courses`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ courseIds })
       });
 
-      const updatedCourseRes = await fetch('http://localhost:4000/api/courses');
+      const updatedCourseRes = await fetch(`${process.env.REACT_APP_API_URL}/courses`);
       const updatedCourses = await updatedCourseRes.json();
 
       setCourses(updatedCourses); // This will trigger the selectedCourses update
