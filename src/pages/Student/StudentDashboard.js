@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import SchoolIcon from "@mui/icons-material/School";
 import { AuthContext } from "../../Auth/AuthContext";
+const apiUrl = process.env.REACT_APP_API_URL;
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export default function StudentDashboard() {
       }
 
       try {
-        const res = await fetch(`http://localhost:4000/api/courses?studentId=${userId}`);
+        const res = await fetch(`${apiUrl}/courses?studentId=${userId}`);
         if (!res.ok) throw new Error("Failed to fetch courses");
         const data = await res.json();
         setCourses(data);
