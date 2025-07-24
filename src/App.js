@@ -74,11 +74,11 @@ export default function App() {
 
       <Box p={!hideNavbar ? 3 : 0}>
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
 
           {/* Dashboards */}
           <Route
-            path="/courses"
+            path="/"
             element={
               <PrivateRoute>
                 <TeacherDashboard user={user} />
