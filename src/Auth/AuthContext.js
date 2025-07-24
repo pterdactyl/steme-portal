@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { useMsal } from "@azure/msal-react";
+const apiUrl = process.env.REACT_APP_API_URL;
 
 export const AuthContext = createContext();
 
@@ -27,7 +28,7 @@ export function AuthProvider({ children }) {
   
       try {
         // Insert or get user, and receive role + id
-        const res = await fetch('http://localhost:4000/api/users', {
+        const res = await fetch(`${apiUrl}/users`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, name }),
