@@ -56,9 +56,13 @@ export default function App() {
   if (loading) return null;
 
   if (user && location.pathname === "/") {
+    console.log("user exists", user);
     if (role === "admin") return <Navigate to="/dashboard/admin" replace />;
     if (role === "teacher") return <Navigate to="/courses" replace />;
     if (role === "student") return <Navigate to="/dashboard/student" replace />;
+  }
+  if (!user) {
+    console.log("no user", user);
   }
 
   return (

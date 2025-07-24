@@ -20,9 +20,10 @@ export function AuthProvider({ children }) {
         setRole(null);
         setUserId(null);
         setLoading(false);
+        console.log("no user", user);
         return;
       }
-  
+      console.log("we got a user: ", user);
       const email = user.username;
       const name = user.name || email.split("@")[0];
   
