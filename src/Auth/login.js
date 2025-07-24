@@ -111,7 +111,7 @@ export default function Login() {
               },
             }}
           >
-            Sign in with Microsoft dsadasd
+            Sign in with Microsoft
           </Button>
 
           <Typography variant="body2" color="text.secondary" align="center">
