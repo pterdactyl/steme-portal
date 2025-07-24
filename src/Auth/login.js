@@ -11,6 +11,10 @@ import {
 } from "@mui/material";
 
 export default function Login() {
+  console.log("API URL:", process.env.REACT_APP_API_URL);
+  console.log(process.env.REACT_APP_CLIENT_ID);
+  console.log(process.env.REACT_APP_AUTHORITY);
+  console.log(process.env.REACT_APP_REDIRECT_URI);
   const { instance } = useMsal();
   const [error, setError] = useState("");
 
@@ -21,9 +25,11 @@ export default function Login() {
         ...loginRequest,
         prompt: "select_account",
       });
+      console.log("Login response:", response);
       instance.setActiveAccount(response.account);
     } catch (e) {
-      setError(e.message);
+      console.error("MSAL Login error:", e);
+      setError(e.message || "Login failed");
     }
   };
 
