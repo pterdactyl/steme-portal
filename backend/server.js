@@ -20,7 +20,7 @@ import studentRoutes from "./routes/students.js";
 
 dotenv.config();
 const app = express();
-const PORT = 4000;
+const port = process.env.PORT || 4000;
 
 const corsOptions = {
   origin: ['http://localhost:3000', 'https://steme-gvh4b7bxd6dxg3bc.canadacentral-01.azurewebsites.net/api'],  // your React app
@@ -58,7 +58,7 @@ app.get('/', (req, res) => {
   res.send('API is working!');
 });
 
-app.listen(PORT, () => {
+app.listen(port, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
 });
 
