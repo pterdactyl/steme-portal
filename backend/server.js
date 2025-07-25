@@ -23,7 +23,7 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://stem-e-backend-gydsc9b4ffdtfzg4.canadacentral-01.azurewebsites.net'],  // your React app
+  origin: ['http://localhost:3000', 'https://proud-ocean-0b864e00f.1.azurestaticapps.net'],  // your React app
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true, // allow cookies / headers
 };
