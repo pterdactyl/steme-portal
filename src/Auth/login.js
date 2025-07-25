@@ -1,4 +1,4 @@
-import React, { use, useState } from "react";
+import React, { useState } from "react";
 import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "./azureAuth";
 import { useNavigate } from "react-router-dom";
@@ -29,7 +29,6 @@ export default function Login() {
       });
       console.log("Login response:", response);
       instance.setActiveAccount(response.account);
-      navigate('/dashboard/student');
     } catch (e) {
       console.error("MSAL Login error:", e);
       setError(e.message || "Login failed");
