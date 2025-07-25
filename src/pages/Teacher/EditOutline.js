@@ -176,7 +176,7 @@ export default function EditOutline() {
 
   const handlePublish = async () => {
     try {
-      const response = await fetch(`http://lolhost:4000/api/outlines/${courseId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/outlines/${courseId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
