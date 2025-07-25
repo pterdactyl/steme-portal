@@ -771,8 +771,8 @@ const courses = [
 
   {
     courseCode: "required",
-    x: 1,
-    y: 4,
+    x: 0,
+    y: 1,
     connects: [],
     in: {
       engineering: "required",
@@ -783,8 +783,8 @@ const courses = [
   },
   {
     courseCode: "recommend",
-    x: 1,
-    y: 4.5,
+    x: 0,
+    y: 2,
     connects: [],
     in: {
       engineering: "recommended",
@@ -812,7 +812,7 @@ const courses = [
 ];
 
 const pathwayColors = {
-  engineering: "#800080",
+  engineering: "#ee67eeff",
   "engineering-light": "#d1a3d1",
 
   "life-health-science": "#73c6b6",
@@ -987,7 +987,7 @@ export default function Pathways() {
   return (
     <div className="pathways-container" style={{ position: "relative", height: 600 }}>
       <div className="navbar" style={{ marginBottom: 20 }}>
-        {["engineering", "life-health-science", "computer-science", "business"].map(
+        {["engineering", "life/health-science", "computer-science", "business"].map(
           (cat) => (
             <button
               key={cat}
