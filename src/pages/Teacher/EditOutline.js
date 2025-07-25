@@ -241,7 +241,7 @@ export default function EditOutline() {
         updateUnit={updateUnit}
         updateFinalAssessment={updateFinalAssessment}
         addUnit={addUnit}
-        removeUnit={removeUnit}
+        removeUnit={removeUnit} 
       />
 
       <div style={{ maxWidth: 900, margin: "0 auto", padding: 20, textAlign: "center" }}>
