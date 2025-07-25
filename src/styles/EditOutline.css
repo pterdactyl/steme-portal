@@ -1,0 +1,167 @@
+/* EditOutline.css
+
+/* ================================== */
+/* ===== SHARED & BASE STYLES ======= */
+/* ================================== */
+
+.cellStyle {
+  border: 0.5px solid #000000;
+  padding: 8px;
+  vertical-align: top;
+}
+
+.leftSide {
+  border: 0.5px solid #000000;
+  padding: 4px;
+  vertical-align: top;
+  width: 200px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* --- Sub-header Styles (for nested tables) --- */
+.subHeaderStyle {
+  border: 1px solid #ccc;
+  padding: 6px;
+  background-color: #ADDFFF;
+  font-size: 12px;
+}
+.subHeaderWidth10 { width: 10%; }
+.subHeaderWidth20 { width: 20%; }
+.subHeaderWidth60 { width: 60%; }
+
+/* --- Table Column Styles --- */
+.unitColumn, .descriptionColumn, .hoursColumn, .actionColumn {
+  border: 1px solid #ccc;
+  padding: 6px;
+  font-size: 12px; /* Base font size for table cells */
+}
+.hoursColumn { width: 20%; }
+
+
+/* ===================================== */
+/* ===== EDIT MODE: INPUT STYLES ======= */
+/* ===================================== */
+
+.inputStyle {
+  width: 100%;
+  padding: 6px;
+  font-size: 12px;
+  border: none;
+  background-color: transparent; /* Match the cell background */
+  box-sizing: border-box;
+}
+
+.inputHours {
+  width: 100%;
+  padding: 6px;
+  font-size: 12px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.inputHoursReadonly {
+  background-color: #eee;
+  font-weight: bold;
+}
+
+.textareaStyle, .unitDescription {
+  width: 100%;
+  padding: 6px;
+  font-size: 12px;
+  resize: none;
+  border: none;
+  outline: none;
+  overflow: hidden;
+  background-color: transparent;
+  box-sizing: border-box;
+  font-family: inherit; /* Ensures it matches surrounding text font */
+}
+
+
+/* ================================================= */
+/* ===== VIEW MODE: TEXT MIMICKING STYLES (NEW) ==== */
+/* ================================================= */
+
+/*
+  This class will be applied to the DIVs that replace your INPUTS.
+  It mimics the .inputStyle but for plain text.
+*/
+.view-text-style {
+  width: 100%;
+  padding: 6px; /* Match the input padding */
+  font-size: 12px; /* Match the input font size */
+  box-sizing: border-box;
+  line-height: 1.4; /* Improves readability */
+}
+
+/*
+  This class will be applied to the DIVs that replace your TEXTAREAS.
+  It mimics the .textareaStyle.
+*/
+.view-textarea-style {
+  width: 100%;
+  padding: 6px; /* Match the textarea padding */
+  font-size: 12px; /* Match the textarea font size */
+  box-sizing: border-box;
+  min-height: 20px; /* Give it some default height */
+  white-space: pre-wrap; /* Respects line breaks and spaces */
+  word-wrap: break-word; /* Prevents long text from overflowing */
+  font-family: inherit;
+}
+
+/* ============================= */
+/* ===== BUTTON STYLES ======== */
+/* ============================= */
+
+/* Base button style */
+.outline-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+/* Toggle buttons */
+.toggle-btn {
+  padding: 10px 20px;
+  margin-right: 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 2px solid #ccc;
+  background-color: #f3f4f6;
+  color: #374151;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.toggle-btn:hover {
+  background-color: #e5e7eb;
+}
+
+.toggle-btn.active {
+  background-color: #111827;
+  color: white;
+  border-color: #111827;
+  cursor: default;
+}
+
+
+/* Save Draft */
+.save-btn {
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  margin-right: 16px;
+}
+
+/* Publish */
+.publish-btn {
+  background-color: #10b981;
+  color: white;
+  border: none;
+}
