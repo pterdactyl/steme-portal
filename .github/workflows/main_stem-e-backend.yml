@@ -63,5 +63,5 @@ jobs:
         with:
           app-name: 'stem-e-backend'
           slot-name: 'Production'
-          package: .
+          package: ./node-app
           
