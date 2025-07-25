@@ -60,7 +60,7 @@ export default function StudentsTab() {
                 sx={{
                   p: 2,
                   borderRadius: "16px",
-                  transition: "box-shadow 0.3s ease",
+                  transition: "all 0.6s ease-in-out",
                   cursor: "pointer",
                   "&:hover": {
                     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
