@@ -64,7 +64,7 @@ export default function StudentsTab() {
                   cursor: "pointer",
                   "&:hover": {
                     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                    color: "#e8f5e9",
+                    bgcolor: "#e8f5e9",
                   },
                 }}
               >
