@@ -1011,7 +1011,7 @@ export default function Pathways() {
         )}
       </div>
 
-      <div className="canvas" style={{ position: "relative", height: "100%" }}>
+      <div className="canvas" style={{ position: "relative", height: "auto" }}>
         {renderLines()}
         {renderCourses()}
       </div>
