@@ -54,30 +54,31 @@ export default function StudentNavbar({ user }) {
         <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
           {user ? (
             <>
-              <Button color="inherit" onClick={() => navigate("/dashboard/student")} sx={{ color: "#1b5e20", fontWeight: "bold" }}>
+              <Button color="inherit" onClick={() => navigate("/dashboard/student")} sx={{ color: "#228B22", fontWeight: 600, fontSize: "1rem", px: 2, py: 1.5 }}>
   Courses
 </Button>
-<Button color="inherit" onClick={() => navigate("/pathways")} sx={{ color: "#1b5e20", fontWeight: "bold" }}>
+<Button color="inherit" onClick={() => navigate("/pathways")} sx={{ color: "#228B22", fontWeight: 600, fontSize: "1rem", px: 2, py: 1.5}}>
   Pathways
 </Button>
-<Button color="inherit" onClick={() => navigate("/course-selection")} sx={{ color: "#1b5e20", fontWeight: "bold" }}>
+<Button color="inherit" onClick={() => navigate("/course-selection")} sx={{ color: "#228B22", fontWeight: 600, fontSize: "1rem", px: 2, py: 1.5}}>
   Course Selection
 </Button>
-<Button color="inherit" onClick={() => navigate("/profile")} sx={{ color: "#1b5e20", fontWeight: "bold" }}>
+<Button color="inherit" onClick={() => navigate("/profile")} sx={{ color: "#228B22", fontWeight: 600, fontSize: "1rem", px: 2, py: 1.5}}>
   Profile
 </Button>
 <Button
   color="inherit"
   onClick={handleLogout}
   sx={{
-    color: "#1b5e20",
-    fontWeight: "bold",
-    border: "1.5px solid #c8e6c9",
+    color: "#228B22",
+    fontWeight: 600,
+    border: "1.5px solid #228B22",
     borderRadius: "20px",
     paddingX: 2,
+    paddingY: 1.5,
     "&:hover": {
-      backgroundColor: "#c8e6c9",
-      color: "#1b5e20",
+      backgroundColor: "#228B22",
+      color: "#ffffffff",
     },
   }}
 >
