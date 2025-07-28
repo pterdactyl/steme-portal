@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation, Link as RouterLink } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -17,6 +17,9 @@ import { Assignment } from "@mui/icons-material";
 
 export default function StudentDetail() {
   const { studentId } = useParams();
+  const location = useLocation();
+  const studentNameFromState = location.state?.studentName || "Student";
+
   const [courses, setCourses] = useState([]);
   const [selectedCourseId, setSelectedCourseId] = useState("");
   const [loading, setLoading] = useState(true);
@@ -40,15 +43,34 @@ export default function StudentDetail() {
     fetchStudentData();
   }, [studentId]);
 
-  if (loading) return <Box p={4}><CircularProgress /></Box>;
-  if (courses.length === 0) return <Box p={4}><Typography>No enrolled courses found.</Typography></Box>;
+  if (loading)
+    return (
+      <Box p={4}>
+        <CircularProgress />
+      </Box>
+    );
+  if (courses.length === 0)
+    return (
+      <Box p={4}>
+        <Typography>No enrolled courses found.</Typography>
+      </Box>
+    );
 
   const selectedCourse = courses.find((c) => c.courseId === selectedCourseId);
 
   return (
     <Box p={{ xs: 2, sm: 4 }}>
+      <Button
+  component={RouterLink}
+  to={`/dashboard/course/${selectedCourseId}/students`}
+  variant="outlined"
+  sx={{ mb: 2 }}
+>
+  ← Back to Student List
+</Button>
+
       <Typography variant="h4" gutterBottom>
-        📚 Student Assignment Overview
+        📚 {studentNameFromState}'s Assignment Overview
       </Typography>
 
       <FormControl fullWidth sx={{ mb: 4 }}>
@@ -102,13 +124,10 @@ export default function StudentDetail() {
                         onClick={async () => {
                           try {
                             const url = new URL(assignment.fileUrl);
-                            console.log("Extracted blobName:", assignment.blobName);
-                            
                             const blobName = decodeURIComponent(url.pathname.split("/").pop());
-                            console.log(blobName);
                             const res = await fetch(
                               `${process.env.REACT_APP_API_URL}/assignments/download-url?blobName=${blobName}&containerName=submissions`
-                            );  
+                            );
                             if (!res.ok) throw new Error("Failed to get download URL");
                             const data = await res.json();
                             window.open(data.sasUrl, "_blank");

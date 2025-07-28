@@ -6,7 +6,6 @@ import {
   Paper,
   CircularProgress,
   Stack,
-  Link,
   Chip,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
@@ -129,59 +128,66 @@ export default function StudentAssignments({ courseId }) {
         {assignments.map((assignment) => {
           const status = getStatus(assignment);
           return (
-            <Paper
+            <Box
               key={assignment.id}
-              elevation={2}
+              component={RouterLink}
+              to={`/student/assignments/${assignment.id}`}
               sx={{
-                p: 3,
-                borderRadius: "16px",
-                transition: "0.3s",
-                "&:hover": {
-                  boxShadow: "0 4px 20px rgba(46, 125, 50, 0.3)",
-                  backgroundColor: "transparent",
-                },
+                textDecoration: "none",
+                color: "inherit",
               }}
             >
-              {/* Top Row: Due + Status */}
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                mb={1}
-              >
-                <Typography variant="body2" fontWeight={600} color="success.dark">
-                  {assignment.due_date
-                    ? `Due: ${new Date(assignment.due_date).toLocaleString()}`
-                    : "No due date"}
-                </Typography>
-                <Chip
-                  label={status}
-                  color={getStatusChipColor(status)}
-                  variant="outlined"
-                  size="small"
-                />
-              </Box>
-
-              {/* Title & Description */}
-              <Box
-                component={RouterLink}
-                to={`/student/assignments/${assignment.id}`}
+              <Paper
+                elevation={2}
                 sx={{
-                  textDecoration: "none",
-                  color: "inherit",
-                  "&:hover .title": { color: "primary.main" },
+                  p: 3,
+                  borderRadius: "16px",
+                  transition: "0.3s",
+                  cursor: "pointer",
+                  "&:hover": {
+                    boxShadow: "0 4px 20px rgba(46, 125, 50, 0.3)",
+                    backgroundColor: "transparent",
+                  },
                 }}
               >
+                {/* Top Row: Due + Status */}
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={1}
+                >
+                  <Typography variant="body2" fontWeight={600} color="success.dark">
+                    {assignment.due_date
+                      ? `Due: ${new Date(assignment.due_date).toLocaleString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: false,
+                        })}`
+                      : "No due date"}
+                  </Typography>
+                  <Chip
+                    label={status}
+                    color={getStatusChipColor(status)}
+                    variant="outlined"
+                    size="small"
+                  />
+                </Box>
+
+                {/* Title */}
                 <Typography
                   className="title"
                   variant="h6"
                   fontWeight={600}
-                  sx={{ transition: "color 0.3s", cursor: "pointer" }}
+                  sx={{ transition: "color 0.3s" }}
                 >
                   {assignment.title}
                 </Typography>
-              </Box>
-            </Paper>
+              </Paper>
+            </Box>
           );
         })}
       </Stack>
