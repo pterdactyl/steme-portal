@@ -815,8 +815,8 @@ const pathwayColors = {
   engineering: "#953EDE",
   "engineering-light": "#C99BEE",
 
-  "life-health-science": "#92FF7D",
-  "life-health-science-light": "#C3FFB8",
+  "life-health-science": "#7ACFC0",
+  "life-health-science-light": "#C9E9E1",
 
   "computer-science": "#0093c8ff",
   "computer-science-light": "#aae8ffff",
