@@ -562,7 +562,7 @@ const courses = [
     courseCode: 'BEP2O',
     title: 'Entrepreneurship: The Enterprising Person (BEP2O)',
     x: 7.5,
-    y: -1.5,
+    y: -1.25,
     connects: ['BEM1O'],
     in: { business: 'recommended' },
     description:
