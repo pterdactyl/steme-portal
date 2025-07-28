@@ -55,7 +55,9 @@ export default function StudentsTab() {
             return (
               <Paper
                 key={student.id}
-                onClick={() => navigate(`/students/${student.id}`)}
+                onClick={() =>
+                  navigate(`/students/${student.id}`, { state: { studentName: student.name } })
+                }
                 elevation={2}
                 sx={{
                   p: 2,

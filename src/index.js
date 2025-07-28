@@ -20,7 +20,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </AuthProvider>
       </MsalProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  </React.StrictMode> 
 );
 
 

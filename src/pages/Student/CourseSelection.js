@@ -5,6 +5,9 @@ import { AuthContext } from "../../Auth/AuthContext";
 import { courseDescriptions } from "./CourseDescriptions";
 import CourseDetailModal from "./CourseDetailModal"
 
+const LOCAL_STORAGE_KEY = "courseSelectionData";
+const LOCAL_SUBMITTED_KEY = "hasSubmitted";
+
 const gradeLevels = ["Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const currentGrade = "Grade 9";
 
@@ -75,12 +78,30 @@ export default function CourseSelection() {
 
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedCourseDetail, setSelectedCourseDetail] = useState(null);
-  const [courses, setCourses] = useState(initialCourses);
+
+  const [courses, setCourses] = useState(() => {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : initialCourses;
+  });
+
+  const [hasSubmitted, setHasSubmitted] = useState(() => {
+    const saved = localStorage.getItem(LOCAL_SUBMITTED_KEY);
+    return saved === "true";
+  });
+
   const [modalOpen, setModalOpen] = useState(false);
   const [modalGrade, setModalGrade] = useState(null);
   const [filterGroup, setFilterGroup] = useState(null);
-  const [hasSubmitted, setHasSubmitted] = useState(false);
+
   const [message, setMessage] = useState({ type: "", text: "" });
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(courses));
+  }, [courses]);
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_SUBMITTED_KEY, hasSubmitted.toString());
+  }, [hasSubmitted]);
 
   const handleAddCourse = (grade, group = null) => {
     if (gradeLevels.indexOf(grade) < gradeLevels.indexOf(currentGrade)) return;
@@ -94,20 +115,17 @@ export default function CourseSelection() {
     if (!modalGrade) return;
 
     if (course.prerequisite) {
-      const allSelectedCourses = [];
+      const selectedPriorCourses = [];
 
       gradeLevels.forEach((grade) => {
-        if (gradeLevels.indexOf(grade) <= gradeLevels.indexOf(modalGrade)) {
+        if (gradeLevels.indexOf(grade) < gradeLevels.indexOf(modalGrade)) {
           const gradeCourses = courses[grade] || [];
-          gradeCourses.forEach((c) => allSelectedCourses.push(c.code));
+          gradeCourses.forEach((c) => selectedPriorCourses.push(c.code));
         }
       });
 
-      if (!allSelectedCourses.includes(course.prerequisite)) {
-        setMessage({
-          type: "error",
-          text: `❌ You must complete ${course.prerequisite} before taking ${course.code}.`,
-        });
+      if (!selectedPriorCourses.includes(course.prerequisite)) {
+        alert(`❌ You must complete ${course.prerequisite} in a previous grade before taking ${course.code}.`);
         return;
       }
     }
@@ -158,11 +176,11 @@ export default function CourseSelection() {
 
       if (!response.ok) throw new Error("Failed to save courses");
 
-      setMessage({ type: "success", text: `✅ Courses submitted for ${grade}!` });
+      alert(`✅ Courses submitted for ${grade}!`);
       setHasSubmitted(true);
     } catch (error) {
       console.error("Error saving courses:", error);
-      setMessage({ type: "error", text: "❌ Failed to save courses. Try again." });
+      alert("❌ Failed to save courses. Try again.");
     }
   };
 
@@ -193,26 +211,11 @@ export default function CourseSelection() {
 
   return (
     <div className="planner-container">
-      {message.text && (
-        <div className={`alert-box ${message.type}`}>
-          {message.text}
-          <button className="close-alert" onClick={() => setMessage({ type: "", text: "" })}>
-            ✕
-          </button>
-        </div>
-      )}
-
       <div className="credit-summary">
         <h3>Credit Summary</h3>
-        <p>
-          <strong>Total Selected:</strong> {total} credits
-        </p>
-        <p>
-          <strong>Earned:</strong> {earned} credits
-        </p>
-        <p>
-          <strong>Planned:</strong> {planned} credits
-        </p>
+        <p><strong>Total Selected:</strong> {total} credits</p>
+        <p><strong>Earned:</strong> {earned} credits</p>
+        <p><strong>Planned:</strong> {planned} credits</p>
       </div>
 
       <div className="planner-columns">
@@ -318,13 +321,19 @@ export default function CourseSelection() {
 
               {isCurrent && !hasSubmitted && (
                 <button
-  className="submit-grade-btn"
-  onClick={() => handleSubmitCourses(grade)}
-  style={{ backgroundColor: 'green', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}
->
-  Submit All Courses
-</button>
-
+                  className="submit-grade-btn"
+                  onClick={() => handleSubmitCourses(grade)}
+                  style={{
+                    backgroundColor: 'green',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Submit All Courses
+                </button>
               )}
             </div>
           );

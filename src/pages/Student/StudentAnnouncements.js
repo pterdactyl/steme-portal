@@ -84,34 +84,41 @@ export default function StudentAnnouncements({ courseId }) {
               sx={{
                 p: 2.5,
                 borderRadius: "18px",
-                backgroundColor: "transparent", // very light green background
+                backgroundColor: "transparent",
                 transition: "all 0.3s ease",
                 "&:hover": {
-                  boxShadow: "0 4px 16px rgba(46, 125, 50, 0.3)", // green shadow
-                  backgroundColor: "transparent", // light green hover
+                  boxShadow: "0 4px 16px rgba(46, 125, 50, 0.3)",
+                  backgroundColor: "transparent",
                 },
               }}
             >
               <Box display="flex" justifyContent="space-between" alignItems="center">
                 <Box display="flex" alignItems="center" gap={1.2}>
                   <Avatar
-  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-    a.author ? a.author.split(" ")[0].charAt(0).toUpperCase() : "U"
-  )}&background=random`}
-  alt={a.author || "User"}
-  sx={{
-    width: 30,
-    height: 30,
-    fontSize: 14,
-    fontWeight: 500,
-  }}
->
-  {a.author ? a.author.split(" ")[0].charAt(0).toUpperCase() : "U"}
-</Avatar>
+                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      a.author ? a.author.split(" ")[0].charAt(0).toUpperCase() : "U"
+                    )}&background=random`}
+                    alt={a.author || "User"}
+                    sx={{
+                      width: 30,
+                      height: 30,
+                      fontSize: 14,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {a.author ? a.author.split(" ")[0].charAt(0).toUpperCase() : "U"}
+                  </Avatar>
 
                   <Typography variant="subtitle2" color="black">
                     {a.author || "Unknown"} •{" "}
-                    {new Date(a.created_at || a.timestamp).toLocaleString()}
+                    {new Date(a.created_at || a.timestamp).toLocaleString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: false,
+                    })}
                   </Typography>
                 </Box>
               </Box>

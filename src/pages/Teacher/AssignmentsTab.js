@@ -1,4 +1,3 @@
-import { useEventCallback } from "@mui/material";
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -6,9 +5,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { TextField, Typography, Button, IconButton, } from '@mui/material';
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-
+import CustomSnackbar from "../../components/CustomSnackbar";
 
 export default function AssignmentsTab({ user }) {
   const formRef = useRef(null);
@@ -26,11 +23,25 @@ export default function AssignmentsTab({ user }) {
   const [editingFiles, setEditingFiles] = useState([]);
   const [filesToDelete, setFilesToDelete] = useState([]);
   const [hoveredId, setHoveredId] = useState(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
   const [students, setStudents] = useState([]);
   const [submissions, setSubmissions ] = useState({});
+
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = React.useState("info");
+
+  const showSnackbar = (message, severity = "info") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+  
+  
+  const handleSnackbarClose = (event, reason) => {
+  if (reason === 'clickaway') return;
+    setSnackbarOpen(false);
+  };
 
 
 
@@ -44,6 +55,23 @@ export default function AssignmentsTab({ user }) {
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
   const navigate = useNavigate();
+
+  const handleDownload = async (fileUrl) => {
+    const url = new URL(fileUrl);
+    const blobName = decodeURIComponent(url.pathname.split("/").pop());
+
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/assignments/download-url?blobName=${blobName}`
+      );
+      if (!res.ok) throw new Error("Failed to get download URL");
+      const data = await res.json();
+      window.open(data.sasUrl, "_blank");
+    } catch (err) {
+      console.error("Error fetching secure download link:", err);
+      showSnackbar("Failed to download file. Please try again.", "error");
+    }
+  };
 
   useEffect(() => {
     async function fetchStudents() {
@@ -164,9 +192,7 @@ export default function AssignmentsTab({ user }) {
       setError("Error deleting assignment");
     }
   };
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -263,40 +289,40 @@ export default function AssignmentsTab({ user }) {
   return (
     <div style={{ padding: "2rem" }}>
       <Typography variant="h4" sx={{ fontWeight: 'normal', mb: 2 }}>
-  Assignments
-</Typography>
+        Assignments
+      </Typography>
 
 
       <Button
-  variant={showForm ? "outlined" : "contained"}
-  onClick={() => {
-    if (showForm) {
-      setShowForm(false);
-      setTitle("");
-      setDescription("");
-      setDeadline("");
-      setEditAssignmentId(null);
-      setEditingFiles([]);
-      setSelectedFiles([]);
-      setFilesToDelete([]);
-    } else {
-      setShowForm(true);
-      setEditingFiles([]);
-      setSelectedFiles([]);
-      setFilesToDelete([]);
-    }
-  }}
-  sx={{
-    backgroundColor: showForm ? "white" : "#4caf50", // green when contained
-    color: showForm ? "#4caf50" : "white", // text color
-    border: showForm ? "1px solid #4caf50" : "none",
-    "&:hover": {
-      backgroundColor: showForm ? "#f4f4f4" : "#45a049",
-    },
-  }}
->
-  {showForm ? "Cancel" : "+ New Assignment"}
-</Button>
+        variant={showForm ? "outlined" : "contained"}
+        onClick={() => {
+          if (showForm) {
+            setShowForm(false);
+            setTitle("");
+            setDescription("");
+            setDeadline("");
+            setEditAssignmentId(null);
+            setEditingFiles([]);
+            setSelectedFiles([]);
+            setFilesToDelete([]);
+          } else {
+            setShowForm(true);
+            setEditingFiles([]);
+            setSelectedFiles([]);
+            setFilesToDelete([]);
+          }
+        }}
+        sx={{
+          backgroundColor: showForm ? "white" : "#4caf50", // green when contained
+          color: showForm ? "#4caf50" : "white", // text color
+          border: showForm ? "1px solid #4caf50" : "none",
+          "&:hover": {
+            backgroundColor: showForm ? "#f4f4f4" : "#45a049",
+          },
+        }}
+      >
+        {showForm ? "Cancel" : "+ New Assignment"}
+      </Button>
 
       {showForm && (
         <form
@@ -351,10 +377,22 @@ export default function AssignmentsTab({ user }) {
           
 
           {editAssignmentId && editingFiles.length > 0 && (
-            <ul style={{ marginBottom: "0.5rem" }}>
+            <ul style={{ listStyle: "none", marginBottom: "0.5rem", paddingLeft: 0 }}>
               {editingFiles.map((file, index) => (
                 <li key={file.id}>
-                  {file.file_name}
+                  <Button
+                    key={file.id}
+                    onClick={() => handleDownload(file.file_url)}
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      textTransform: "none",
+                      justifyContent: "flex-start",
+                      width: "fit-content",
+                    }}
+                  >
+                    {file.file_name}
+                  </Button>
                   <IconButton
                     aria-label="delete"
                     style={{ marginLeft: "10px" }}
@@ -448,18 +486,18 @@ export default function AssignmentsTab({ user }) {
               variant="contained"
               size="small"
               sx={{
-    backgroundColor: "#4caf50", // green
-    color: "white",
-    "&:hover": {
-      backgroundColor: "#45a049", // darker green on hover
-    },
-  }}
-            >
-              Save
-            </Button>
-          </div>
-        </form>
-      )}
+              backgroundColor: "#4caf50", // green
+              color: "white",
+              "&:hover": {
+                backgroundColor: "#45a049", // darker green on hover
+              },
+            }}
+                >
+                  Save
+                </Button>
+              </div>
+            </form>
+          )}
 
       <div style={{ marginTop: "20px" }}>
         {assignments.length === 0 ? (
@@ -490,41 +528,41 @@ export default function AssignmentsTab({ user }) {
                 </Typography>
               
                 {a.due_date && (
-  <div
-  style={{
-    position: "absolute",
-    top: "10px",
-    right: "20px",
-    fontWeight: "bold",
-    fontSize: "0.9rem",
-  }}
-  >
-    Due:{" "}
-    {new Date(a.due_date).toLocaleString(undefined, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })}
-  </div>
-)}
+                <div
+                style={{
+                  position: "absolute",
+                  top: "10px",
+                  right: "20px",
+                  fontWeight: "bold",
+                  fontSize: "0.9rem",
+                }}
+                >
+                  Due:{" "}
+                  {new Date(a.due_date).toLocaleString(undefined, {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </div>
+              )}
 
-{/* Submission status badge - bottom right */}
-<div
-  style={{
-    position: "absolute",
-    bottom: "10px",
-    right: "15px",
-    backgroundColor: "#f0f0f0",
-    padding: "4px 8px",
-    borderRadius: "8px",
-    fontSize: "0.85rem",
-    color: "#333",
-  }}
->
-  {submissions[a.id] || 0} / {students.length} students submitted
-</div>
+              {/* Submission status badge - bottom right */}
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "10px",
+                  right: "15px",
+                  backgroundColor: "#f0f0f0",
+                  padding: "4px 8px",
+                  borderRadius: "8px",
+                  fontSize: "0.85rem",
+                  color: "#333",
+                }}
+              >
+                {submissions[a.id] || 0} / {students.length} students submitted
+              </div>
 
               
 
@@ -564,16 +602,12 @@ export default function AssignmentsTab({ user }) {
             ))
         )}
       </div>
-        <Snackbar
+      <CustomSnackbar
         open={snackbarOpen}
-        autoHideDuration={4000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+        severity={snackbarSeverity}
+        message={snackbarMessage}
+      />
 
       {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
