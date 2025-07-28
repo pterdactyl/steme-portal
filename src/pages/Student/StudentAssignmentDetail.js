@@ -15,6 +15,7 @@ import {
 import AssignmentSubmission from "./AssignmentSubmission";
 import AssignmentCommentThread from "./AssignmentCommentThread";
 import { useAuth } from "../../Auth/AuthContext";
+import CustomSnackbar from "../../components/CustomSnackbar";
 
 export default function StudentAssignmentDetail() {
   const { assignmentId } = useParams();
@@ -29,6 +30,23 @@ export default function StudentAssignmentDetail() {
   const [files, setFiles] = useState([]);
   const [submissionFiles, setSubmissionFiles] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = React.useState("info");
+
+  const showSnackbar = (message, severity = "info") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+  
+  
+  const handleSnackbarClose = (event, reason) => {
+  if (reason === 'clickaway') return;
+    setSnackbarOpen(false);
+  };
+  
 
   useEffect(() => {
     async function fetchData() {
@@ -55,7 +73,7 @@ export default function StudentAssignmentDetail() {
   const refreshFiles = async () => {
     try {
       const [filesRes] = await Promise.all([
-        axios.get(`/api/assignment-files?assignment_id=${assignmentId}`),
+        axios.get(`/${process.env.REACT_APP_API_URL}/assignment-files?assignment_id=${assignmentId}`),
       ]);
       setFiles(filesRes.data);
     } catch (err) {
@@ -76,7 +94,7 @@ export default function StudentAssignmentDetail() {
       window.open(data.sasUrl, "_blank");
     } catch (err) {
       console.error("Error fetching secure download link:", err);
-      alert("Could not get download link");
+      showSnackbar("Failed to download file. Please try again.", "error");
     }
   };
 
@@ -180,6 +198,12 @@ export default function StudentAssignmentDetail() {
           />
         </Box>
       </Paper>
+      <CustomSnackbar
+        open={snackbarOpen}
+        onClose={handleSnackbarClose}
+        severity={snackbarSeverity}
+        message={snackbarMessage}
+      />
     </Box>
   );
 }

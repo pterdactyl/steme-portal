@@ -10,7 +10,7 @@ router.post("/", async (req, res) => {
   if (!assignment_id || !sender_id || !message) {
     return res.status(400).json({ error: "Missing required fields" });
   }
-
+  
   try {
     const pool = await sql.connect(config);
     await pool.request()
@@ -30,18 +30,19 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/:assignmentId", async (req, res) => {
-  const { assignmentId } = req.params;
+router.get("/:assignmentId/:userId", async (req, res) => {
+  const { assignmentId, userId } = req.params;
 
   try {
     const pool = await sql.connect(config);
     const result = await pool.request()
       .input("assignment_id", sql.Int, assignmentId)
-      .query(`
+      .input("userId", sql.Int, userId) 
+      .query(` 
         SELECT ac.*, u.name AS sender_name
         FROM AssignmentComments ac
         JOIN Users u ON ac.sender_id = u.id
-        WHERE assignment_id = @assignment_id
+        WHERE assignment_id = @assignment_id AND student_id = @userId
         ORDER BY timestamp ASC
       `);
 

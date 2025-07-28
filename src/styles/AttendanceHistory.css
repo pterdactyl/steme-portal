@@ -27,7 +27,21 @@
   .attendance-excused {
     background-color: #BBDEFB;
   }
-  
+
+  /* Fix for today + status combo: reapply colors */
+  .react-calendar__tile--now.attendance-present {
+    background-color: #C8E6C9 !important;
+  }
+  .react-calendar__tile--now.attendance-absent {
+    background-color: #FFCDD2 !important;
+  }
+  .react-calendar__tile--now.attendance-late {
+    background-color: #FFF9C4 !important;
+  }
+  .react-calendar__tile--now.attendance-excused {
+    background-color: #BBDEFB !important;
+  }
+ 
   /* Optional: style tile text for contrast */
   .attendance-present, .attendance-absent, .attendance-late, .attendance-excused {
     color: black;  /* Or adjust for contrast */
