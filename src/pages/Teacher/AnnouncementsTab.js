@@ -179,7 +179,15 @@ export default function AnnouncementsTab() {
 </Avatar>
 
                   <Typography variant="subtitle2" color="black">
-                    {a.author} • {new Date(a.created_at).toLocaleString()}
+                    {a.author} • {new Date(a.created_at).toLocaleString(undefined, {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true,
+                    })}
+
                   </Typography>
                 </Box>
                 {isTeacher && (
