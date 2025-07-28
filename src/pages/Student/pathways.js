@@ -347,7 +347,7 @@ const courses = [
   {
     courseCode: "MCV4U",
     x: 4.75,
-    y: 2.75,
+    y: 2.5,
     connects: ["MCR3U"],
     in: {
       engineering: "required",
