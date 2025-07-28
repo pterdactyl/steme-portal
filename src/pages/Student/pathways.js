@@ -347,7 +347,7 @@ const courses = [
   {
     courseCode: "MCV4U",
     x: 4.75,
-    y: 2.75,
+    y: 2.5,
     connects: ["MCR3U"],
     in: {
       engineering: "required",
@@ -562,7 +562,7 @@ const courses = [
     courseCode: 'BEP2O',
     title: 'Entrepreneurship: The Enterprising Person (BEP2O)',
     x: 7.5,
-    y: -1.5,
+    y: -1,
     connects: ['BEM1O'],
     in: { business: 'recommended' },
     description:
@@ -771,8 +771,8 @@ const courses = [
 
   {
     courseCode: "required",
-    x: 1,
-    y: 4,
+    x: -1,
+    y: -1,
     connects: [],
     in: {
       engineering: "required",
@@ -783,8 +783,8 @@ const courses = [
   },
   {
     courseCode: "recommend",
-    x: 1,
-    y: 4.5,
+    x: -1,
+    y: -0.5,
     connects: [],
     in: {
       engineering: "recommended",
@@ -812,14 +812,14 @@ const courses = [
 ];
 
 const pathwayColors = {
-  engineering: "#800080",
-  "engineering-light": "#d1a3d1",
+  engineering: "#953EDE",
+  "engineering-light": "#C99BEE",
 
-  "life-health-science": "#73c6b6",
-  "life-health-science-light": "#c3e6df",
+  "life-health-science": "#7ACFC0",
+  "life-health-science-light": "#C9E9E1",
 
-  "computer-science": "#3a94cf",
-  "computer-science-light": "#b7d7ec",
+  "computer-science": "#0093c8ff",
+  "computer-science-light": "#aae8ffff",
 
   business: "#e74c3c",
   "business-light": "#f5b7b1",
@@ -985,7 +985,8 @@ export default function Pathways() {
   };
 
   return (
-    <div className="pathways-container" style={{ position: "relative", height: 600 }}>
+ 
+    <div className="pathways-container" style={{ position: "relative", minHeight: 700, marginBottom: 30 }}>
       <div className="navbar" style={{ marginBottom: 20 }}>
         {["engineering", "life-health-science", "computer-science", "business"].map(
           (cat) => (
@@ -1002,16 +1003,19 @@ export default function Pathways() {
                   : {}
               }
             >
-              {cat.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-            </button>
+              {cat === "life-health-science"
+               ? "Life / Health Science"
+               : cat.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+              </button>
           )
         )}
       </div>
 
-      <div className="canvas" style={{ position: "relative", height: "100%" }}>
+      <div className="canvas" style={{ position: "relative", height: "auto" }}>
         {renderLines()}
         {renderCourses()}
       </div>
     </div>
+  
   );
 }

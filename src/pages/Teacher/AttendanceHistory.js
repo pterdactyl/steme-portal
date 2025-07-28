@@ -69,6 +69,7 @@ export default function AttendanceHistory() {
 
       <Box display="flex" flexDirection="column" alignItems="center">
         <Calendar
+          calendarType="gregory"
           tileClassName={({ date, view }) => {
             if (view === 'month') {
               const status = getStatusForDate(date);

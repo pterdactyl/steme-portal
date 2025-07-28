@@ -22,6 +22,7 @@ export default function ViewOutline() {
     const fetchOutline = async () => {
       try {
         const res = await fetch(`${process.env.REACT_APP_API_URL}/outlines/by-course-code/${courseCode}`);
+        console.log('getting outline for courseCode:', courseCode);
         if (!res.ok) throw new Error("Failed to fetch outline");
 
         const data = await res.json();

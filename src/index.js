@@ -9,7 +9,7 @@ import { MsalProvider } from '@azure/msal-react';
 import { msalConfig } from './Auth/azureAuth';
 import { AuthProvider } from './Auth/AuthContext';
 import './index.css';
-const msalInstance = new PublicClientApplication(msalConfig);
+const msalInstance = new PublicClientApplication(msalConfig); 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -20,7 +20,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </AuthProvider>
       </MsalProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  </React.StrictMode> 
 );
 
 
