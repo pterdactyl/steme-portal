@@ -771,7 +771,7 @@ const courses = [
 
   {
     courseCode: "required",
-    x: -0.5,
+    x: -1,
     y: -1,
     connects: [],
     in: {
@@ -783,8 +783,8 @@ const courses = [
   },
   {
     courseCode: "recommend",
-    x: -0.5,
-    y: 0,
+    x: -1,
+    y: -0.5,
     connects: [],
     in: {
       engineering: "recommended",
@@ -813,7 +813,7 @@ const courses = [
 
 const pathwayColors = {
   engineering: "#953EDE",
-  "engineering-light": "#d1a3d1",
+  "engineering-light": "#C99BEE",
 
   "life-health-science": "#73c6b6",
   "life-health-science-light": "#c3e6df",
