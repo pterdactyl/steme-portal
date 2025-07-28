@@ -18,6 +18,7 @@ import { useParams } from "react-router-dom";
 import { AuthContext } from "../../Auth/AuthContext";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import CustomSnackbar from "../../components/CustomSnackbar";
 
 function formatCommentTime(timestamp) {
   const date = new Date(timestamp);
@@ -56,7 +57,7 @@ export default function AssignmentStudents() {
   const { courseId, assignmentId } = useParams();
   const { userId } = useContext(AuthContext);
 
-  const [tabIndex, setTabIndex] = useState(0);
+  const [tabIndex, setTabIndex] = useState(1);
   const [assignmentInfo, setAssignmentInfo] = useState(null);
   const [students, setStudents] = useState([]);
   const [selectedStudentId, setSelectedStudentId] = useState(null);
@@ -76,8 +77,40 @@ export default function AssignmentStudents() {
 
   const [submissions, setSubmissions] = useState([]);
   const [statusMap, setStatusMap] = useState({});
-  const [showOnlySubmitted, setShowOnlySubmitted] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
+
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = React.useState("info");
+
+  const showSnackbar = (message, severity = "info") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+  
+  
+  const handleSnackbarClose = (event, reason) => {
+  if (reason === 'clickaway') return;
+    setSnackbarOpen(false);
+  };
+
+  const handleDownload = async (fileUrl) => {
+    const url = new URL(fileUrl);
+    const blobName = decodeURIComponent(url.pathname.split("/").pop());
+
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/assignments/download-url?blobName=${blobName}`
+      );
+      if (!res.ok) throw new Error("Failed to get download URL");
+      const data = await res.json();
+      window.open(data.sasUrl, "_blank");
+    } catch (err) {
+      console.error("Error fetching secure download link:", err);
+      showSnackbar("Failed to download file. Please try again.", "error");
+    }
+  };
 
 
   useEffect(() => {
@@ -166,7 +199,7 @@ export default function AssignmentStudents() {
         }
       );
       setComment(""); // Clear the comment input
-      alert("Submission saved!");
+      showSnackbar("Submission saved successfully!", "success");
       // Refetch the submission to update comment history
       const res = await fetch(
         `${process.env.REACT_APP_API_URL}/submissions/${assignmentId}/${selectedStudentId}`
@@ -204,9 +237,7 @@ export default function AssignmentStudents() {
       });
       console.log(res);
       if (!res.ok) throw new Error(await res.text());
-  
-      const updated = await res.json();
-      alert("Assignment updated!");
+      showSnackbar("Assignment updated successfully!", "success");
      
     } catch (err) {
       console.error(err);
@@ -294,10 +325,23 @@ export default function AssignmentStudents() {
 
     {/* Attached Files (existing) */}
     {editingFiles.length > 0 && (
-      <ul style={{ marginBottom: "0.5rem" }}>
+      <ul style={{ listStyle: "none", marginBottom: "0.5rem", paddingLeft: 0 }}>
         {editingFiles.map((file, index) => (
           <li key={file.id}>
-            {file.file_name}
+            <Button
+              key={file.id}
+              onClick={() => handleDownload(file.file_url)}
+              variant="outlined"
+              size="small"
+              sx={{
+                textTransform: "none",
+                justifyContent: "flex-start",
+                width: "fit-content",
+              }}
+            >
+              {file.file_name}
+            </Button>
+
             <IconButton
               aria-label="delete"
               style={{ marginLeft: "10px" }}
@@ -429,33 +473,33 @@ export default function AssignmentStudents() {
 
     return (
       <Button
-  key={s.id}
-  fullWidth
-  variant={selectedStudentId === s.id ? "contained" : "text"}
-  onClick={() => setSelectedStudentId(s.id)}
-  sx={{
-    justifyContent: "space-between",
-    mb: 1,
-    textTransform: "none",
-    alignItems: "center",
-    backgroundColor: selectedStudentId === s.id ? "#dcfad4" : "transparent",
-    color: selectedStudentId === s.id ? "white" : "inherit",
-    "&:hover": {
-      backgroundColor: selectedStudentId === s.id ? "#acf799" : "rgba(0,0,0,0.04)",
-    },
-  }}
->
-  <Box display="flex" flexDirection="column" alignItems="flex-start">
-    <Typography sx={{ color: "black" }}>{s.name}</Typography> {/* student name */}
-    <Typography variant="caption" sx={{ color: statusColor }}>
-      {statusLabel}
-    </Typography>
-  </Box>
-</Button>
+        key={s.id}
+        fullWidth
+        variant={selectedStudentId === s.id ? "contained" : "text"}
+        onClick={() => setSelectedStudentId(s.id)}
+        sx={{
+          justifyContent: "space-between",
+          mb: 1,
+          textTransform: "none",
+          alignItems: "center",
+          backgroundColor: selectedStudentId === s.id ? "#dcfad4" : "transparent",
+          color: selectedStudentId === s.id ? "white" : "inherit",
+          "&:hover": {
+            backgroundColor: selectedStudentId === s.id ? "#acf799" : "rgba(0,0,0,0.04)",
+          },
+        }}
+      >
+        <Box display="flex" flexDirection="column" alignItems="flex-start">
+          <Typography sx={{ color: "black" }}>{s.name}</Typography> {/* student name */}
+          <Typography variant="caption" sx={{ color: statusColor }}>
+            {statusLabel}
+          </Typography>
+        </Box>
+      </Button>
 
 
-    );
-  })}
+          );
+        })}
           </Box>
 
           <Box width="75%" p={4}>
@@ -584,8 +628,8 @@ export default function AssignmentStudents() {
                 />
                 <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                   <Button variant="contained" color="success" onClick={save}>
-  Save
-</Button>
+                    Save
+                  </Button>
                 </Box>
               </>
             ) : (
@@ -594,6 +638,12 @@ export default function AssignmentStudents() {
           </Box>
         </Box>
       )}
+      <CustomSnackbar
+        open={snackbarOpen}
+        onClose={handleSnackbarClose}
+        severity={snackbarSeverity}
+        message={snackbarMessage}
+      />
     </Box>
   );
 }

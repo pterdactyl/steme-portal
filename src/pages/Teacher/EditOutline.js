@@ -4,6 +4,7 @@ import '../../styles/EditOutline.css';
 import OutlineContent from "./OutlineContent";
 import { AuthContext } from "../../Auth/AuthContext";
 import CustomSnackbar from '../../components/CustomSnackbar';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function EditOutline() {
   const { courseId } = useParams();
@@ -68,16 +69,16 @@ export default function EditOutline() {
             showSnackbar("Draft not found, loading published version.", "warning");
             res = await fetch(publishedEndpoint);
             if (!res.ok) {
-              throw new Error("Failed to load published outline fallback");
               showSnackbar("Loaded published version as fallback.", "info");
+              throw new Error("Failed to load published outline fallback");
             }
           }
         } else {
           // If viewMode is published, fetch published directly
           res = await fetch(publishedEndpoint);
           if (!res.ok) {
-            throw new Error("Failed to load outline");
             showSnackbar("Failed to load published outline.", "error");
+            throw new Error("Failed to load outline");
           }
         }
   
@@ -212,6 +213,14 @@ export default function EditOutline() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", marginTop: "50px" }}>
+        <CircularProgress />
+      </div>
+    );
+  }
+
   return (
     <div>
       <div style={{ textAlign: "center", margin: "30px 0" }}>
@@ -246,7 +255,7 @@ export default function EditOutline() {
 
       <div style={{ maxWidth: 900, margin: "0 auto", padding: 20, textAlign: "center" }}>
         <button onClick={handleSaveDraft} className="outline-btn save-btn">
-          Save Draft (locally)
+          Save as Draft (locally)
         </button>
         <button onClick={handlePublish} className="outline-btn publish-btn">
           Publish Changes

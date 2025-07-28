@@ -28,7 +28,7 @@ const AssignmentCommentThread = ({ assignmentId, userId }) => {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/comments/${assignmentId}`);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/comments/${assignmentId}/${userId}`);
         setComments(res.data);
       } catch (err) {
         console.error("Failed to load comments:", err);
