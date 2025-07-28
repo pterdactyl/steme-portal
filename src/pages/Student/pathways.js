@@ -985,7 +985,8 @@ export default function Pathways() {
   };
 
   return (
-    <div className="pathways-container" style={{ position: "relative", height: 600, marginBottom: 30 }}>
+    <div style={{ paddingBottom: 30 }}>
+    <div className="pathways-container" style={{ position: "relative", height: 600}}>
       <div className="navbar" style={{ marginBottom: 20 }}>
         {["engineering", "life-health-science", "computer-science", "business"].map(
           (cat) => (
@@ -1014,6 +1015,7 @@ export default function Pathways() {
         {renderLines()}
         {renderCourses()}
       </div>
+    </div>
     </div>
   );
 }
