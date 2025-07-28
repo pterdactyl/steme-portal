@@ -987,7 +987,7 @@ export default function Pathways() {
   return (
     <div className="pathways-container" style={{ position: "relative", height: 600 }}>
       <div className="navbar" style={{ marginBottom: 20 }}>
-        {["engineering", "life/health-science", "computer-science", "business"].map(
+        {["engineering", "life-health-science", "computer-science", "business"].map(
           (cat) => (
             <button
               key={cat}
@@ -1002,8 +1002,10 @@ export default function Pathways() {
                   : {}
               }
             >
-              {cat.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-            </button>
+              {cat === "life-health-science"
+               ? "Life / Health Science"
+               : cat.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+              </button>
           )
         )}
       </div>
