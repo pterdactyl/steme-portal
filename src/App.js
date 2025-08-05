@@ -55,6 +55,7 @@ export default function App() {
 
   if (loading) return null;
 
+  // Redirect based on user role if they are logged in and on the root path
   if (user && location.pathname === "/") {
     console.log("user exists", user);
     if (role === "admin") return <Navigate to="/dashboard/admin" replace />;
