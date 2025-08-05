@@ -6,7 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 
 import { PublicClientApplication } from '@azure/msal-browser';
 import { MsalProvider } from '@azure/msal-react';
-import { msalConfig } from './Auth/azureAuth';
+import { msalConfig } from './Auth/AzureAuth';
 import { AuthProvider } from './Auth/AuthContext';
 import './index.css';
 const msalInstance = new PublicClientApplication(msalConfig); 

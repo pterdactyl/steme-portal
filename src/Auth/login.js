@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useMsal } from "@azure/msal-react";
-import { loginRequest } from "./azureAuth";
-import { useNavigate } from "react-router-dom";
+import { loginRequest } from "./AzureAuth";
 import {
   Box,
   Paper,
@@ -9,6 +8,10 @@ import {
   Button,
   Stack,
   Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 
 export default function Login() {
@@ -16,9 +19,10 @@ export default function Login() {
   console.log(process.env.REACT_APP_CLIENT_ID);
   console.log(process.env.REACT_APP_AUTHORITY);
   console.log(process.env.REACT_APP_REDIRECT_URI);
+  
   const { instance } = useMsal();
   const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [showPopup, setShowPopup] = useState(true);
 
   const handleLogin = async () => {
     setError("");
@@ -42,31 +46,30 @@ export default function Login() {
       alignItems="center"
       justifyContent="center"
       px={2}
-      
-       sx={{
-      position: "relative",
-      backgroundImage: 'url("/image.jpg")',
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
-  
+      sx={{
+        position: "relative",
+        backgroundImage: 'url("/classroom.jpg")',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
 
-      "&::before": {
-      content: '""',
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      backgroundColor: "rgba(0, 0, 0, 0.62)", // dark overlay
-      zIndex: 0,
-    },
-    "& > *": {
-      position: "relative",
-      zIndex: 1,
-    },
-  }}
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "rgba(0, 0, 0, 0.62)",
+          zIndex: 0,
+        },
+        "& > *": {
+          position: "relative",
+          zIndex: 1,
+        },
+      }}
     >
+      {/* Sign-In Box */}
       <Paper
         elevation={3}
         sx={{
@@ -79,12 +82,12 @@ export default function Login() {
         }}
       >
         <Stack spacing={4} alignItems="center">
-         <Box
+          <Box
             component="img"
             src="/steme.png"
             alt="STEME Portal Logo"
             sx={{
-              width: 200, 
+              width: 200,
               height: "auto",
               objectFit: "contain",
             }}
@@ -117,10 +120,36 @@ export default function Login() {
           </Button>
 
           <Typography variant="body2" color="text.secondary" align="center">
-            Please use your school Microsoft account to sign in.
+            Please use your Microsoft account to sign in.
           </Typography>
         </Stack>
       </Paper>
+
+      {/* POPUP DIALOG — stays on top */}
+      <Dialog
+        open={showPopup}
+        onClose={() => setShowPopup(false)}
+        aria-labelledby="popup-title"
+      >
+        <DialogTitle id="popup-title">Want More Info?</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Sign in with a Microsoft account to get more information.
+         </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowPopup(false)}>Close</Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setShowPopup(false);
+              handleLogin();
+            }}
+          >
+            Sign In Now
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

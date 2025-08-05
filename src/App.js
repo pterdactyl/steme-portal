@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useMsal } from "@azure/msal-react";
 
-import Login from "./Auth/login";
+import Login from "./Auth/Login";
 import { AuthContext } from "./Auth/AuthContext";
 
 import StudentNavbar from "./components/StudentNavbar";
@@ -16,7 +16,7 @@ import StudentDashboard from "./pages/Student/StudentDashboard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import ProfilePage from "./components/ProfilePage";
 
-import PrivateRoute from "./Auth/privateRoute";
+import PrivateRoute from "./Auth/PrivateRoute.js";
 import EditOutline from "./pages/Teacher/EditOutline";
 import ViewOutline from "./pages/Teacher/ViewOutline";
 import OutlineHistory from "./pages/Teacher/OutlineHistory"; 
@@ -67,6 +67,7 @@ export default function App() {
 
   return (
     <>
+      {/* Conditionally render navbar based on role */}
       {!hideNavbar &&
         (role === "admin" ? (
           <AdminNavbar user={user} />
