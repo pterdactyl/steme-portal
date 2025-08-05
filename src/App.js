@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useMsal } from "@azure/msal-react";
 
-import Login from "./Auth/Login";
+import Login from "./Auth/Login.js";
 import { AuthContext } from "./Auth/AuthContext";
 
 import StudentNavbar from "./components/StudentNavbar";
