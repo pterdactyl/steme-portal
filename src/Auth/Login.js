@@ -57,7 +57,7 @@ export default function Login() {
       px={2}
       sx={{
         position: "relative",
-        backgroundImage: 'url("/image.jpg")', // background image
+        backgroundImage: 'url("/classroom.jpg")', // background image
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
