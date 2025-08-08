@@ -77,6 +77,7 @@ router.get("/get-role", async (req, res) => {
     const result = await pool
       .request()
       .input("email", sql.VarChar, email)
+
       .query("SELECT role FROM Users WHERE email = @email");
 
     if (result.recordset.length === 0) {
