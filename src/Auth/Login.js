@@ -24,7 +24,7 @@ export default function Login() {
   const [showPopup, setShowPopup] = useState(true);
 
   // Portal preview images
-  const images = ["/steme3.png", "/steme2.png"];
+  const images = ["/steme3.png", "/steme2.png", "/steme4.png"];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handlePrev = () => {
@@ -131,7 +131,7 @@ export default function Login() {
             display="flex"
             alignItems="center"
             justifyContent="center"
-            maxWidth="1200px"
+            maxWidth="700px"
             mx="auto"
           >
             <IconButton
