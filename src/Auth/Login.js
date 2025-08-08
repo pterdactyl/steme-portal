@@ -24,7 +24,7 @@ export default function Login() {
   const [showPopup, setShowPopup] = useState(true);
 
   // Portal preview images
-  const images = ["/steme3.png", "/steme2.png", "/steme4.png"];
+  const images = ["/steme2.png", "/steme4.png", "/steme3.png"];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handlePrev = () => {
@@ -187,7 +187,7 @@ export default function Login() {
               maxWidth: 500,
             }}
           >
-            <Stack spacing={3} alignItems="center">
+            <Stack spacing={2} alignItems="center">
               <Box
                 component="img"
                 src="/steme.png"
