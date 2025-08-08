@@ -117,7 +117,7 @@ export default function StudentAnnouncements({ courseId }) {
                       day: "numeric",
                       hour: "numeric",
                       minute: "2-digit",
-                      hour12: false,
+                      hour12: true,
                     })}
                   </Typography>
                 </Box>

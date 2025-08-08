@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useMsal } from "@azure/msal-react";
-import { loginRequest } from "./azureAuth";
-import { useNavigate } from "react-router-dom";
+import { loginRequest } from "./AzureAuth";
 import {
   Box,
   Paper,
@@ -22,7 +21,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 export default function Login() {
   const { instance } = useMsal();
   const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [showPopup, setShowPopup] = useState(true);
 
   // Portal preview images
   const images = ["/steme3.png", "/steme2.png"];
